@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Toolbox — Prompt Engineering, AI Agent & Công cụ AI 2026</title>
+<style>
+  :root{
+    --bg:#0a0c10; --bg-soft:#12151d; --bg-card:#171b26; --border:#262c3b;
+    --text:#eef0f5; --text-dim:#8b93a7; --accent:#22d3ee; --accent2:#818cf8;
+    --code-bg:#0d0f16; --ok:#6bd68b; --warn:#f2c14e; --danger:#f47174; --info:#8b5cf6;
+    --radius:14px; --mono:'JetBrains Mono',Consolas,monospace;
+    --sans:'Inter','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;}
+
+  /* Top bar */
+  #topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 24px;background:rgba(10,12,16,.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  #topbar .brand{font-family:var(--mono);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  #topbar .brand-right{display:flex;align-items:center;gap:10px;}
+  #topbar a.home-btn{
+    display:flex;align-items:center;gap:6px;color:var(--text);text-decoration:none;
+    font-family:var(--mono);font-size:13px;background:var(--bg-card);border:1px solid var(--border);
+    padding:7px 14px;border-radius:100px;transition:border-color .2s ease,color .2s ease;
+  }
+  #topbar a.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+  #menu-toggle{
+    background:var(--bg-card);border:1px solid var(--border);color:var(--text);
+    width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;
+  }
+  #menu-toggle:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Slide-in mục lục sidebar */
+  #sidebar{
+    position:fixed;top:0;right:-320px;width:300px;height:100%;
+    background:var(--bg-soft);border-left:1px solid var(--border);
+    padding:22px 20px;z-index:60;transition:right .3s ease;overflow-y:auto;
+  }
+  #sidebar.open{right:0;}
+  #sidebar .sb-title{font-family:var(--mono);font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+  #sidebar .sb-close{background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
+  #sidebar a{display:block;color:var(--text);text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;margin-bottom:2px;}
+  #sidebar a:hover{background:var(--bg-card);color:var(--accent);}
+  #sidebar a.home-link{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:var(--accent2);font-family:var(--mono);font-size:13px;}
+  #overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55;display:none;}
+  #overlay.open{display:block;}
+
+  .crumb{max-width:920px;margin:18px auto 0;padding:0 24px;font-family:var(--mono);font-size:12.5px;color:var(--text-dim);}
+  .crumb a{color:var(--text-dim);text-decoration:none;}
+  .crumb a:hover{color:var(--accent);}
+
+  .wrap{max-width:920px;margin:0 auto;padding:24px 24px 100px;}
+  header.hero{padding:28px 0 32px;border-bottom:1px solid var(--border);margin-bottom:40px;}
+  .eyebrow{color:var(--accent);font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;}
+  h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;line-height:1.15;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{color:var(--text-dim);font-size:17px;max-width:640px;}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:20px;font-family:var(--mono);font-size:12.5px;color:var(--text-dim);}
+  .meta span{background:var(--bg-card);border:1px solid var(--border);padding:5px 12px;border-radius:100px;}
+  nav.toc{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-bottom:48px;}
+  nav.toc h2{margin:0 0 12px;font-size:14px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);}
+  nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px;}
+  nav.toc li{margin-bottom:8px;break-inside:avoid;}
+  nav.toc a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border);}
+  nav.toc a:hover{color:var(--accent);border-color:var(--accent);}
+  section{margin-bottom:64px;}
+  .part-label{font-family:var(--mono);color:var(--accent);font-size:13px;letter-spacing:.1em;text-transform:uppercase;}
+  h2{font-size:28px;margin:6px 0 8px;}
+  h2 .num{color:var(--accent2);margin-right:10px;}
+  .lead{color:var(--text-dim);font-size:16px;margin-bottom:28px;max-width:680px;}
+  h3{font-size:19px;margin:32px 0 12px;color:var(--text);}
+  h3 .dot{color:var(--accent);}
+  p{margin:0 0 16px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:18px 0;}
+  .card.ok{border-left:3px solid var(--ok);}
+  .card.warn{border-left:3px solid var(--warn);}
+  .card.info{border-left:3px solid var(--info);}
+  .card .tag{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin-bottom:8px;display:block;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;margin:14px 0 22px;}
+  code{font-family:var(--mono);font-size:.92em;color:var(--accent);}
+  pre code{color:var(--text);}
+  table{width:100%;border-collapse:collapse;margin:18px 0 26px;font-size:14.5px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{color:var(--accent);font-family:var(--mono);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;}
+  tr:last-child td{border-bottom:none;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 26px;}
+  @media(max-width:680px){.grid{grid-template-columns:1fr;} nav.toc ol{columns:1;}}
+  .tool{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .tool h4{margin:0 0 6px;font-size:15.5px;display:flex;align-items:center;gap:8px;}
+  .tool p{margin:0;font-size:13.5px;color:var(--text-dim);}
+  .badge{font-family:var(--mono);font-size:10.5px;background:rgba(34,211,238,.12);color:var(--accent);padding:2px 8px;border-radius:100px;}
+  .badge.purple{background:rgba(129,140,248,.14);color:var(--accent2);}
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:52px 0;}
+  ul{padding-left:22px;margin:0 0 18px;}
+  li{margin-bottom:8px;}
+  .refs{font-size:13px;color:var(--text-dim);}
+  .refs li{margin-bottom:6px;word-break:break-all;}
+  .refs a{color:var(--accent2);}
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);color:var(--text-dim);font-size:13px;}
+  .backtotop{display:inline-block;margin-top:8px;color:var(--accent);text-decoration:none;font-family:var(--mono);font-size:12px;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="brand">🤖 AI Agent Toolbox</span>
+  <div class="brand-right">
+    <a class="home-btn" href="../index.html">🏠 Trang chủ</a>
+    <button id="menu-toggle" aria-label="Mở mục lục" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('open');">☰</button>
+  </div>
+</div>
+
+<div id="overlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');">✕</button></div>
+  <a href="#p1">1. Prompt Engineering</a>
+  <a href="#p2">2. AI Agent &amp; Tool Use</a>
+  <a href="#p3">3. Multi-Agent Systems</a>
+  <a href="#p4">4. Bản đồ công cụ AI 2026</a>
+  <a href="#p5">5. Bảng tra cứu nhanh</a>
+  <a href="#p6">6. Nguồn tham khảo</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+  <a class="home-link" href="index.html" style="border-top:none;padding-top:0;">🤖 Mục lục AI Engineer (21 chương)</a>
+</aside>
+
+<div class="crumb">
+  <a href="../index.html">🏠 Trang chủ</a> ·
+  <a href="index.html">🤖 AI Engineer</a> ·
+  <span>AI Agent Toolbox</span>
+</div>
+
+<div class="wrap">
+
+<header class="hero" id="top">
+  <div class="eyebrow">AI Engineer — Tài liệu tổng hợp</div>
+  <h1>AI Agent Toolbox</h1>
+  <p class="sub">Gộp lại từ giáo trình AI Engineer của bạn (Prompt Engineering, AI Agent &amp; Tool Use, Multi-Agent Systems) và bổ sung bản đồ các công cụ/framework AI đang thịnh hành nhất tính đến giữa 2026.</p>
+  <div class="meta">
+    <span>📘 Nguồn: chương 9, 12, 17 — AI-Engineer-Full-Stack</span>
+    <span>🌐 Cập nhật công cụ: tháng 8/2026</span>
+    <span>🇻🇳 Tiếng Việt</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Mục lục</h2>
+  <ol>
+    <li><a href="#p1">Prompt Engineering — viết chỉ dẫn hiệu quả</a></li>
+    <li><a href="#p2">AI Agent &amp; Tool Use — LLM biết hành động</a></li>
+    <li><a href="#p3">Multi-Agent Systems — nhiều agent phối hợp</a></li>
+    <li><a href="#p4">Bản đồ công cụ AI thịnh hành 2026</a></li>
+    <li><a href="#p5">Bảng tra cứu nhanh &amp; lộ trình học tiếp</a></li>
+    <li><a href="#p6">Nguồn tham khảo</a></li>
+  </ol>
+</nav>
+
+<!-- PART 1 -->
+<section id="p1">
+  <div class="part-label">Phần 1 · Chương 9</div>
+  <h2><span class="num">01</span>Prompt Engineering cơ bản</h2>
+  <p class="lead">Kỹ năng viết prompt quyết định trực tiếp chất lượng câu trả lời của LLM — trước khi nói đến Agent hay công cụ, đây là kỹ năng nền phải nắm chắc.</p>
+
+  <h3><span class="dot">▸</span> System Prompt — định hình "vai trò" của mô hình</h3>
+  <p>System prompt là nơi bạn khai báo: mô hình đóng vai gì, phạm vi được trả lời, giọng văn, và cách xử lý khi câu hỏi ngoài phạm vi.</p>
+  <pre><code>response = client.messages.create(
+    model="claude-sonnet-5",
+    max_tokens=1000,
+    system="""Bạn là trợ lý hỗ trợ khách hàng của cửa hàng TechShop.
+Chỉ trả lời các câu hỏi về sản phẩm, đơn hàng, và chính sách của TechShop.
+Nếu khách hỏi ngoài phạm vi này, lịch sự từ chối và hướng dẫn liên hệ hotline.
+Luôn trả lời ngắn gọn, thân thiện, bằng tiếng Việt.""",
+    messages=[{"role": "user", "content": "Shop có bán laptop không?"}]
+)</code></pre>
+
+  <h3><span class="dot">▸</span> 4 kỹ thuật prompt hiệu quả</h3>
+  <table>
+    <tr><th>Kỹ thuật</th><th>Mô tả</th></tr>
+    <tr><td>Rõ ràng &amp; cụ thể</td><td>"Tóm tắt trong 3 gạch đầu dòng" tốt hơn "tóm tắt ngắn gọn"</td></tr>
+    <tr><td>Cho ví dụ (Few-shot)</td><td>Đưa 2–3 ví dụ mẫu về định dạng câu trả lời mong muốn</td></tr>
+    <tr><td>Yêu cầu suy luận từng bước</td><td>"Hãy suy nghĩ từng bước trước khi trả lời" cải thiện độ chính xác với bài toán phức tạp</td></tr>
+    <tr><td>Chỉ định định dạng đầu ra</td><td>"Trả lời dưới dạng JSON với các trường: ten, gia" giúp dễ xử lý bằng code</td></tr>
+  </table>
+
+  <pre><code>prompt = """Phân loại cảm xúc của các câu sau thành Tích cực/Tiêu cực/Trung lập.
+
+Câu: "Sản phẩm rất tốt, tôi rất hài lòng!"
+Cảm xúc: Tích cực
+
+Câu: "Giao hàng chậm quá, thất vọng."
+Cảm xúc: Tiêu cực
+
+Câu: "Sản phẩm đã tới, đóng gói bình thường."
+Cảm xúc: Trung lập
+
+Câu: "Chất lượng vượt ngoài mong đợi, sẽ ủng hộ tiếp!"
+Cảm xúc:"""   # để trống — LLM tự điền theo ĐÚNG định dạng ví dụ trên</code></pre>
+
+  <div class="card ok">
+    <span class="tag">💡 Mẹo</span>
+    Few-shot (cho vài ví dụ mẫu ngay trong prompt) thường cải thiện độ chính xác rõ rệt so với chỉ mô tả yêu cầu bằng lời — đặc biệt hữu ích khi cần LLM trả lời theo định dạng cố định, nhất quán.
+  </div>
+
+  <div class="card info">
+    <span class="tag">📌 Tổng kết</span>
+    System prompt định hình vai trò/giới hạn của mô hình. Few-shot, chain-of-thought (suy luận từng bước), và chỉ định định dạng đầu ra là 3 kỹ thuật cải thiện chất lượng câu trả lời nhanh nhất, áp dụng được cho mọi model (Claude, GPT, Gemini...).
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PART 2 -->
+<section id="p2">
+  <div class="part-label">Phần 2 · Chương 12</div>
+  <h2><span class="num">02</span>AI Agent &amp; Tool Use</h2>
+  <p class="lead">Bước tiến hóa tiếp theo sau chatbot: LLM không chỉ trả lời bằng văn bản mà còn có thể quyết định gọi hàm/công cụ để hành động.</p>
+
+  <h3><span class="dot">▸</span> Chatbot thường vs AI Agent</h3>
+  <table>
+    <tr><th>Tiêu chí</th><th>Chatbot thông thường</th><th>AI Agent</th></tr>
+    <tr><td>Đầu ra</td><td>Chỉ trả lời bằng văn bản</td><td>Có thể gọi hàm/công cụ để thực hiện hành động</td></tr>
+    <tr><td>Luồng xử lý</td><td>1 lượt hỏi – 1 lượt đáp</td><td>Lặp nhiều bước: suy nghĩ → hành động → quan sát → suy nghĩ tiếp (ReAct)</td></tr>
+    <tr><td>Ví dụ</td><td>"Hà Nội là thủ đô Việt Nam"</td><td>Tự gọi API thời tiết để trả lời "Hà Nội hôm nay bao nhiêu độ?"</td></tr>
+  </table>
+
+  <h3><span class="dot">▸</span> Tool Use (Function Calling) hoạt động ra sao?</h3>
+  <pre><code>def lay_thoi_tiet(thanh_pho):                # hàm THẬT do bạn định nghĩa
+    du_lieu = {"Hà Nội": "28°C, nhiều mây", "TP.HCM": "32°C, nắng"}
+    return du_lieu.get(thanh_pho, "Không có dữ liệu")
+
+cong_cu = [{
+    "name": "lay_thoi_tiet",
+    "description": "Lấy thông tin thời tiết hiện tại của một thành phố",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "thanh_pho": {"type": "string", "description": "Tên thành phố, VD: Hà Nội"}
+        },
+        "required": ["thanh_pho"]
+    }
+}]
+
+response = client.messages.create(
+    model="claude-sonnet-5", max_tokens=500,
+    tools=cong_cu,
+    messages=[{"role": "user", "content": "Hà Nội hôm nay thời tiết thế nào?"}]
+)
+
+if response.stop_reason == "tool_use":
+    for block in response.content:
+        if block.type == "tool_use" and block.name == "lay_thoi_tiet":
+            ket_qua = lay_thoi_tiet(block.input["thanh_pho"])   # code của bạn CHẠY hàm thật
+            # gửi ket_qua ngược lại cho LLM để nó soạn câu trả lời cuối cùng</code></pre>
+
+  <div class="card warn">
+    <span class="tag">⚠️ Quan trọng</span>
+    LLM <strong>không tự thực thi</strong> hàm — nó chỉ quyết định "cần gọi hàm nào, tham số gì" rồi trả yêu cầu đó về. Chương trình của bạn mới là nơi thực sự chạy hàm, sau đó gửi kết quả ngược lại để LLM tạo câu trả lời cuối cùng.
+  </div>
+
+  <h3><span class="dot">▸</span> Model Context Protocol (MCP) — chuẩn hoá việc kết nối tool</h3>
+  <p>Khai báo tay từng tool chỉ ổn với 1–2 công cụ. Từ cuối 2024, Anthropic phát hành <strong>MCP</strong> — một chuẩn mở (ví như "USB-C cho AI") để LLM khám phá và gọi công cụ từ các "MCP server" độc lập, không phụ thuộc model nào. Đến 2026, MCP đã được OpenAI, Anthropic, Google, Hugging Face... cùng chuẩn hoá, với hàng chục nghìn MCP server công khai (GitHub, Slack, PostgreSQL, Google Drive...). Ứng dụng hiện đại thường kết nối tới MCP server có sẵn thay vì tự viết tool bằng tay.</p>
+
+  <div class="card info">
+    <span class="tag">📌 Tổng kết</span>
+    AI Agent mở rộng chatbot bằng khả năng "tool use": LLM quyết định cần công cụ nào, chương trình thực thi thật, rồi gửi kết quả ngược lại để LLM hoàn thiện câu trả lời. MCP là hạ tầng chuẩn giúp việc này mở rộng dễ dàng.
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PART 3 -->
+<section id="p3">
+  <div class="part-label">Phần 3 · Chương 17</div>
+  <h2><span class="num">03</span>Multi-Agent Systems</h2>
+  <p class="lead">Nhiều AI Agent chuyên biệt phối hợp thay vì một Agent "biết tuốt" — giống tư duy Microservices trong System Design.</p>
+
+  <h3><span class="dot">▸</span> Vì sao cần nhiều Agent?</h3>
+  <p>Một Agent ôm quá nhiều tool/trách nhiệm dễ "quá tải": khó chọn đúng công cụ, dễ nhầm ngữ cảnh. Chia nhỏ thành các Agent chuyên biệt giúp mỗi Agent làm tốt một việc.</p>
+
+  <pre><code># Kiến trúc: 1 Agent điều phối (Orchestrator) + nhiều Agent chuyên biệt
+class AgentDieuPhoi:
+    def __init__(self):
+        self.agent_tim_kiem = AgentTimKiem()
+        self.agent_tinh_toan = AgentTinhToan()
+        self.agent_viet_bao_cao = AgentVietBaoCao()
+
+    def xu_ly(self, yeu_cau):
+        if "tìm kiếm" in yeu_cau.lower():
+            ket_qua = self.agent_tim_kiem.xu_ly(yeu_cau)
+        elif "tính" in yeu_cau.lower():
+            ket_qua = self.agent_tinh_toan.xu_ly(yeu_cau)
+        return ket_qua</code></pre>
+
+  <table>
+    <tr><th>Mô hình</th><th>Mô tả</th></tr>
+    <tr><td>Orchestrator–Worker</td><td>Một Agent điều phối chính, giao việc cho các Agent con chuyên biệt</td></tr>
+    <tr><td>Sequential (Tuần tự)</td><td>Agent A xử lý xong → chuyển kết quả cho B → rồi C</td></tr>
+    <tr><td>Debate / Review</td><td>Nhiều Agent giải độc lập, một Agent khác so sánh & chọn kết quả tốt nhất</td></tr>
+  </table>
+
+  <div class="card warn">
+    <span class="tag">⚠️ Cảnh báo</span>
+    Multi-Agent làm tăng <strong>chi phí</strong> (mỗi Agent = một lượt gọi LLM riêng) và <strong>độ trễ</strong> đáng kể — chỉ dùng khi bài toán thực sự cần chia nhỏ, không phải vì "nghe hiện đại hơn".
+  </div>
+
+  <p>Trong thực tế ít ai tự viết orchestrator từ đầu — các framework (LangGraph, CrewAI, Claude Agent SDK, OpenAI Agents SDK...) đã có sẵn cơ chế điều phối, quản lý trạng thái, truyền dữ liệu giữa các agent (xem Phần 4). Khi các Agent cần giao tiếp chéo giữa nhiều nhà cung cấp AI khác nhau, cộng đồng đang chuẩn hoá thêm giao thức <strong>A2A (Agent-to-Agent)</strong> — bổ sung cho MCP: MCP chuẩn hoá việc Agent gọi tool/dữ liệu, A2A chuẩn hoá việc Agent nói chuyện với Agent khác.</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- PART 4 -->
+<section id="p4">
+  <div class="part-label">Phần 4 · Cập nhật 08/2026</div>
+  <h2><span class="num">04</span>Bản đồ công cụ AI đang thịnh hành</h2>
+  <p class="lead">Tổng hợp từ các báo cáo/so sánh mới nhất (giữa 2026) — chia theo 4 nhóm: framework dựng Agent, coding agent, tự động hoá không-code, và công cụ sáng tạo đa phương tiện.</p>
+
+  <h3><span class="dot">▸</span> A. Framework xây dựng AI Agent</h3>
+  <div class="grid">
+    <div class="tool"><h4>Claude Agent SDK <span class="badge">Anthropic</span></h4><p>Được trích xuất từ chính Claude Code; mạnh về vòng đời agent, subagent phân cấp, chuỗi model dự phòng — lựa chọn tốt nếu stack đã dùng Claude.</p></div>
+    <div class="tool"><h4>LangGraph <span class="badge">LangChain</span></h4><p>Mô hình hoá agent dưới dạng đồ thị trạng thái (state graph); mạnh nhất về production, checkpoint, human-in-the-loop, "time-travel debugging".</p></div>
+    <div class="tool"><h4>CrewAI</h4><p>Thiết kế theo vai trò (role-based), dựng multi-agent nhanh nhất để prototype; cộng đồng lớn, hỗ trợ MCP &amp; A2A gốc.</p></div>
+    <div class="tool"><h4>OpenAI Agents SDK</h4><p>Kế thừa từ dự án Swarm; đơn giản, cơ chế "handoff" giữa các agent, tương thích 100+ model kể cả ngoài OpenAI.</p></div>
+    <div class="tool"><h4>Google ADK</h4><p>Mạnh về đa phương thức (multimodal) và hỗ trợ A2A; phù hợp hệ sinh thái Google/Gemini.</p></div>
+    <div class="tool"><h4>Microsoft Agent Framework</h4><p>Hợp nhất Semantic Kernel + AutoGen thành một SDK; lựa chọn chính cho stack .NET/enterprise Microsoft.</p></div>
+  </div>
+  <p style="font-size:14px;color:var(--text-dim);">Ngoài ra còn <strong>Mastra</strong>, <strong>Vercel AI SDK</strong> (mạnh cho stack TypeScript), <strong>Pydantic AI</strong>, <strong>LlamaIndex Workflows</strong> (agent gắn với RAG), và <strong>n8n</strong> — framework dạng workflow, không thuần Python. Xu hướng chung: các đội production hiện đang <em>gán model theo từng tác vụ</em> (model đắt để lập kế hoạch, model rẻ để thực thi song song) thay vì chọn một model duy nhất cho toàn bộ agent.</p>
+
+  <h3><span class="dot">▸</span> B. Coding Agent — AI viết code</h3>
+  <table>
+    <tr><th>Công cụ</th><th>Điểm mạnh</th></tr>
+    <tr><td>Claude Code</td><td>Terminal-first, lý luận sâu, refactor kiến trúc lớn, dẫn đầu benchmark SWE-bench Verified</td></tr>
+    <tr><td>Cursor</td><td>IDE AI-native, autocomplete nhanh, trải nghiệm mượt cho việc "sửa nhỏ mỗi ngày"</td></tr>
+    <tr><td>GitHub Copilot</td><td>Phổ biến nhất, tích hợp sâu vào VS Code, có Agent Mode</td></tr>
+    <tr><td>Codex (OpenAI)</td><td>Agent mã nguồn của OpenAI, mạnh về tác vụ terminal dài hơi</td></tr>
+    <tr><td>Windsurf / Cline / OpenCode</td><td>Windsurf (Cascade) mạnh với codebase lớn; Cline &amp; OpenCode là lựa chọn mã nguồn mở phổ biến</td></tr>
+    <tr><td>Replit Agent, Devin</td><td>Agent tự lập kế hoạch – viết – test – triển khai cả ứng dụng trong môi trường cloud</td></tr>
+  </table>
+  <div class="card ok"><span class="tag">💡 Ghi chú</span>Xu hướng 2026: ranh giới "trợ lý gợi ý dòng code" và "agent tự trị nhiều bước, sửa nhiều file, tự chạy test" gần như đã biến mất — hầu hết công cụ hàng đầu giờ đều có chế độ agent thật sự.</div>
+
+  <h3><span class="dot">▸</span> C. Tự động hoá không cần code (No-code Agent)</h3>
+  <p><strong>n8n</strong>, <strong>Make</strong>, <strong>Zapier</strong> — dựng workflow AI bằng kéo-thả, kết nối agent với hàng trăm ứng dụng khác mà không cần viết code, phù hợp cho automation nội bộ doanh nghiệp hoặc cá nhân không rành lập trình.</p>
+
+  <h3><span class="dot">▸</span> D. Công cụ sáng tạo đa phương tiện (ảnh / video / thiết kế)</h3>
+  <div class="grid">
+    <div class="tool"><h4>Runway, Kling, Veo, Luma Ray</h4><p>Các mô hình text-to-video/ image-to-video hàng đầu, chất lượng điện ảnh, hỗ trợ chuyển động camera phức tạp.</p></div>
+    <div class="tool"><h4>Leonardo, Adobe Firefly</h4><p>Sinh ảnh có kiểm soát cao, huấn luyện model riêng, render chữ trong ảnh tốt.</p></div>
+    <div class="tool"><h4>Krea, Freepik AI</h4><p>Nền tảng tổng hợp nhiều model ảnh/video/3D, workflow dạng node, phù hợp pipeline lặp lại.</p></div>
+    <div class="tool"><h4>Canva AI, CapCut</h4><p>Thiết kế &amp; dựng video AI cho người không chuyên, tích hợp sẵn trong công cụ quen thuộc.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PART 5 -->
+<section id="p5">
+  <div class="part-label">Phần 5</div>
+  <h2><span class="num">05</span>Bảng tra cứu nhanh &amp; đi tiếp</h2>
+  <table>
+    <tr><th>Muốn làm gì?</th><th>Bắt đầu từ đâu?</th></tr>
+    <tr><td>Viết prompt tốt hơn ngay hôm nay</td><td>System prompt rõ vai trò + few-shot + yêu cầu suy luận từng bước (Phần 1)</td></tr>
+    <tr><td>Cho chatbot "làm việc thật" (gọi API, tra dữ liệu)</td><td>Tool use / function calling, sau đó cân nhắc MCP (Phần 2)</td></tr>
+    <tr><td>Bài toán quá phức tạp cho 1 Agent</td><td>Multi-Agent — nhưng cân đo chi phí trước (Phần 3)</td></tr>
+    <tr><td>Dựng agent production nghiêm túc</td><td>Claude Agent SDK / LangGraph / CrewAI tuỳ stack (Phần 4A)</td></tr>
+    <tr><td>Tự động hoá công việc lập trình</td><td>Claude Code hoặc Cursor (Phần 4B)</td></tr>
+    <tr><td>Không biết code nhưng cần automation</td><td>n8n / Make / Zapier (Phần 4C)</td></tr>
+  </table>
+  <a class="backtotop" href="#top">↑ Về đầu trang</a>
+</section>
+
+<!-- PART 6 -->
+<section id="p6">
+  <div class="part-label">Phần 6</div>
+  <h2><span class="num">06</span>Nguồn tham khảo (công cụ AI, cập nhật 08/2026)</h2>
+  <ul class="refs">
+    <li>Vellum — Best AI Coding Agents 2026 — <a href="https://www.vellum.ai/blog/best-ai-coding-agents">vellum.ai</a></li>
+    <li>Faros AI — Best AI Coding Agents for 2026 — <a href="https://www.faros.ai/blog/best-ai-coding-agents-2026">faros.ai</a></li>
+    <li>Levelop — Best AI Coding Agents 2026 — <a href="https://levelop.dev/blog/the-best-ai-coding-agents-in-2026-a-practical-ranking-for-working-developers">levelop.dev</a></li>
+    <li>MightyBot — Best AI Coding Agents in 2026, Ranked — <a href="https://mightybot.ai/blog/coding-ai-agents-for-accelerating-engineering-workflows/">mightybot.ai</a></li>
+    <li>Firecrawl — Best open source agent frameworks 2026 — <a href="https://www.firecrawl.dev/blog/best-open-source-agent-frameworks">firecrawl.dev</a></li>
+    <li>Let's Data Science — AI Agent Frameworks 2026 — <a href="https://letsdatascience.com/blog/ai-agent-frameworks-compared">letsdatascience.com</a></li>
+    <li>QubitTool — 2026 AI Agent Framework Showdown — <a href="https://qubittool.com/blog/ai-agent-framework-comparison-2026">qubittool.com</a></li>
+    <li>Alice Labs — Best AI Agent Frameworks 2026 — <a href="https://alicelabs.ai/en/insights/best-ai-agent-frameworks-2026">alicelabs.ai</a></li>
+    <li>Respan — 12 Best AI Agent Frameworks in 2026 — <a href="https://www.respan.ai/articles/best-ai-agent-frameworks">respan.ai</a></li>
+    <li>Synthesia — Best AI Video Generators 2026 — <a href="https://www.synthesia.io/post/best-ai-video-generators">synthesia.io</a></li>
+    <li>Pixazo — Best AI Image Generators 2026 — <a href="https://www.pixazo.ai/blog/best-ai-image-video-generators">pixazo.ai</a></li>
+    <li>DataCamp — 40 Best Free AI Tools in 2026 — <a href="https://www.datacamp.com/blog/free-ai-tools">datacamp.com</a></li>
+  </ul>
+</section>
+
+<footer>
+  Tài liệu tổng hợp từ giáo trình <em>AI-Engineer-Full-Stack</em> (chương 9, 12, 17) của bạn + dữ liệu tìm kiếm web tháng 8/2026. Công cụ AI thay đổi rất nhanh — nên kiểm tra lại thông tin giá/tính năng trực tiếp trên trang chủ mỗi công cụ trước khi quyết định dùng lâu dài.
+</footer>
+
+</div>
+</body>
+</html>

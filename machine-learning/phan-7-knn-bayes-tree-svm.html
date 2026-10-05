@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 7 · KNN, Naive Bayes, Decision Tree &amp; SVM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 7</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
+      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html" class="active"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 7</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 7</a></li>
+      <li><a href="#chuong-22"><span class="num">22</span> K-Nearest Neighbors (KNN)</a></li>
+      <li><a href="#chuong-23"><span class="num">23</span> Naive Bayes</a></li>
+      <li><a href="#chuong-24"><span class="num">24</span> Decision Tree</a></li>
+      <li><a href="#chuong-25"><span class="num">25</span> Support Vector Machine (SVM)</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">26</span> Ensemble Learning</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">27</span> Random Forest</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 7. KNN, Bayes, Tree, SVM</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 7 / N — Mở rộng bộ công cụ Supervised Learning</span>
+        <h1>Bốn "trường phái" tư duy khác nhau<br>để giải cùng một bài toán</h1>
+        <p class="lead">Linear/Logistic Regression tìm một đường/ranh giới toàn cục. Phần 7 giới thiệu 4 thuật toán với triết lý hoàn toàn khác:
+        <b>KNN</b> ("hỏi hàng xóm gần nhất"), <b>Naive Bayes</b> (dựa trên xác suất — nhớ lại định lý Bayes ở Chương 8),
+        <b>Decision Tree</b> (chuỗi câu hỏi if-else), và <b>SVM</b> (tìm ranh giới có "lề" rộng nhất). Mỗi thuật toán phù hợp với một kiểu bài toán khác nhau.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-6 ✓</text></g>
+              <g>
+                <circle cx="240" cy="110" r="15" fill="#0D9488"/><circle cx="240" cy="110" r="6" fill="#fff"/>
+                <text x="240" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 22</text>
+                <text x="240" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">KNN</text>
+              </g>
+              <g>
+                <circle cx="400" cy="110" r="15" fill="#0D9488"/><circle cx="400" cy="110" r="6" fill="#fff"/>
+                <text x="400" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 23</text>
+                <text x="400" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Naive Bayes</text>
+              </g>
+              <g>
+                <circle cx="560" cy="110" r="15" fill="#5B4EE5"/><circle cx="560" cy="110" r="6" fill="#fff"/>
+                <text x="560" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 24</text>
+                <text x="560" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Decision Tree</text>
+              </g>
+              <g>
+                <circle cx="720" cy="110" r="15" fill="#5B4EE5"/><circle cx="720" cy="110" r="6" fill="#fff"/>
+                <text x="720" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 25</text>
+                <text x="720" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">SVM</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 8 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">4 "ga" của Phần 7 — mỗi ga là một triết lý thuật toán khác nhau.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Không có thuật toán nào "tốt nhất" tuyệt đối</div>
+        Đây là nguyên lý <b>"No Free Lunch"</b> trong ML: không thuật toán nào luôn thắng mọi bài toán. Mục tiêu của Phần 7 là giúp bạn có đủ
+        "vốn từ vựng" thuật toán để chọn công cụ phù hợp nhất cho từng tình huống cụ thể — dựa trên kích thước dữ liệu, độ phi tuyến, và yêu cầu về khả năng diễn giải.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 22: KNN -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-22">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">22</div>
+            <div>
+              <h2>K-Nearest Neighbors (KNN)</h2>
+              <div class="ch-sub">"Hãy cho tôi biết bạn của bạn là ai, tôi sẽ nói bạn là người thế nào"</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>22.1. Trực giác: phân loại dựa trên "hàng xóm gần nhất"</h3>
+            <p>KNN là thuật toán đơn giản nhất về mặt ý tưởng: để dự đoán nhãn của một điểm dữ liệu mới, tìm <code>k</code> điểm dữ liệu <b>gần nó nhất</b> trong tập huấn luyện
+            (dùng norm/khoảng cách Euclid đã học ở Chương 6), rồi lấy nhãn <b>phổ biến nhất</b> trong số đó (với Classification) hoặc <b>trung bình</b> (với Regression).</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 360 220" width="320">
+                <circle cx="180" cy="120" r="70" fill="none" stroke="var(--violet)" stroke-dasharray="4 3"/>
+                <circle cx="120" cy="90" r="6" fill="var(--teal)"/>
+                <circle cx="150" cy="140" r="6" fill="var(--teal)"/>
+                <circle cx="200" cy="80" r="6" fill="var(--rose)"/>
+                <circle cx="220" cy="150" r="6" fill="var(--teal)"/>
+                <circle cx="90" cy="180" r="6" fill="var(--rose)"/>
+                <circle cx="260" cy="60" r="6" fill="var(--rose)"/>
+                <circle cx="60" cy="60" r="6" fill="var(--rose)"/>
+                <circle cx="180" cy="120" r="8" fill="var(--amber)" stroke="#fff" stroke-width="2"/>
+                <text x="180" y="205" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Space Grotesk">Điểm mới (●) — xét k=3 hàng xóm gần nhất</text>
+              </svg>
+              <div class="diagram-caption">Với k=3, 3 điểm gần nhất quyết định nhãn của điểm mới (đa số ở đây quyết định lớp).</div>
+            </div>
+
+            <p>"Gần nhất" ở trên mặc định dùng khoảng cách Euclidean (norm — Chương 6), nhưng đó chỉ là một trong nhiều lựa chọn đo khoảng cách:</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Distance Metric</th><th>Công thức / Ý nghĩa</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Euclidean</b> (p=2)</td><td>Khoảng cách đường thẳng thông thường — phổ biến nhất, mặc định trong KNN.</td></tr>
+                  <tr><td><b>Manhattan</b> (p=1)</td><td>Tổng trị tuyệt đối hiệu từng chiều — như đi theo các ô bàn cờ/đường phố dạng lưới, không đi được đường chéo.</td></tr>
+                  <tr><td><b>Minkowski</b></td><td>Công thức tổng quát hóa cả Euclidean (p=2) và Manhattan (p=1) — chọn giá trị p bất kỳ để nội suy giữa hai loại trên.</td></tr>
+                  <tr><td><b>Hamming</b></td><td>Đếm số vị trí khác nhau giữa 2 chuỗi — dùng cho dữ liệu categorical/nhị phân, không phải dữ liệu số liên tục.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="box tip">
+              <div class="box-title">💡 scikit-learn dùng Minkowski làm mặc định</div>
+              <code>KNeighborsClassifier(metric='minkowski', p=2)</code> chính là Euclidean (p=2); đổi <code>p=1</code> sẽ thành Manhattan — không cần đổi hẳn <code>metric</code>, chỉ cần chỉnh tham số <code>p</code> nhờ Minkowski là công thức tổng quát.
+            </div>
+
+            <h3>22.2. KNN là "Lazy Learning" — không thực sự "học" gì cả</h3>
+            <p>Khác với Linear/Logistic Regression (phải tối ưu hóa tham số qua Gradient Descent), KNN <b>không có giai đoạn huấn luyện thực sự</b> —
+            nó chỉ lưu lại toàn bộ dữ liệu train, và mọi tính toán (tìm hàng xóm) chỉ xảy ra tại thời điểm dự đoán. Vì vậy KNN được gọi là <b>"lazy learner"</b>, khác với các mô hình "eager learner" khác.</p>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+np.random.seed(0)
+# Dữ liệu: [gio_hoc, so_bai_tap_lam] -> nhan: dau (1) / rot (0)
+X = np.random.rand(200, 2) * 10
+y = ((X[:,0] + X[:,1]) > 10).astype(int)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# QUAN TRỌNG: luôn scale dữ liệu trước khi dùng KNN (Chương 13)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+y_pred = knn.predict(X_test_scaled)
+print("Accuracy:", accuracy_score(y_test, y_pred))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>StandardScaler()</code> — bắt buộc với KNN vì thuật toán dựa hoàn toàn vào <b>khoảng cách</b>; nếu một cột có thang đo lớn hơn nhiều, nó sẽ "áp đảo" khoảng cách một cách không công bằng (nhắc lại Chương 13).</li>
+                <li><code>KNeighborsClassifier(n_neighbors=5)</code> — tham số <code>n_neighbors</code> (chính là <code>k</code>) là siêu tham số quan trọng nhất, cần tinh chỉnh qua cross-validation.</li>
+                <li><code>knn.fit(...)</code> — với KNN, bước này chỉ đơn giản là "ghi nhớ" dữ liệu train, không có quá trình tối ưu hóa nào.</li>
+              </ol>
+            </div>
+
+            <h3>22.3. Chọn giá trị k như thế nào?</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>k</th><th>Hiện tượng</th></tr></thead>
+                <tbody>
+                  <tr><td>k quá nhỏ (ví dụ k=1)</td><td>Nhạy cảm với nhiễu, dễ overfitting — ranh giới quyết định rất "gồ ghề"</td></tr>
+                  <tr><td>k quá lớn</td><td>Ranh giới quá mượt, có thể underfitting, và tính toán chậm hơn</td></tr>
+                  <tr><td>k phù hợp</td><td>Thường chọn qua thử nghiệm nhiều giá trị bằng cross-validation; k lẻ giúp tránh hòa phiếu khi phân loại nhị phân</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Nhược điểm lớn nhất của KNN</div>
+              Vì phải tính khoảng cách tới <i>toàn bộ</i> điểm dữ liệu train mỗi khi dự đoán, KNN <b>rất chậm với dữ liệu lớn</b> và tốn nhiều bộ nhớ (phải lưu toàn bộ tập train). Đây là lý do KNN thường không phải lựa chọn đầu tiên cho các bài toán production quy mô lớn.
+            </div>
+
+            <h3>22.4. "Lời nguyền chiều dữ liệu" (Curse of Dimensionality)</h3>
+            <p>KNN gặp thêm một vấn đề tinh vi hơn khi số chiều (số đặc trưng) tăng lên: trong không gian rất nhiều chiều, khái niệm "gần nhau" dần <b>mất ý nghĩa</b>. Khi số chiều tăng, khoảng cách giữa điểm gần nhất và điểm xa nhất trong tập dữ liệu ngày càng <i>xích lại gần nhau</i> về mặt tỉ lệ — tức là mọi điểm dần trở nên "xa nhau gần như bằng nhau", khiến việc chọn ra "hàng xóm gần nhất" thực sự trở nên kém tin cậy.</p>
+            <div class="box tip">
+              <div class="box-title">💡 Trực giác đơn giản</div>
+              Với 2-3 chiều, "gần" là khái niệm rõ ràng (như trên bản đồ). Nhưng thử tưởng tượng một khối lập phương nhiều chiều: càng nhiều chiều, phần lớn "thể tích" của khối lập phương càng dồn về các góc/rìa thay vì ở giữa — dữ liệu ngẫu nhiên trong không gian đó có xu hướng nằm rải rác gần các "góc", khiến khoảng cách giữa các điểm trở nên đồng đều một cách bất thường.
+            </div>
+            <div class="box important">
+              <div class="box-title">🔴 Liên hệ ngược lại: vì sao RAG/vector search vẫn hoạt động tốt dù embedding có hàng trăm chiều?</div>
+              Đây là câu hỏi tự nhiên nhớ lại phần liên hệ RAG (Chương 45) đã nhắc ở cuối chương này: embedding thường có 384-1536 chiều — vậy Curse of Dimensionality có làm hỏng việc tìm kiếm ngữ nghĩa không? Trong thực tế, embedding hoạt động tốt vì dữ liệu ngôn ngữ tự nhiên không "trải đều ngẫu nhiên" khắp không gian nhiều chiều đó, mà tập trung gần một "đa tạp" (manifold) chiều thấp hơn nhiều bên trong không gian lớn — các mô hình embedding được huấn luyện chính để tạo ra cấu trúc tập trung như vậy, giúp cosine similarity vẫn phản ánh đúng độ liên quan ngữ nghĩa dù số chiều danh nghĩa rất lớn.
+            </div>
+
+            <h3>22.5. Recommender System — ứng dụng thực tế nổi tiếng nhất của "hàng xóm gần nhất"</h3>
+            <p>"Có thể bạn cũng thích..." trên Shopee/Netflix/Spotify phần lớn dựa trên <b>Collaborative Filtering</b> — về bản chất, chính là KNN áp dụng lên ma trận người dùng × sản phẩm, thay vì ma trận đặc trưng × nhãn thông thường.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Cách tiếp cận</th><th>Nguyên lý</th></tr></thead>
+                <tbody>
+                  <tr><td><b>User-based CF</b></td><td>Tìm những người dùng "gần giống" bạn nhất (dựa trên lịch sử đánh giá/mua hàng) — gợi ý những gì họ thích mà bạn chưa xem.</td></tr>
+                  <tr><td><b>Item-based CF</b></td><td>Tìm những sản phẩm "gần giống" sản phẩm bạn vừa xem/mua (dựa trên việc những người khác mua chúng cùng nhau) — gợi ý sản phẩm tương tự.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Ma trận đánh giá: mỗi dòng 1 người dùng, mỗi cột 1 phim, giá trị = điểm đánh giá (0 = chưa xem)
+ma_tran_danh_gia = np.array([
+    [5, 4, 0, 1],   # Người dùng A
+    [4, 5, 0, 1],   # Người dùng B - khá giống A
+    [1, 1, 5, 4],   # Người dùng C - gu khác hẳn
+])
+
+# Độ giống nhau giữa các người dùng - CHÍNH LÀ cosine similarity đã học ở Chương 6
+do_giong_nhau = cosine_similarity(ma_tran_danh_gia)
+print(do_giong_nhau.round(2))
+# do_giong_nhau[0] cho biết A giống B và C tới mức nào -> dùng để gợi ý phim B thích mà A chưa xem</code></pre>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Sợi dây liên kết xuyên suốt giáo trình</div>
+              Không phải ngẫu nhiên mà Recommender System, KNN, và RAG (Chương 45) đều dựa trên cùng một ý tưởng "tìm hàng xóm gần nhất bằng cosine similarity" (Chương 6) — đây là một trong những nguyên lý toán học nền tảng nhất, xuất hiện lặp lại ở rất nhiều ứng dụng AI tưởng chừng không liên quan tới nhau. Với dữ liệu lớn, các Recommender System hiện đại thường kết hợp thêm Matrix Factorization (liên hệ PCA — Chương 31) hoặc mạng nơ-ron (Phần 16) để cải thiện độ chính xác hơn Collaborative Filtering thuần túy.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với dữ liệu ở mục 22.2, thử huấn luyện KNN với <code>n_neighbors=1</code> và <code>n_neighbors=50</code>, so sánh accuracy trên tập test. Giải thích kết quả.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>for k in [1, 50]:
+    knn_k = KNeighborsClassifier(n_neighbors=k)
+    knn_k.fit(X_train_scaled, y_train)
+    acc = accuracy_score(y_test, knn_k.predict(X_test_scaled))
+    print(f"k={k}: accuracy = {acc:.3f}")
+# k=1 thường overfit (khớp nhiễu train), k=50 có thể underfit (quá mượt)</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng KNN trực tiếp trên dữ liệu có hàng trăm ngàn dòng mà không cân nhắc chi phí tính toán tại thời điểm dự đoán.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn thử nhiều giá trị k qua cross-validation thay vì chọn ngẫu nhiên hoặc mặc định.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 22</h4>
+              <ul>
+                <li>KNN dự đoán dựa trên đa số/trung bình của k điểm gần nhất, không có giai đoạn "học" tham số thực sự.</li>
+                <li>Bắt buộc phải scale dữ liệu vì thuật toán hoàn toàn dựa trên khoảng cách.</li>
+                <li>k nhỏ dễ overfitting, k lớn dễ underfitting; chi phí tính toán cao với dữ liệu lớn.</li>
+                <li>Curse of Dimensionality: càng nhiều chiều, khái niệm "gần nhau" càng kém tin cậy — nên cân nhắc giảm chiều (PCA - Chương 31) trước khi dùng KNN với dữ liệu nhiều đặc trưng.</li>
+                <li>Recommender System (Collaborative Filtering) là ứng dụng thực tế của KNN + cosine similarity lên ma trận người dùng × sản phẩm.</li>
+              </ul>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — KNN chính là thuật toán lõi đứng sau bước "Retrieval" trong RAG</div>
+              Nghe có vẻ bất ngờ, nhưng bước quan trọng nhất trong RAG (Chương 45) — "tìm những đoạn văn bản liên quan nhất tới câu hỏi" — về bản chất toán học <b>chính là bài toán KNN</b> mà bạn vừa học, chỉ khác vài điểm áp dụng thực tế:
+              <ul>
+                <li>Thay vì đo khoảng cách Euclidean giữa các điểm dữ liệu dạng số, hệ thống RAG đo <b>cosine similarity</b> (Chương 6) giữa các embedding vector đại diện cho câu văn.</li>
+                <li>Thay vì tìm "k hàng xóm gần nhất" trong vài nghìn dòng dữ liệu, RAG cần tìm gần nhất trong hàng triệu vector — nên dùng các thuật toán "xấp xỉ" nhanh hơn (Approximate Nearest Neighbor - ANN) như HNSW, thay vì so sánh tuần tự với từng điểm như KNN cổ điển.</li>
+                <li>Vì lý do đó, hầu hết <b>vector database</b> (đã nhắc ở Chương 31) thực chất là "KNN được tối ưu hóa để chạy nhanh ở quy mô cực lớn".</li>
+              </ul>
+              💡 Hiểu đúng: RAG không phải một kỹ thuật hoàn toàn mới, mà là áp dụng lại ý tưởng "hàng xóm gần nhất" — vốn rất cũ và đơn giản — lên một loại dữ liệu mới (embedding vector) với quy mô lớn hơn nhiều.
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 23: NAIVE BAYES -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-23">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">23</div>
+            <div>
+              <h2>Naive Bayes</h2>
+              <div class="ch-sub">Áp dụng trực tiếp định lý Bayes (Chương 8) vào bài toán phân loại</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>23.1. Vì sao gọi là "Naive" (ngây thơ)?</h3>
+            <p>Naive Bayes dùng định lý Bayes để tính xác suất một mẫu thuộc mỗi lớp, dựa trên các đặc trưng đầu vào. Điểm "ngây thơ" nằm ở giả định:
+            <b>các đặc trưng độc lập với nhau</b> khi biết trước lớp (class). Giả định này gần như không bao giờ đúng hoàn toàn trong thực tế
+            (ví dụ "số từ viết hoa" và "có link" trong email spam thường có liên hệ), nhưng thuật toán vẫn hoạt động ngạc nhiên tốt trong nhiều trường hợp.</p>
+
+            <h3>23.2. Công thức</h3>
+            <p>Với đặc trưng <code>x₁, x₂, ..., xₙ</code> và lớp <code>C</code>, Naive Bayes chọn lớp có xác suất posterior lớn nhất:</p>
+            <div class="box note" style="text-align:center;font-family:'JetBrains Mono';font-size:14px;">
+              P(C|x₁,...,xₙ) ∝ P(C) · P(x₁|C) · P(x₂|C) · ... · P(xₙ|C)
+            </div>
+            <p>Nhờ giả định độc lập, xác suất kết hợp phức tạp <code>P(x₁,...,xₙ|C)</code> được đơn giản hóa thành tích các xác suất riêng lẻ — dễ tính toán hơn rất nhiều.</p>
+
+            <h3>23.3. Ví dụ minh họa: phân loại spam</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+
+emails = [
+    "trung thuong ngay hom nay nhan qua mien phi",
+    "hop nhom vao 3 gio chieu mai o phong hop A",
+    "ban da trung giai doc dac click ngay",
+    "bao cao du an tuan nay dinh kem file excel",
+    "khuyen mai soc giam gia 90 phan tram hom nay",
+    "nhac nho lich hop voi khach hang ngay mai"
+]
+nhan = [1, 0, 1, 0, 1, 0]   # 1 = spam, 0 = khong spam
+
+# Chuyển văn bản thành vector số đếm từ (Bag-of-Words)
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(emails)
+
+X_train, X_test, y_train, y_test = train_test_split(X, nhan, test_size=0.34, random_state=1)
+
+model = MultinomialNB()
+model.fit(X_train, y_train)
+print("Accuracy:", accuracy_score(y_test, model.predict(X_test)))
+
+# Dự đoán email mới
+email_moi = vectorizer.transform(["nhan ngay qua tang mien phi hom nay"])
+print("Dự đoán:", "Spam" if model.predict(email_moi)[0] == 1 else "Không spam")
+print("Xác suất spam:", model.predict_proba(email_moi)[0][1])</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>CountVectorizer()</code> — chuyển mỗi email thành vector đếm số lần xuất hiện từng từ (kỹ thuật Bag-of-Words), biến văn bản thành dạng số Naive Bayes có thể xử lý.</li>
+                <li><code>MultinomialNB()</code> — biến thể Naive Bayes phù hợp với dữ liệu đếm (như số lần xuất hiện từ), phổ biến nhất cho bài toán văn bản.</li>
+                <li><code>model.predict_proba(...)</code> — trả về xác suất thuộc từng lớp, áp dụng trực tiếp định lý Bayes đã học ở Chương 8: từ prior + likelihood của từng từ, suy ra posterior.</li>
+              </ol>
+            </div>
+
+            <h3>23.4. Các biến thể Naive Bayes phổ biến</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Biến thể</th><th>Phù hợp với loại dữ liệu</th></tr></thead>
+                <tbody>
+                  <tr><td><b>GaussianNB</b></td><td>Đặc trưng số liên tục, giả định phân phối chuẩn (Chương 8)</td></tr>
+                  <tr><td><b>MultinomialNB</b></td><td>Dữ liệu đếm (số lần xuất hiện), phổ biến trong xử lý văn bản</td></tr>
+                  <tr><td><b>BernoulliNB</b></td><td>Đặc trưng nhị phân (có/không xuất hiện)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Vì sao Naive Bayes vẫn phổ biến dù giả định "ngây thơ"?</div>
+              Naive Bayes cực kỳ <b>nhanh</b> (cả huấn luyện lẫn dự đoán), hoạt động tốt với dữ liệu chiều cao (như văn bản với hàng chục ngàn từ vựng), và cần ít dữ liệu huấn luyện hơn nhiều thuật toán khác để đạt hiệu năng ổn — vẫn là baseline rất mạnh cho bài toán phân loại văn bản, lọc spam.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Thêm câu email mới "khuyen mai mua 1 tang 1 hom nay" vào tập dữ liệu huấn luyện (gán nhãn spam=1), huấn luyện lại và dự đoán cho câu "giam gia soc hom nay".</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>emails2 = emails + ["khuyen mai mua 1 tang 1 hom nay"]
+nhan2 = nhan + [1]
+
+X2 = vectorizer.fit_transform(emails2)
+model2 = MultinomialNB()
+model2.fit(X2, nhan2)
+
+cau_moi = vectorizer.transform(["giam gia soc hom nay"])
+print("Dự đoán:", "Spam" if model2.predict(cau_moi)[0] == 1 else "Không spam")</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng GaussianNB cho dữ liệu đếm/văn bản (nên dùng MultinomialNB), khiến giả định phân phối không phù hợp với bản chất dữ liệu.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Dùng Naive Bayes làm mô hình baseline nhanh trước khi thử các thuật toán phức tạp hơn, đặc biệt với dữ liệu văn bản.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 23</h4>
+              <ul>
+                <li>Naive Bayes áp dụng định lý Bayes với giả định các đặc trưng độc lập khi biết lớp.</li>
+                <li>Rất nhanh, hiệu quả với dữ liệu chiều cao như văn bản, dù giả định độc lập hiếm khi đúng hoàn toàn.</li>
+                <li>3 biến thể chính: GaussianNB (số liên tục), MultinomialNB (đếm), BernoulliNB (nhị phân).</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 24: DECISION TREE -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-24">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">24</div>
+            <div>
+              <h2>Decision Tree (Cây quyết định)</h2>
+              <div class="ch-sub">Chuỗi câu hỏi if-else được học tự động từ dữ liệu</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>24.1. Trực giác: cây câu hỏi Có/Không</h3>
+            <p>Decision Tree xây dựng một cấu trúc cây, mỗi <b>node</b> là một câu hỏi kiểm tra 1 đặc trưng (ví dụ "tuổi &gt; 30?"), mỗi nhánh dẫn tới node con,
+            và mỗi <b>lá (leaf)</b> là kết quả dự đoán cuối cùng. Đây là thuật toán ML <i>dễ diễn giải nhất</i> — con người có thể đọc hiểu từng quyết định.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 500 220" width="100%">
+                <g font-family="Inter" font-size="11">
+                  <rect x="190" y="10" width="120" height="40" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="250" y="34" text-anchor="middle">Thu nhập &gt; 20tr?</text>
+
+                  <rect x="60" y="90" width="120" height="40" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
+                  <text x="120" y="114" text-anchor="middle">Tuổi &gt; 40?</text>
+
+                  <rect x="320" y="90" width="120" height="40" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
+                  <text x="380" y="108" text-anchor="middle" font-weight="700">Duyệt vay</text>
+                  <text x="380" y="122" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
+
+                  <rect x="10" y="170" width="100" height="40" rx="8" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <text x="60" y="188" text-anchor="middle" font-weight="700">Từ chối</text>
+                  <text x="60" y="202" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
+
+                  <rect x="130" y="170" width="100" height="40" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
+                  <text x="180" y="188" text-anchor="middle" font-weight="700">Duyệt vay</text>
+                  <text x="180" y="202" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
+
+                  <text x="140" y="70" font-size="10" fill="var(--muted)">Không</text>
+                  <text x="330" y="70" font-size="10" fill="var(--muted)">Có</text>
+                  <text x="55" y="155" font-size="10" fill="var(--muted)">Không</text>
+                  <text x="180" y="155" font-size="10" fill="var(--muted)">Có</text>
+                </g>
+                <g stroke="var(--muted)" stroke-width="1.5" fill="none">
+                  <path d="M220,50 L140,90"/>
+                  <path d="M280,50 L370,90"/>
+                  <path d="M100,130 L60,170"/>
+                  <path d="M140,130 L180,170"/>
+                </g>
+              </svg>
+              <div class="diagram-caption">Ví dụ cây quyết định xét duyệt vay — mỗi node là 1 câu hỏi, mỗi lá là 1 quyết định cuối.</div>
+            </div>
+
+            <h3>24.2. Làm sao cây "học" được câu hỏi tốt nhất ở mỗi node?</h3>
+            <p>Tại mỗi bước, thuật toán thử mọi đặc trưng và mọi ngưỡng chia có thể, chọn cách chia làm <b>giảm "độ hỗn loạn" (impurity)</b> nhiều nhất. Hai chỉ số impurity phổ biến:</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Chỉ số</th><th>Công thức (ý tưởng)</th><th>Đặc điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Gini Impurity</b></td><td>1 - Σpᵢ²</td><td>Tính nhanh hơn, mặc định trong scikit-learn</td></tr>
+                  <tr><td><b>Entropy</b></td><td>-Σpᵢ·log₂(pᵢ)</td><td>Dựa trên lý thuyết thông tin, liên quan tới Cross-Entropy (Chương 9)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Cả hai đều bằng 0 khi một node "thuần" (chỉ chứa 1 lớp duy nhất) và đạt giá trị lớn nhất khi các lớp trộn lẫn đều nhau — cây luôn cố tìm cách chia để các node con "thuần" nhất có thể.</p>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.tree import DecisionTreeClassifier, export_text
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+np.random.seed(0)
+thu_nhap = np.random.uniform(5, 40, 300)
+tuoi = np.random.uniform(20, 60, 300)
+duyet_vay = ((thu_nhap > 20) | ((thu_nhap > 12) & (tuoi > 40))).astype(int)
+
+X = np.column_stack([thu_nhap, tuoi])
+X_train, X_test, y_train, y_test = train_test_split(X, duyet_vay, test_size=0.25, random_state=1)
+
+# max_depth giới hạn độ sâu cây - kiểm soát overfitting (rất quan trọng!)
+tree = DecisionTreeClassifier(max_depth=3, criterion='gini', random_state=1)
+tree.fit(X_train, y_train)
+
+print("Accuracy:", accuracy_score(y_test, tree.predict(X_test)))
+print(export_text(tree, feature_names=['thu_nhap', 'tuoi']))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>DecisionTreeClassifier(max_depth=3, ...)</code> — <code>max_depth</code> giới hạn số tầng tối đa của cây; đây là siêu tham số quan trọng nhất để kiểm soát độ phức tạp.</li>
+                <li><code>criterion='gini'</code> — chọn Gini Impurity làm tiêu chí đánh giá chất lượng mỗi lần chia (có thể đổi thành <code>'entropy'</code>).</li>
+                <li><code>export_text(tree, ...)</code> — in ra cấu trúc cây dưới dạng văn bản dễ đọc, thể hiện đúng tính "diễn giải được" nổi bật của Decision Tree.</li>
+              </ol>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Decision Tree RẤT dễ overfitting nếu không giới hạn độ sâu</div>
+              Một cây không giới hạn độ sâu có thể tiếp tục chia cho tới khi mỗi lá chỉ chứa đúng 1 điểm dữ liệu — về cơ bản là "học thuộc lòng" tập train, gần như chắc chắn hoạt động kém trên dữ liệu mới. Luôn giới hạn bằng <code>max_depth</code>, <code>min_samples_split</code>, hoặc <code>min_samples_leaf</code>.
+            </div>
+
+            <h3>24.3. Ưu điểm &amp; nhược điểm</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Ưu điểm</th><th>Nhược điểm</th></tr></thead>
+                <tbody>
+                  <tr><td>Dễ diễn giải, trực quan hóa được</td><td>Rất dễ overfitting nếu không giới hạn độ sâu</td></tr>
+                  <tr><td>Không cần scale dữ liệu (không dựa trên khoảng cách)</td><td>Không ổn định — thay đổi nhỏ trong dữ liệu có thể tạo ra cây rất khác</td></tr>
+                  <tr><td>Xử lý được cả dữ liệu số và phân loại</td><td>Ranh giới quyết định dạng "bậc thang", không mượt</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Điểm khởi đầu quan trọng cho Ensemble Learning</div>
+              Chính vì Decision Tree "không ổn định" (dễ thay đổi khi dữ liệu thay đổi), nó lại trở thành "viên gạch" lý tưởng cho các phương pháp Ensemble Learning như Random Forest và Gradient Boosting — sẽ học ngay ở Phần 8. Kết hợp nhiều cây "không ổn định" một cách thông minh sẽ tạo ra mô hình cực kỳ mạnh và ổn định.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Huấn luyện lại cây với <code>max_depth=None</code> (không giới hạn) và so sánh accuracy trên tập train vs tập test với cây <code>max_depth=3</code>. Bạn kỳ vọng thấy điều gì?</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>tree_full = DecisionTreeClassifier(max_depth=None, random_state=1)
+tree_full.fit(X_train, y_train)
+print("Train acc (không giới hạn):", accuracy_score(y_train, tree_full.predict(X_train)))
+print("Test acc (không giới hạn):", accuracy_score(y_test, tree_full.predict(X_test)))
+# Kỳ vọng: train accuracy gần 100% nhưng test accuracy thấp hơn nhiều so với cây max_depth=3
+# -> dấu hiệu điển hình của overfitting</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Để mặc định <code>max_depth=None</code> khi huấn luyện, dẫn tới cây quá phức tạp và overfitting nghiêm trọng.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng cross-validation để tìm <code>max_depth</code> tối ưu, và so sánh accuracy giữa train/test để phát hiện overfitting sớm.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 24</h4>
+              <ul>
+                <li>Decision Tree xây dựng chuỗi câu hỏi if-else, chọn cách chia giảm impurity (Gini/Entropy) nhiều nhất.</li>
+                <li>Rất dễ diễn giải nhưng cũng rất dễ overfitting nếu không giới hạn độ sâu.</li>
+                <li>Là nền tảng cho các phương pháp Ensemble mạnh mẽ hơn sẽ học ở Phần 8.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 25: SVM -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-25">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">25</div>
+            <div>
+              <h2>Support Vector Machine (SVM)</h2>
+              <div class="ch-sub">Tìm ranh giới phân chia với "lề" (margin) rộng nhất có thể</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>25.1. Trực giác: không chỉ tìm ranh giới, mà tìm ranh giới "an toàn nhất"</h3>
+            <p>Với dữ liệu phân tách được, có thể có <i>vô số</i> đường thẳng phân chia đúng 2 lớp. SVM chọn đường thẳng đặc biệt: đường có
+            <b>khoảng cách (margin)</b> tới điểm gần nhất của mỗi lớp là <b>lớn nhất</b> — trực giác là ranh giới càng "rộng rãi" thì càng tổng quát tốt trên dữ liệu mới.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 400 220" width="360">
+                <circle cx="80" cy="60" r="6" fill="var(--teal)"/>
+                <circle cx="110" cy="90" r="6" fill="var(--teal)"/>
+                <circle cx="60" cy="110" r="6" fill="var(--teal)"/>
+                <circle cx="130" cy="60" r="6" fill="var(--teal)"/>
+
+                <circle cx="280" cy="140" r="6" fill="var(--rose)"/>
+                <circle cx="320" cy="170" r="6" fill="var(--rose)"/>
+                <circle cx="260" cy="180" r="6" fill="var(--rose)"/>
+                <circle cx="310" cy="120" r="6" fill="var(--rose)"/>
+
+                <line x1="150" y1="20" x2="220" y2="200" stroke="var(--violet)" stroke-width="2.5"/>
+                <line x1="120" y1="20" x2="190" y2="200" stroke="var(--violet)" stroke-width="1" stroke-dasharray="4 3"/>
+                <line x1="180" y1="20" x2="250" y2="200" stroke="var(--violet)" stroke-width="1" stroke-dasharray="4 3"/>
+
+                <circle cx="130" cy="60" r="9" fill="none" stroke="var(--amber)" stroke-width="2"/>
+                <circle cx="280" cy="140" r="9" fill="none" stroke="var(--amber)" stroke-width="2"/>
+
+                <text x="200" y="15" text-anchor="middle" font-size="10" fill="var(--violet)" font-family="Space Grotesk" font-weight="700">Hyperplane</text>
+                <text x="200" y="212" text-anchor="middle" font-size="9" fill="var(--muted)">Support Vectors được khoanh tròn</text>
+              </svg>
+              <div class="diagram-caption">Đường phân chia (hyperplane) nằm chính giữa "lề" — chỉ các điểm gần biên nhất (support vectors) quyết định vị trí ranh giới.</div>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Vì sao gọi là "Support Vector"?</div>
+              Chỉ những điểm dữ liệu <b>nằm sát ranh giới nhất</b> (gọi là support vectors) mới thực sự ảnh hưởng tới vị trí đường phân chia — các điểm nằm xa ranh giới có thể bị xóa mà không làm thay đổi kết quả. Đây là điểm khác biệt lớn so với Logistic Regression, vốn dùng toàn bộ dữ liệu để ước lượng tham số.
+            </div>
+
+            <h3>25.2. Kernel Trick — xử lý dữ liệu không phân tách tuyến tính</h3>
+            <p>Khi dữ liệu không thể phân chia bằng một đường thẳng, SVM dùng <b>kernel trick</b>: ánh xạ dữ liệu sang không gian nhiều chiều hơn (nơi chúng có thể phân tách tuyến tính được), mà không cần thực sự tính toán tọa độ trong không gian đó — một kỹ thuật toán học tinh tế giúp tiết kiệm chi phí tính toán rất nhiều.</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Kernel</th><th>Khi nào dùng</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Linear</b></td><td>Dữ liệu gần như phân tách tuyến tính được</td></tr>
+                  <tr><td><b>RBF (Radial Basis Function)</b></td><td>Mặc định phổ biến nhất, xử lý tốt quan hệ phi tuyến phức tạp</td></tr>
+                  <tr><td><b>Polynomial</b></td><td>Khi nghi ngờ quan hệ dạng đa thức giữa các đặc trưng</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.svm import SVC
+from sklearn.datasets import make_moons
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+
+# make_moons tạo dữ liệu hình trăng lưỡi liềm - KHÔNG phân tách tuyến tính được
+X, y = make_moons(n_samples=300, noise=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s = scaler.transform(X_test)
+
+# So sánh kernel linear vs rbf
+for kernel in ['linear', 'rbf']:
+    svm = SVC(kernel=kernel, C=1.0)
+    svm.fit(X_train_s, y_train)
+    acc = accuracy_score(y_test, svm.predict(X_test_s))
+    print(f"Kernel={kernel}: accuracy = {acc:.3f}")</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>make_moons(noise=0.2)</code> — sinh dữ liệu hình 2 vầng trăng lưỡi liềm lồng vào nhau, một ví dụ kinh điển về dữ liệu <b>không</b> phân tách tuyến tính được.</li>
+                <li><code>SVC(kernel='linear')</code> — sẽ cho kết quả kém vì cố tìm 1 đường thẳng cho dữ liệu vốn cong.</li>
+                <li><code>SVC(kernel='rbf')</code> — kernel RBF ánh xạ dữ liệu sang không gian phù hợp hơn, thường cho accuracy cao hơn hẳn với dữ liệu dạng này.</li>
+                <li><code>C=1.0</code> — tham số điều chỉnh (regularization): C nhỏ cho phép nhiều điểm nằm sai phía "lề" hơn (margin rộng hơn, ít nhạy nhiễu); C lớn cố phân loại đúng mọi điểm train (margin hẹp hơn, dễ overfitting).</li>
+              </ol>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Lưu ý về hiệu năng</div>
+              SVM (đặc biệt với kernel RBF) có thể huấn luyện <b>chậm</b> với tập dữ liệu rất lớn (hàng trăm nghìn dòng trở lên) — độ phức tạp tính toán tăng nhanh theo số lượng mẫu. Với dữ liệu cực lớn, thường cân nhắc các thuật toán khác hoặc dùng SVM tuyến tính (<code>LinearSVC</code>) được tối ưu tốc độ riêng.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Thử huấn luyện SVM với kernel RBF và 2 giá trị <code>C</code> khác nhau: <code>C=0.1</code> và <code>C=100</code>. So sánh accuracy trên tập train và test, giải thích liên hệ với overfitting.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>for C in [0.1, 100]:
+    svm_c = SVC(kernel='rbf', C=C)
+    svm_c.fit(X_train_s, y_train)
+    train_acc = accuracy_score(y_train, svm_c.predict(X_train_s))
+    test_acc = accuracy_score(y_test, svm_c.predict(X_test_s))
+    print(f"C={C}: train={train_acc:.3f}, test={test_acc:.3f}")
+# C=100 thường có train accuracy cao hơn nhưng có nguy cơ overfitting
+# (test accuracy có thể thấp hơn so với C nhỏ hơn, tùy dữ liệu)</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng kernel <code>linear</code> mặc định cho dữ liệu rõ ràng phi tuyến, không thử kernel RBF, dẫn tới hiệu năng kém.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn scale dữ liệu trước khi dùng SVM (giống KNN), và thử nhiều giá trị <code>C</code>/kernel qua cross-validation.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 25</h4>
+              <ul>
+                <li>SVM tìm ranh giới có margin lớn nhất, chỉ phụ thuộc vào các support vectors gần biên.</li>
+                <li>Kernel trick (đặc biệt RBF) giúp xử lý dữ liệu không phân tách tuyến tính.</li>
+                <li>Tham số C điều chỉnh đánh đổi giữa margin rộng và độ chính xác trên tập train.</li>
+              </ul>
+              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã hoàn thành 6 thuật toán Supervised Learning nền tảng! Phần 8 sẽ giới thiệu Ensemble Learning — cách kết hợp nhiều mô hình yếu thành một mô hình rất mạnh, bắt đầu với Random Forest.</b></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 7</b>: KNN, Naive Bayes, Decision Tree và Support Vector Machine.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-6-supervised-learning.html" class="kbd" style="text-decoration:none;">← Phần 6. Supervised Learning</a>
+        <a href="phan-8-ensemble-random-forest.html" class="kbd" style="text-decoration:none;">Sang Phần 8 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

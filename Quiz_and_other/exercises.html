@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Mastery — Bài Tập Thực Hành</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F1117;--bg-elevated:#161922;--bg-card:#1B1F2A;--border:#2A2F3D;--text:#E8E6E1;--text-muted:#9CA3AF;--accent:#22d3ee;--accent-2:#818cf8;--danger:#F2789A;--info:#7DB8F2;--radius:12px;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+body.light{--bg:#FAF8F3;--bg-elevated:#FFFFFF;--bg-card:#F2EEE3;--border:#E2DDD0;--text:#1F2329;--text-muted:#6B6458;--accent:#22d3ee;--accent-2:#818cf8;--info:#2E6FB5;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;transition:background .25s,color .25s;}
+
+.topbar{position:sticky;top:0;z-index:500;background:rgba(15,17,23,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+body.light .topbar{background:rgba(250,248,243,.85);}
+.topbar-inner{max-width:1000px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;color:#0F1117;font-size:15px;flex-shrink:0;}
+.brand h1{font-family:var(--font-display);font-size:15px;font-weight:700;}
+.brand p{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+.topbar-actions{display:flex;gap:8px;align-items:center;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:9px 16px;border-radius:100px;}
+.back-link:hover{border-color:var(--accent);color:var(--accent);}
+.theme-toggle{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:var(--font-body);}
+.theme-toggle:hover{border-color:var(--accent);}
+.menu-toggle{{background:var(--bg-card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px;}}
+.menu-toggle:hover{{border-color:var(--accent);color:var(--accent);}}
+#toolbox-sidebar{{position:fixed;top:0;right:-300px;width:280px;height:100%;background:var(--bg-elevated);border-left:1px solid var(--border);padding:22px 20px;z-index:700;transition:right .3s ease;overflow-y:auto;}}
+#toolbox-sidebar.open{{right:0;}}
+#toolbox-sidebar .sb-title{{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}}
+#toolbox-sidebar .sb-close{{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;}}
+#toolbox-sidebar a{{display:block;color:var(--text);text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;margin-bottom:2px;}}
+#toolbox-sidebar a:hover{{background:var(--bg-card);color:var(--accent);}}
+#toolbox-sidebar a.current{{color:var(--accent);font-weight:600;}}
+#toolbox-sidebar a.home-link{{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:var(--accent-2);font-family:var(--font-mono);font-size:12.5px;}}
+#toolbox-overlay{{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;}}
+#toolbox-overlay.open{{display:block;}}
+
+.hero{max-width:1000px;margin:0 auto;padding:48px 24px 20px;text-align:center;}
+.hero .eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;background:var(--bg-card);padding:6px 16px;border-radius:20px;border:1px solid var(--border);margin-bottom:18px;}
+.hero h1{font-family:var(--font-display);font-size:34px;font-weight:700;margin-bottom:12px;}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{color:var(--text-muted);max-width:600px;margin:0 auto;font-size:15px;}
+
+/* PART TABS */
+.tabs-wrap{max-width:1000px;margin:30px auto 0;padding:0 24px;}
+.tabs-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;}
+.tabs-scroll::-webkit-scrollbar{height:5px;}
+.tabs-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.tab-chip{font-family:var(--font-mono);font-size:12px;padding:8px 15px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.tab-chip:hover{border-color:var(--accent);}
+.tab-chip.active{background:var(--accent);color:#0F1117;border-color:var(--accent);font-weight:700;}
+
+/* CONTAINER */
+.container{max-width:900px;margin:0 auto;padding:36px 24px 90px;}
+.part-intro{margin-bottom:26px;}
+.part-intro h2{font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:6px;}
+.part-intro p{color:var(--text-muted);font-size:14px;}
+
+/* PROBLEM CARD */
+.problem-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;margin-bottom:18px;}
+.problem-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.problem-title{font-family:var(--font-display);font-size:17px;font-weight:600;}
+.diff-badge{font-family:var(--font-mono);font-size:10.5px;padding:3px 11px;border-radius:14px;white-space:nowrap;flex-shrink:0;}
+.diff-easy{background:rgba(129,140,248,.14);color:var(--accent-2);border:1px solid var(--accent-2);}
+.diff-medium{background:rgba(34,211,238,.14);color:var(--accent);border:1px solid var(--accent);}
+.diff-hard{background:rgba(242,120,154,.14);color:var(--danger);border:1px solid var(--danger);}
+.problem-desc{font-size:14px;color:var(--text);margin-bottom:8px;}
+.problem-example{font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;white-space:pre-wrap;}
+
+.toggle-solution{font-family:var(--font-mono);font-size:12.5px;padding:9px 18px;border-radius:8px;border:1px solid var(--accent-2);background:transparent;color:var(--accent-2);cursor:pointer;font-weight:600;transition:all .15s;}
+.toggle-solution:hover{background:rgba(129,140,248,.1);}
+.toggle-solution.open{background:var(--accent-2);color:#0F1117;}
+
+.solution-box{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.solution-box.show{max-height:900px;margin-top:16px;}
+.solution-inner{border-top:1px dashed var(--border);padding-top:16px;}
+.solution-label{font-family:var(--font-mono);font-size:11px;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:block;}
+.code-block{background:#0B0D12;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+body.light .code-block{background:#1E2128;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#13151C;border-bottom:1px solid var(--border);}
+body.light .code-header{background:#262932;}
+.code-lang{font-family:var(--font-mono);font-size:11px;color:#9CA3AF;}
+.copy-btn{background:transparent;border:1px solid #3A3F4D;color:#C9CDD6;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:6px;cursor:pointer;}
+.copy-btn:hover,.copy-btn.copied{border-color:var(--accent-2);color:var(--accent-2);}
+pre{padding:14px 16px;overflow-x:auto;}
+pre code{font-family:var(--font-mono);font-size:12.5px;color:#E8E6E1;white-space:pre;line-height:1.6;}
+.explain{font-size:13.5px;color:var(--text-muted);}
+.explain b{color:var(--accent-2);font-weight:600;}
+
+.footer{border-top:1px solid var(--border);margin-top:20px;}
+.footer-inner{max-width:1000px;margin:0 auto;padding:36px 24px;text-align:center;color:var(--text-muted);font-size:13px;font-family:var(--font-mono);}
+
+#back-to-top{position:fixed;bottom:28px;right:28px;width:46px;height:46px;border-radius:50%;background:var(--accent);color:#13151C;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .2s;box-shadow:0 6px 18px rgba(0,0,0,.3);z-index:950;}
+#back-to-top.show{opacity:1;pointer-events:auto;}
+#back-to-top:hover{transform:translateY(-3px);}
+
+@media(max-width:640px){.hero h1{font-size:26px;}.problem-card{padding:18px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo-mark">{ }</div>
+      <div><h1>Algorithm Mastery</h1><p>Bài tập thực hành</p></div>
+    </div>
+    <div class="topbar-actions">
+      <a href="../index.html" class="back-link">🏠 Trang chủ</a>
+      <button class="menu-toggle" id="toolboxMenuBtn" aria-label="Mở mục lục" onclick="document.getElementById('toolbox-sidebar').classList.toggle('open');document.getElementById('toolbox-overlay').classList.toggle('open');">☰</button>
+      <button class="theme-toggle" id="themeToggle"><span id="themeLabel">🌙 Dark</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toolbox-overlay" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="toolbox-sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');document.getElementById('toolbox-overlay').classList.remove('open');">✕</button></div>
+  <a href="cheatsheet.html">📄 Cheat Sheet</a>
+  <a class="current" href="exercises.html">✍️ Bài tập & Lời giải</a>
+  <a href="flashcards.html">🃏 Flashcards</a>
+  <a href="glossary.html">📖 Glossary Anh-Việt</a>
+  <a href="quiz-tong-hop.html">📝 Quiz tổng hợp</a>
+  <a href="free-apis-giao-trinh.html">🔌 Free APIs</a>
+  <a href="../ai-engineer/tong-hop-prompt-agent-cong-cu-ai-2026.html">🤖 AI Agent Toolbox</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+</aside>
+
+<div class="hero">
+  <span class="eyebrow">✍️ Thực hành</span>
+  <h1>Bài Tập & Lời Giải<br><span>36 bài theo 12 phần học</span></h1>
+  <p>Mỗi phần có 3 bài tập bám sát nội dung lý thuyết — từ dễ đến khó. Hãy tự giải trước khi bấm "Hiện lời giải" để việc luyện tập thực sự hiệu quả.</p>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs-scroll" id="tabsScroll"></div>
+</div>
+
+<div class="container">
+  <div class="part-intro" id="partIntro"></div>
+  <div id="problemsList"></div>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">Algorithm Mastery — Bài tập thực hành · <a href="../index.html" style="color:var(--accent-2);">Về trang chủ</a></div>
+</div>
+
+<button id="back-to-top">↑</button>
+
+<script>
+const DATA = {
+1:{ label:"P1 · Big-O", title:"Nhập môn & Độ phức tạp", desc:"Phân tích và tối ưu độ phức tạp thời gian/không gian.",
+  problems:[
+    {title:"Tối ưu hàm tính tổng bình phương", diff:"easy",
+     desc:"Viết hàm sum_of_squares(n) tính 1²+2²+...+n² với độ phức tạp O(1) thay vì O(n) bằng vòng lặp.",
+     example:"sum_of_squares(3) → 1+4+9 = 14",
+     code:`def sum_of_squares(n):
+    # Công thức: n(n+1)(2n+1)/6 — O(1) thay vì O(n)
+    return n * (n + 1) * (2 * n + 1) // 6
+
+print(sum_of_squares(3))   # 14
+print(sum_of_squares(10))  # 385`,
+     explain:"Thay vì <b>lặp cộng dồn O(n)</b>, dùng công thức toán học có sẵn để đạt <b>O(1)</b>. Đây là ví dụ kinh điển cho thấy hiểu bài toán sâu hơn giúp giảm hẳn một bậc độ phức tạp."},
+    {title:"Xác định độ phức tạp của đoạn code lồng nhau", diff:"easy",
+     desc:"Cho đoạn code có 2 vòng lặp lồng nhau, vòng ngoài chạy n lần, vòng trong chạy n/2 lần. Viết hàm đếm số phép toán thực tế để kiểm chứng độ phức tạp.",
+     example:"count_operations(4) → tổng số lần thực thi vòng trong",
+     code:`def count_operations(n):
+    count = 0
+    for i in range(n):
+        for j in range(n // 2):
+            count += 1
+    return count
+
+print(count_operations(4))   # 4 * 2 = 8
+print(count_operations(100)) # 100 * 50 = 5000 → vẫn là O(n²)`,
+     explain:"Dù vòng trong chỉ chạy n/2 lần, hằng số 1/2 <b>bị loại bỏ trong Big-O</b> — độ phức tạp thực chất vẫn là O(n²), không phải O(n²/2)."},
+    {title:"So sánh 2 thuật toán tìm phần tử trùng lặp", diff:"medium",
+     desc:"Viết 2 phiên bản kiểm tra mảng có phần tử trùng lặp hay không: một O(n²) dùng vòng lặp lồng, một O(n) dùng Hash Set. So sánh thời gian chạy thực tế.",
+     example:"has_duplicate([1,2,3,2]) → True",
+     code:`import time
+
+def has_duplicate_slow(arr):          # O(n²)
+    for i in range(len(arr)):
+        for j in range(i+1, len(arr)):
+            if arr[i] == arr[j]:
+                return True
+    return False
+
+def has_duplicate_fast(arr):          # O(n)
+    seen = set()
+    for x in arr:
+        if x in seen: return True
+        seen.add(x)
+    return False
+
+arr = list(range(5000)) + [10]        # có 1 phần tử trùng ở cuối
+start = time.time(); has_duplicate_slow(arr); print("O(n²):", time.time()-start)
+start = time.time(); has_duplicate_fast(arr); print("O(n):", time.time()-start)`,
+     explain:"Với n=5000, phiên bản O(n²) chậm hơn rõ rệt (~12 triệu phép so sánh) so với O(n) (~5000 phép). Đây là minh chứng thực nghiệm cho lý thuyết Big-O."},
+  ]},
+2:{ label:"P2 · CTDL Cơ bản", title:"Cấu Trúc Dữ Liệu Cơ Bản", desc:"Thực hành Stack, Queue, Linked List.",
+  problems:[
+    {title:"Kiểm tra dấu ngoặc hợp lệ", diff:"easy",
+     desc:"Dùng Stack kiểm tra một chuỗi chứa '()', '[]', '{}' có đóng/mở đúng cặp và đúng thứ tự không.",
+     example:'is_valid("([{}])") → True | is_valid("([)]") → False',
+     code:`def is_valid(s):
+    stack = []
+    pairs = {')': '(', ']': '[', '}': '{'}
+    for ch in s:
+        if ch in '([{':
+            stack.append(ch)
+        elif ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+    return len(stack) == 0
+
+print(is_valid("([{}])"))  # True
+print(is_valid("([)]"))    # False`,
+     explain:"Stack (LIFO) rất hợp lý ở đây vì ngoặc đóng gần nhất phải khớp với ngoặc mở gần nhất — đúng tính chất <b>vào sau ra trước</b>."},
+    {title:"Cài đặt Queue bằng 2 Stack", diff:"medium",
+     desc:"Triển khai Queue (FIFO) chỉ dùng 2 Stack (LIFO) — thao tác enqueue O(1), dequeue amortized O(1).",
+     example:"q.enqueue(1); q.enqueue(2); q.dequeue() → 1",
+     code:`class QueueUsingStacks:
+    def __init__(self):
+        self.in_stack = []
+        self.out_stack = []
+
+    def enqueue(self, x):
+        self.in_stack.append(x)          # O(1)
+
+    def dequeue(self):
+        if not self.out_stack:
+            while self.in_stack:         # chuyển toàn bộ 1 lần
+                self.out_stack.append(self.in_stack.pop())
+        return self.out_stack.pop() if self.out_stack else None
+
+q = QueueUsingStacks()
+q.enqueue(1); q.enqueue(2); q.enqueue(3)
+print(q.dequeue())  # 1
+print(q.dequeue())  # 2`,
+     explain:"Khi out_stack rỗng, ta đảo toàn bộ in_stack sang — mỗi phần tử chỉ bị di chuyển <b>đúng 1 lần</b> trong suốt vòng đời, nên độ phức tạp trung bình (amortized) vẫn là O(1)."},
+    {title:"Đảo ngược Linked List", diff:"medium",
+     desc:"Viết hàm đảo ngược một Linked List đơn tại chỗ (in-place), không dùng thêm cấu trúc dữ liệu phụ.",
+     example:"1→2→3→None  ⟹  3→2→1→None",
+     code:`class Node:
+    def __init__(self, val, next=None):
+        self.val = val; self.next = next
+
+def reverse_list(head):
+    prev = None
+    curr = head
+    while curr:
+        next_node = curr.next   # lưu lại trước khi ghi đè
+        curr.next = prev        # đảo hướng con trỏ
+        prev = curr
+        curr = next_node
+    return prev                 # prev giờ là head mới
+
+# Test: 1→2→3
+head = Node(1, Node(2, Node(3)))
+new_head = reverse_list(head)
+node = new_head
+while node: print(node.val, end=" "); node = node.next  # 3 2 1`,
+     explain:"Kỹ thuật 3 con trỏ <b>prev / curr / next</b> là mẫu kinh điển — chỉ cần O(1) bộ nhớ phụ và O(n) thời gian, không cần tạo list mới."},
+  ]},
+3:{ label:"P3 · Tìm kiếm & Cây", title:"Tìm Kiếm & Cây", desc:"Binary Search, BST, Heap.",
+  problems:[
+    {title:"Tìm vị trí chèn trong mảng đã sắp xếp", diff:"easy",
+     desc:"Cho mảng đã sắp xếp và một giá trị target, tìm vị trí target nên được chèn vào để giữ mảng có thứ tự — dùng Binary Search O(log n).",
+     example:"search_insert([1,3,5,6], 5) → 2 | search_insert([1,3,5,6], 2) → 1",
+     code:`def search_insert(nums, target):
+    lo, hi = 0, len(nums)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
+
+print(search_insert([1,3,5,6], 5))  # 2
+print(search_insert([1,3,5,6], 2))  # 1
+print(search_insert([1,3,5,6], 7))  # 4`,
+     explain:"Đây là biến thể của Binary Search — thay vì tìm chính xác target, ta tìm <b>vị trí biên</b> đầu tiên mà nums[mid] &ge; target."},
+    {title:"Kiểm tra cây có phải BST hợp lệ", diff:"medium",
+     desc:"Viết hàm kiểm tra một cây nhị phân có thỏa mãn tính chất Binary Search Tree hay không (mọi node trái < node cha < mọi node phải).",
+     example:"[5,3,7,1,4,6,8] hợp lệ; [5,3,7,1,6,None,8] không hợp lệ",
+     code:`class TreeNode:
+    def __init__(self, val, left=None, right=None):
+        self.val=val; self.left=left; self.right=right
+
+def is_valid_bst(root, lo=float('-inf'), hi=float('inf')):
+    if not root: return True
+    if not (lo < root.val < hi):
+        return False
+    return (is_valid_bst(root.left, lo, root.val) and
+            is_valid_bst(root.right, root.val, hi))
+
+# Cây hợp lệ: 5 -> trái 3, phải 7
+root = TreeNode(5, TreeNode(3), TreeNode(7))
+print(is_valid_bst(root))  # True`,
+     explain:"Điểm mấu chốt là truyền theo <b>khoảng giá trị hợp lệ (lo, hi)</b> qua từng lời gọi đệ quy — chỉ so sánh với node cha trực tiếp là chưa đủ."},
+    {title:"Tìm phần tử nhỏ thứ K bằng Heap", diff:"medium",
+     desc:"Tìm phần tử nhỏ thứ k trong mảng chưa sắp xếp, dùng Max-Heap kích thước k — độ phức tạp O(n log k).",
+     example:"kth_smallest([7,10,4,3,20,15], 3) → 7",
+     code:`import heapq
+
+def kth_smallest(nums, k):
+    max_heap = []
+    for num in nums:
+        heapq.heappush(max_heap, -num)      # đảo dấu để mô phỏng max-heap
+        if len(max_heap) > k:
+            heapq.heappop(max_heap)          # loại phần tử lớn nhất khi vượt k
+    return -max_heap[0]
+
+print(kth_smallest([7,10,4,3,20,15], 3))  # 7`,
+     explain:"Max-Heap kích thước cố định k giúp ta không cần lưu toàn bộ mảng đã sắp xếp — chỉ giữ k phần tử nhỏ nhất tại mọi thời điểm, độ phức tạp O(n log k) tốt hơn sort toàn bộ O(n log n) khi k nhỏ."},
+  ]},
+4:{ label:"P4 · Sắp xếp", title:"Thuật Toán Sắp Xếp", desc:"Quick Sort, Heap, và các bài toán liên quan.",
+  problems:[
+    {title:"Cài đặt Quick Sort", diff:"medium",
+     desc:"Tự triển khai Quick Sort với Lomuto partition scheme, sắp xếp mảng tại chỗ (in-place).",
+     example:"quick_sort([5,2,9,1,5,6]) → [1,2,5,5,6,9]",
+     code:`def quick_sort(arr, lo=0, hi=None):
+    if hi is None: hi = len(arr) - 1
+    if lo < hi:
+        p = partition(arr, lo, hi)
+        quick_sort(arr, lo, p - 1)
+        quick_sort(arr, p + 1, hi)
+    return arr
+
+def partition(arr, lo, hi):
+    pivot = arr[hi]
+    i = lo - 1
+    for j in range(lo, hi):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i+1], arr[hi] = arr[hi], arr[i+1]
+    return i + 1
+
+print(quick_sort([5,2,9,1,5,6]))  # [1, 2, 5, 5, 6, 9]`,
+     explain:"Chọn phần tử cuối làm pivot, mọi phần tử nhỏ hơn pivot dồn về bên trái. Trung bình O(n log n), nhưng worst-case O(n²) nếu mảng đã gần như sắp xếp — có thể cải thiện bằng random pivot."},
+    {title:"Top K phần tử lớn nhất", diff:"easy",
+     desc:"Tìm k phần tử lớn nhất trong mảng mà không cần sắp xếp toàn bộ, dùng Min-Heap kích thước k.",
+     example:"top_k_largest([3,2,1,5,6,4], 2) → [5, 6]",
+     code:`import heapq
+
+def top_k_largest(nums, k):
+    return heapq.nlargest(k, nums)
+
+# Cài đặt thủ công bằng min-heap kích thước k:
+def top_k_manual(nums, k):
+    heap = nums[:k]
+    heapq.heapify(heap)
+    for num in nums[k:]:
+        if num > heap[0]:
+            heapq.heapreplace(heap, num)
+    return sorted(heap, reverse=True)
+
+print(top_k_largest([3,2,1,5,6,4], 2))  # [6, 5]
+print(top_k_manual([3,2,1,5,6,4], 2))   # [6, 5]`,
+     explain:"Giữ Min-Heap kích thước đúng k phần tử — mọi phần tử mới lớn hơn phần tử nhỏ nhất trong heap sẽ thay thế nó. Độ phức tạp O(n log k), tốt hơn sort toàn bộ khi k << n."},
+    {title:"Gộp các khoảng chồng lấn (Merge Intervals)", diff:"medium",
+     desc:"Cho danh sách các khoảng [start, end], gộp tất cả khoảng chồng lấn nhau thành khoảng lớn nhất có thể.",
+     example:"merge([[1,3],[2,6],[8,10],[15,18]]) → [[1,6],[8,10],[15,18]]",
+     code:`def merge_intervals(intervals):
+    intervals.sort(key=lambda x: x[0])   # sắp theo điểm bắt đầu
+    result = [intervals[0]]
+    for start, end in intervals[1:]:
+        last_end = result[-1][1]
+        if start <= last_end:            # chồng lấn -> gộp
+            result[-1][1] = max(last_end, end)
+        else:
+            result.append([start, end])
+    return result
+
+print(merge_intervals([[1,3],[2,6],[8,10],[15,18]]))
+# [[1, 6], [8, 10], [15, 18]]`,
+     explain:"Sắp xếp theo điểm bắt đầu trước là bước then chốt — sau đó chỉ cần một lượt duyệt O(n) để gộp các khoảng liền kề, tổng độ phức tạp O(n log n) do bước sort."},
+  ]},
+5:{ label:"P5 · Đồ thị", title:"Đồ Thị & Duyệt", desc:"BFS, DFS, Topological Sort, Dijkstra.",
+  problems:[
+    {title:"Đếm số lượng đảo (Number of Islands)", diff:"medium",
+     desc:"Cho lưới 2D gồm '1' (đất) và '0' (nước), đếm số lượng đảo — các ô đất liền kề (trên/dưới/trái/phải) tạo thành 1 đảo.",
+     example:"grid với 3 cụm đất tách biệt → 3",
+     code:`def num_islands(grid):
+    if not grid: return 0
+    rows, cols = len(grid), len(grid[0])
+    visited = set()
+
+    def dfs(r, c):
+        if (r < 0 or r >= rows or c < 0 or c >= cols or
+            grid[r][c] == '0' or (r, c) in visited):
+            return
+        visited.add((r, c))
+        for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+            dfs(r + dr, c + dc)
+
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == '1' and (r, c) not in visited:
+                dfs(r, c)
+                count += 1
+    return count
+
+grid = [["1","1","0"],["0","1","0"],["0","0","1"]]
+print(num_islands(grid))  # 2`,
+     explain:"Mỗi lần gặp ô đất chưa thăm, chạy DFS để <b>đánh dấu toàn bộ đảo</b> đó rồi tăng biến đếm. Độ phức tạp O(rows × cols) vì mỗi ô chỉ thăm đúng 1 lần."},
+    {title:"Thứ tự học môn học (Course Schedule)", diff:"medium",
+     desc:"Cho n môn học và danh sách các cặp [a, b] nghĩa là phải học b trước a. Xác định có thể hoàn thành tất cả môn học không (không có chu trình phụ thuộc).",
+     example:"can_finish(2, [[1,0]]) → True | can_finish(2, [[1,0],[0,1]]) → False",
+     code:`from collections import defaultdict, deque
+
+def can_finish(num_courses, prerequisites):
+    graph = defaultdict(list)
+    in_degree = [0] * num_courses
+    for a, b in prerequisites:
+        graph[b].append(a)
+        in_degree[a] += 1
+
+    queue = deque([i for i in range(num_courses) if in_degree[i] == 0])
+    completed = 0
+    while queue:
+        course = queue.popleft()
+        completed += 1
+        for nxt in graph[course]:
+            in_degree[nxt] -= 1
+            if in_degree[nxt] == 0:
+                queue.append(nxt)
+    return completed == num_courses
+
+print(can_finish(2, [[1,0]]))        # True
+print(can_finish(2, [[1,0],[0,1]]))  # False — chu trình`,
+     explain:"Đây chính là <b>Topological Sort</b> dùng Kahn's Algorithm (BFS + in-degree). Nếu số môn học xử lý xong &lt; tổng số môn thì tồn tại chu trình — không thể hoàn thành tất cả."},
+    {title:"Thời gian trễ mạng lưới (Network Delay Time)", diff:"hard",
+     desc:"Cho mạng lưới n node với các cạnh có trọng số (thời gian truyền tín hiệu), tìm thời gian tối thiểu để tín hiệu từ node k lan tới mọi node khác.",
+     example:"times=[[2,1,1],[2,3,1],[3,4,1]], n=4, k=2 → 2",
+     code:`import heapq
+from collections import defaultdict
+
+def network_delay_time(times, n, k):
+    graph = defaultdict(list)
+    for u, v, w in times:
+        graph[u].append((v, w))
+
+    dist = {}
+    heap = [(0, k)]
+    while heap:
+        d, node = heapq.heappop(heap)
+        if node in dist: continue
+        dist[node] = d
+        for nei, w in graph[node]:
+            if nei not in dist:
+                heapq.heappush(heap, (d + w, nei))
+
+    return max(dist.values()) if len(dist) == n else -1
+
+print(network_delay_time([[2,1,1],[2,3,1],[3,4,1]], 4, 2))  # 2`,
+     explain:"Đây chính là <b>Dijkstra</b> — thời gian để tín hiệu lan tới toàn mạng là max của mọi đường đi ngắn nhất từ k. Nếu không phải mọi node đều nhận được (len(dist) &lt; n) thì trả về -1."},
+  ]},
+6:{ label:"P6 · Đệ quy & Backtrack", title:"Đệ Quy & Quay Lui", desc:"Backtracking kinh điển.",
+  problems:[
+    {title:"Sinh mọi tổ hợp dấu ngoặc hợp lệ", diff:"medium",
+     desc:"Cho n cặp ngoặc, sinh tất cả tổ hợp dấu ngoặc '(' và ')' hợp lệ có thể tạo thành.",
+     example:"generate_parentheses(2) → ['(())', '()()']",
+     code:`def generate_parentheses(n):
+    result = []
+    def backtrack(current, open_count, close_count):
+        if len(current) == 2 * n:
+            result.append(current)
+            return
+        if open_count < n:
+            backtrack(current + '(', open_count + 1, close_count)
+        if close_count < open_count:
+            backtrack(current + ')', open_count, close_count + 1)
+    backtrack('', 0, 0)
+    return result
+
+print(generate_parentheses(3))
+# ['((()))', '(()())', '(())()', '()(())', '()()()']`,
+     explain:"Điều kiện <b>pruning</b> quan trọng: chỉ thêm '(' khi chưa dùng hết n cặp, chỉ thêm ')' khi số ')' hiện tại nhỏ hơn số '(' — đảm bảo luôn tạo chuỗi hợp lệ mà không cần kiểm tra lại sau."},
+    {title:"Sinh tất cả hoán vị không trùng lặp", diff:"easy",
+     desc:"Cho mảng chứa các số có thể trùng lặp, sinh tất cả hoán vị duy nhất (không lặp kết quả).",
+     example:"unique_permutations([1,1,2]) → [[1,1,2],[1,2,1],[2,1,1]]",
+     code:`def unique_permutations(nums):
+    nums.sort()
+    result, used = [], [False] * len(nums)
+
+    def backtrack(current):
+        if len(current) == len(nums):
+            result.append(current[:]); return
+        for i in range(len(nums)):
+            if used[i]: continue
+            if i > 0 and nums[i] == nums[i-1] and not used[i-1]:
+                continue   # bỏ qua trùng lặp cùng cấp
+            used[i] = True
+            current.append(nums[i])
+            backtrack(current)
+            current.pop()
+            used[i] = False
+
+    backtrack([])
+    return result
+
+print(unique_permutations([1,1,2]))
+# [[1, 1, 2], [1, 2, 1], [2, 1, 1]]`,
+     explain:"Mẹo chống trùng lặp: sort mảng trước, rồi bỏ qua khi <b>nums[i] == nums[i-1] và nums[i-1] chưa được dùng</b> ở cùng vị trí đệ quy — đảm bảo mỗi hoán vị chỉ sinh ra đúng 1 lần."},
+    {title:"Tổ hợp có tổng bằng target (Combination Sum)", diff:"medium",
+     desc:"Cho mảng số dương không trùng lặp và một target, tìm mọi tổ hợp (có thể dùng lại phần tử) có tổng bằng target.",
+     example:"combination_sum([2,3,6,7], 7) → [[2,2,3],[7]]",
+     code:`def combination_sum(candidates, target):
+    result = []
+    def backtrack(start, current, remaining):
+        if remaining == 0:
+            result.append(current[:]); return
+        if remaining < 0: return
+        for i in range(start, len(candidates)):
+            current.append(candidates[i])
+            backtrack(i, current, remaining - candidates[i])  # i (không phải i+1) — cho phép dùng lại
+            current.pop()
+    backtrack(0, [], target)
+    return result
+
+print(combination_sum([2,3,6,7], 7))  # [[2, 2, 3], [7]]`,
+     explain:"Truyền lại <b>i thay vì i+1</b> vào lời gọi đệ quy cho phép dùng lại cùng phần tử nhiều lần. Điều kiện remaining &lt; 0 giúp cắt nhánh sớm, tránh khám phá thừa."},
+  ]},
+7:{ label:"P7 · Quy hoạch động", title:"Quy Hoạch Động (DP)", desc:"Từ cơ bản đến các bài toán chuỗi/mảng kinh điển.",
+  problems:[
+    {title:"Leo cầu thang (Climbing Stairs)", diff:"easy",
+     desc:"Có n bậc thang, mỗi bước có thể leo 1 hoặc 2 bậc. Tính số cách khác nhau để lên tới đỉnh.",
+     example:"climb_stairs(4) → 5",
+     code:`def climb_stairs(n):
+    if n <= 2: return n
+    a, b = 1, 2                 # a=dp[1], b=dp[2]
+    for _ in range(3, n + 1):
+        a, b = b, a + b          # dp[i] = dp[i-1] + dp[i-2]
+    return b
+
+print(climb_stairs(4))   # 5
+print(climb_stairs(10))  # 89`,
+     explain:"Đây thực chất là <b>dãy Fibonacci</b> — dp[i] = dp[i-1] + dp[i-2] vì bước cuối cùng để đến bậc i chỉ có thể là bước 1 hoặc bước 2. Tối ưu không gian xuống O(1) bằng 2 biến."},
+    {title:"Đổi tiền tối thiểu (Coin Change)", diff:"medium",
+     desc:"Cho danh sách mệnh giá xu và một tổng amount, tìm số xu tối thiểu để đạt đúng tổng đó (hoặc -1 nếu không thể).",
+     example:"coin_change([1,2,5], 11) → 3 (5+5+1)",
+     code:`def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if i - coin >= 0:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+print(coin_change([1,2,5], 11))  # 3
+print(coin_change([2], 3))       # -1`,
+     explain:"dp[i] = số xu tối thiểu cho tổng i. Với mỗi tổng i, thử mọi loại xu và chọn phương án cho kết quả nhỏ nhất. Đây là Bottom-Up DP kinh điển, độ phức tạp O(amount × số loại xu)."},
+    {title:"Chuỗi con đối xứng dài nhất (Longest Palindromic Substring)", diff:"hard",
+     desc:"Tìm chuỗi con liên tiếp dài nhất là palindrome (đọc xuôi ngược giống nhau) trong một chuỗi cho trước, dùng DP.",
+     example:'longest_palindrome("babad") → "bab" hoặc "aba"',
+     code:`def longest_palindrome(s):
+    n = len(s)
+    if n == 0: return ""
+    dp = [[False]*n for _ in range(n)]
+    start, max_len = 0, 1
+    for i in range(n): dp[i][i] = True
+
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            if s[i] == s[j]:
+                if length == 2 or dp[i+1][j-1]:
+                    dp[i][j] = True
+                    if length > max_len:
+                        start, max_len = i, length
+    return s[start:start + max_len]
+
+print(longest_palindrome("babad"))  # "bab"
+print(longest_palindrome("cbbd"))   # "bb"`,
+     explain:"dp[i][j] = True nếu s[i..j] là palindrome. Công thức: s[i]==s[j] VÀ (độ dài &le;2 HOẶC phần bên trong dp[i+1][j-1] cũng là palindrome). Độ phức tạp O(n²), có thể tối ưu thành O(n) bằng thuật toán Manacher (Phần 10)."},
+  ]},
+8:{ label:"P8 · CTDL Nâng cao", title:"CTDL Nâng Cao", desc:"Trie, Hash, Union-Find.",
+  problems:[
+    {title:"Cài đặt Trie hỗ trợ tìm kiếm tiền tố", diff:"medium",
+     desc:"Xây dựng cấu trúc Trie hỗ trợ insert(word), search(word) tìm chính xác, và starts_with(prefix) kiểm tra tiền tố.",
+     example:"trie.insert('apple'); trie.search('app') → False; trie.starts_with('app') → True",
+     code:`class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            node = node.children.setdefault(ch, TrieNode())
+        node.is_end = True
+
+    def _find_node(self, word):
+        node = self.root
+        for ch in word:
+            if ch not in node.children: return None
+            node = node.children[ch]
+        return node
+
+    def search(self, word):
+        node = self._find_node(word)
+        return node is not None and node.is_end
+
+    def starts_with(self, prefix):
+        return self._find_node(prefix) is not None
+
+trie = Trie()
+trie.insert("apple")
+print(trie.search("apple"))       # True
+print(trie.search("app"))         # False
+print(trie.starts_with("app"))    # True`,
+     explain:"search() yêu cầu node cuối cùng phải có is_end=True (từ hoàn chỉnh), còn starts_with() chỉ cần đường đi tồn tại. Mọi thao tác đều O(m) với m là độ dài từ/tiền tố."},
+    {title:"Nhóm các từ Anagram (Group Anagrams)", diff:"medium",
+     desc:"Cho danh sách từ, nhóm các từ là anagram của nhau (chứa cùng tập ký tự) vào cùng nhóm, dùng Hash Table.",
+     example:'group_anagrams(["eat","tea","tan","ate","nat","bat"]) → [["eat","tea","ate"],["tan","nat"],["bat"]]',
+     code:`from collections import defaultdict
+
+def group_anagrams(words):
+    groups = defaultdict(list)
+    for word in words:
+        key = ''.join(sorted(word))     # ký tự sắp xếp làm khóa chung
+        groups[key].append(word)
+    return list(groups.values())
+
+print(group_anagrams(["eat","tea","tan","ate","nat","bat"]))
+# [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]`,
+     explain:"Hai từ là anagram của nhau khi và chỉ khi <b>chuỗi ký tự đã sắp xếp giống nhau</b> — dùng chuỗi đó làm key trong Hash Table để nhóm nhanh trong O(n × k log k), k là độ dài từ dài nhất."},
+    {title:"Số vùng liên thông (Union-Find cơ bản)", diff:"easy",
+     desc:"Cho danh sách các cặp bạn bè [a,b] nghĩa là a và b quen nhau (trực tiếp hoặc gián tiếp), đếm số nhóm bạn bè riêng biệt bằng Union-Find.",
+     example:"count_groups(5, [[0,1],[1,2],[3,4]]) → 2",
+     code:`class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.count = n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, x, y):
+        rx, ry = self.find(x), self.find(y)
+        if rx != ry:
+            self.parent[ry] = rx
+            self.count -= 1
+
+def count_groups(n, edges):
+    uf = UnionFind(n)
+    for a, b in edges:
+        uf.union(a, b)
+    return uf.count
+
+print(count_groups(5, [[0,1],[1,2],[3,4]]))  # 2 -> {0,1,2} và {3,4} (đỉnh không có cạnh vẫn tính riêng nếu tồn tại)`,
+     explain:"Mỗi lần union() thành công (2 đỉnh khác nhóm) làm giảm biến đếm count đi 1. Số nhóm cuối cùng chính là uf.count — cách đếm liên thông đơn giản và nhanh gần O(1) mỗi thao tác."},
+  ]},
+9:{ label:"P9 · Tham lam & MST", title:"Tham Lam & MST", desc:"Greedy, Kruskal/Prim.",
+  problems:[
+    {title:"Trò chơi nhảy ô (Jump Game)", diff:"medium",
+     desc:"Cho mảng số nguyên, mỗi phần tử là số bước nhảy tối đa từ vị trí đó. Xác định có thể nhảy từ đầu đến cuối mảng hay không, dùng Greedy.",
+     example:"can_jump([2,3,1,1,4]) → True | can_jump([3,2,1,0,4]) → False",
+     code:`def can_jump(nums):
+    max_reach = 0
+    for i, num in enumerate(nums):
+        if i > max_reach:
+            return False           # không thể đến vị trí i
+        max_reach = max(max_reach, i + num)
+    return True
+
+print(can_jump([2,3,1,1,4]))  # True
+print(can_jump([3,2,1,0,4]))  # False`,
+     explain:"Greedy: luôn theo dõi <b>vị trí xa nhất có thể đến được (max_reach)</b>. Nếu tại bước i mà i &gt; max_reach thì bị 'mắc kẹt' — không cần thử mọi tổ hợp bước nhảy, chỉ cần 1 lượt duyệt O(n)."},
+    {title:"Sắp lịch tác vụ có thời gian nghỉ (Task Scheduler)", diff:"medium",
+     desc:"Cho danh sách tác vụ và thời gian nghỉ bắt buộc n giữa 2 lần thực hiện cùng loại tác vụ, tính tổng thời gian tối thiểu để hoàn thành tất cả.",
+     example:'task_scheduler(["A","A","A","B","B","B"], 2) → 8',
+     code:`from collections import Counter
+
+def task_scheduler(tasks, n):
+    freq = Counter(tasks)
+    max_freq = max(freq.values())
+    max_count = sum(1 for v in freq.values() if v == max_freq)
+    # Công thức Greedy: khung dựa trên tác vụ có tần suất cao nhất
+    return max(len(tasks), (max_freq - 1) * (n + 1) + max_count)
+
+print(task_scheduler(["A","A","A","B","B","B"], 2))  # 8
+# A B _ A B _ A B  -> 8 đơn vị thời gian`,
+     explain:"Xếp tác vụ tần suất cao nhất làm 'khung' trước, các tác vụ khác điền vào khoảng trống. Nếu tổng số tác vụ đã đủ lấp đầy khung thì không cần thời gian rảnh — đó là lý do lấy max() với len(tasks)."},
+    {title:"Kết nối các điểm với chi phí nhỏ nhất (Min Cost MST)", diff:"hard",
+     desc:"Cho tọa độ n điểm trên mặt phẳng, chi phí kết nối 2 điểm là khoảng cách Manhattan. Tìm tổng chi phí nhỏ nhất để kết nối tất cả điểm — bài toán MST.",
+     example:"min_cost_connect([[0,0],[2,2],[3,10],[5,2],[7,0]]) → 20",
+     code:`def min_cost_connect(points):
+    n = len(points)
+    def dist(i, j):
+        return abs(points[i][0]-points[j][0]) + abs(points[i][1]-points[j][1])
+
+    visited = [False] * n
+    min_dist = [float('inf')] * n
+    min_dist[0] = 0
+    total = 0
+
+    for _ in range(n):
+        # Chọn đỉnh chưa thăm có khoảng cách nhỏ nhất (giống Prim)
+        u = min((i for i in range(n) if not visited[i]), key=lambda i: min_dist[i])
+        visited[u] = True
+        total += min_dist[u]
+        for v in range(n):
+            if not visited[v]:
+                min_dist[v] = min(min_dist[v], dist(u, v))
+    return total
+
+print(min_cost_connect([[0,0],[2,2],[3,10],[5,2],[7,0]]))  # 20`,
+     explain:"Đây là thuật toán <b>Prim</b> áp dụng trực tiếp — luôn mở rộng MST bằng cách chọn đỉnh gần nhất với tập đã kết nối. Độ phức tạp O(n²) phù hợp khi đồ thị dày (mọi cặp điểm đều có cạnh)."},
+  ]},
+10:{ label:"P10 · Chuỗi", title:"Thuật Toán Chuỗi", desc:"Pattern matching và xử lý chuỗi.",
+  problems:[
+    {title:"Kiểm tra Anagram", diff:"easy",
+     desc:"Kiểm tra 2 chuỗi có phải là anagram của nhau không (chứa đúng cùng tập ký tự với cùng tần suất).",
+     example:'is_anagram("listen", "silent") → True',
+     code:`from collections import Counter
+
+def is_anagram(s1, s2):
+    if len(s1) != len(s2): return False
+    return Counter(s1) == Counter(s2)
+
+print(is_anagram("listen", "silent"))  # True
+print(is_anagram("hello", "world"))    # False`,
+     explain:"Counter đếm tần suất từng ký tự trong O(n), so sánh 2 Counter cũng O(n) — tổng độ phức tạp O(n), nhanh hơn nhiều so với sort 2 chuỗi rồi so sánh O(n log n)."},
+    {title:"Tiền tố chung dài nhất (Longest Common Prefix)", diff:"easy",
+     desc:"Tìm tiền tố chung dài nhất của một danh sách các chuỗi.",
+     example:'longest_common_prefix(["flower","flow","flight"]) → "fl"',
+     code:`def longest_common_prefix(strs):
+    if not strs: return ""
+    prefix = strs[0]
+    for s in strs[1:]:
+        while not s.startswith(prefix):
+            prefix = prefix[:-1]      # rút ngắn dần tiền tố
+            if not prefix: return ""
+    return prefix
+
+print(longest_common_prefix(["flower","flow","flight"]))  # "fl"
+print(longest_common_prefix(["dog","racecar","car"]))     # ""`,
+     explain:"So sánh tiền tố tạm thời với từng chuỗi tiếp theo, rút ngắn dần nếu không khớp. Worst case O(n × m) với n số chuỗi, m độ dài chuỗi ngắn nhất."},
+    {title:"Cài đặt strStr (tìm vị trí chuỗi con)", diff:"medium",
+     desc:"Tự cài đặt hàm tìm vị trí xuất hiện đầu tiên của needle trong haystack, không dùng hàm find() có sẵn — dùng KMP để đạt O(n+m).",
+     example:'str_str("hello", "ll") → 2',
+     code:`def str_str(haystack, needle):
+    if not needle: return 0
+    lps = build_lps(needle)
+    i = j = 0
+    while i < len(haystack):
+        if haystack[i] == needle[j]:
+            i += 1; j += 1
+            if j == len(needle):
+                return i - j
+        elif j > 0:
+            j = lps[j - 1]
+        else:
+            i += 1
+    return -1
+
+def build_lps(pattern):
+    lps = [0] * len(pattern)
+    length = 0; i = 1
+    while i < len(pattern):
+        if pattern[i] == pattern[length]:
+            length += 1; lps[i] = length; i += 1
+        elif length > 0:
+            length = lps[length - 1]
+        else:
+            lps[i] = 0; i += 1
+    return lps
+
+print(str_str("hello", "ll"))     # 2
+print(str_str("aaaaa", "bba"))    # -1`,
+     explain:"Áp dụng lại thuật toán KMP đã học ở Phần 10 — dùng bảng LPS để tránh việc quay lại (backtrack) trên haystack, đạt độ phức tạp O(n+m) thay vì O(n×m) của brute force."},
+  ]},
+11:{ label:"P11 · Đồ thị Nâng cao", title:"Đồ Thị Nâng Cao", desc:"Floyd-Warshall, SCC, Union-Find nâng cao.",
+  problems:[
+    {title:"Thành phố trong ngưỡng khoảng cách (Floyd-Warshall)", diff:"hard",
+     desc:"Cho n thành phố và các cạnh có trọng số, với mỗi thành phố tìm số thành phố khác có thể đến được trong ngưỡng khoảng cách distanceThreshold, trả về thành phố có ít kết nối nhất.",
+     example:"n=4, edges, threshold=4 → thành phố có ít 'hàng xóm' nhất trong ngưỡng",
+     code:`def find_city(n, edges, threshold):
+    INF = float('inf')
+    dist = [[INF]*n for _ in range(n)]
+    for i in range(n): dist[i][i] = 0
+    for u, v, w in edges:
+        dist[u][v] = min(dist[u][v], w)
+        dist[v][u] = min(dist[v][u], w)
+
+    for k in range(n):                     # Floyd-Warshall
+        for i in range(n):
+            for j in range(n):
+                if dist[i][k] + dist[k][j] < dist[i][j]:
+                    dist[i][j] = dist[i][k] + dist[k][j]
+
+    best_city, min_count = -1, n + 1
+    for i in range(n):
+        count = sum(1 for j in range(n) if i != j and dist[i][j] <= threshold)
+        if count <= min_count:              # ưu tiên chỉ số lớn hơn khi bằng nhau
+            min_count = count
+            best_city = i
+    return best_city
+
+edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]]
+print(find_city(4, edges, 4))  # 3`,
+     explain:"Floyd-Warshall tính đường đi ngắn nhất giữa MỌI cặp đỉnh trong O(n³) — phù hợp vì n thường nhỏ trong bài toán này. Sau đó chỉ cần đếm số thành phố trong ngưỡng cho mỗi hàng của ma trận dist."},
+    {title:"Số tỉnh thành liên thông (Union-Find trên ma trận)", diff:"medium",
+     desc:"Cho ma trận kề isConnected[i][j]=1 nghĩa là tỉnh i và j liên thông trực tiếp, đếm tổng số nhóm tỉnh thành liên thông (province).",
+     example:"[[1,1,0],[1,1,0],[0,0,1]] → 2",
+     code:`def find_circle_num(is_connected):
+    n = len(is_connected)
+    parent = list(range(n))
+
+    def find(x):
+        if parent[x] != x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        parent[find(x)] = find(y)
+
+    for i in range(n):
+        for j in range(i+1, n):
+            if is_connected[i][j] == 1:
+                union(i, j)
+
+    return len(set(find(i) for i in range(n)))
+
+print(find_circle_num([[1,1,0],[1,1,0],[0,0,1]]))  # 2
+print(find_circle_num([[1,0,0],[0,1,0],[0,0,1]]))  # 3`,
+     explain:"Duyệt nửa trên ma trận kề (i &lt; j), union mọi cặp liên thông trực tiếp. Số nhóm cuối cùng = số gốc (root) phân biệt sau khi find() toàn bộ — cách đếm SCC đơn giản cho đồ thị vô hướng."},
+    {title:"Chuyến bay rẻ nhất trong K điểm dừng (Bellman-Ford biến thể)", diff:"hard",
+     desc:"Tìm giá vé rẻ nhất từ src đến dst với tối đa k điểm dừng trung gian, cho phép trọng số dương — dùng Bellman-Ford giới hạn số vòng lặp.",
+     example:"n=4 thành phố, flights, src=0, dst=3, k=1 → giá rẻ nhất qua tối đa 1 điểm dừng",
+     code:`def find_cheapest_price(n, flights, src, dst, k):
+    INF = float('inf')
+    dist = [INF] * n
+    dist[src] = 0
+
+    for _ in range(k + 1):                 # tối đa k+1 cạnh (k điểm dừng)
+        new_dist = dist[:]
+        for u, v, w in flights:
+            if dist[u] != INF and dist[u] + w < new_dist[v]:
+                new_dist[v] = dist[u] + w
+        dist = new_dist
+
+    return dist[dst] if dist[dst] != INF else -1
+
+flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]]
+print(find_cheapest_price(4, flights, 0, 3, 1))  # 700`,
+     explain:"Đây là biến thể của <b>Bellman-Ford</b> — thay vì lặp V-1 lần, ta chỉ lặp k+1 lần (giới hạn số cạnh trong đường đi). Dùng new_dist riêng biệt mỗi vòng để tránh dùng kết quả 'chưa đủ bước' của chính vòng đó."},
+  ]},
+12:{ label:"P12 · Tổng ôn", title:"Tổng Ôn Tập", desc:"Bài tập tổng hợp nhiều kỹ thuật — luyện trước phỏng vấn.",
+  problems:[
+    {title:"Two Sum — Tìm cặp có tổng bằng target", diff:"easy",
+     desc:"Cho mảng số nguyên và target, tìm chỉ số 2 phần tử có tổng bằng target, dùng Hash Table để đạt O(n).",
+     example:"two_sum([2,7,11,15], 9) → [0, 1]",
+     code:`def two_sum(nums, target):
+    seen = {}                      # giá trị -> chỉ số
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+
+print(two_sum([2,7,11,15], 9))  # [0, 1]
+print(two_sum([3,2,4], 6))      # [1, 2]`,
+     explain:"Thay vì kiểm tra mọi cặp O(n²), ta lưu các giá trị đã duyệt vào Hash Table — với mỗi phần tử mới chỉ cần tra cứu O(1) xem 'phần bù' (target - num) đã xuất hiện chưa. Tổng độ phức tạp O(n)."},
+    {title:"Gộp 2 danh sách liên kết đã sắp xếp", diff:"easy",
+     desc:"Cho 2 Linked List đã sắp xếp tăng dần, gộp thành 1 Linked List sắp xếp duy nhất.",
+     example:"1→2→4 và 1→3→4  ⟹  1→1→2→3→4→4",
+     code:`class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val; self.next = next
+
+def merge_two_lists(l1, l2):
+    dummy = ListNode()
+    tail = dummy
+    while l1 and l2:
+        if l1.val <= l2.val:
+            tail.next = l1; l1 = l1.next
+        else:
+            tail.next = l2; l2 = l2.next
+        tail = tail.next
+    tail.next = l1 if l1 else l2       # nối phần còn dư
+    return dummy.next
+
+# Test
+l1 = ListNode(1, ListNode(2, ListNode(4)))
+l2 = ListNode(1, ListNode(3, ListNode(4)))
+merged = merge_two_lists(l1, l2)
+node = merged
+while node: print(node.val, end=" "); node = node.next   # 1 1 2 3 4 4`,
+     explain:"Dùng <b>dummy node</b> để đơn giản hóa việc xử lý node đầu tiên. Vì cả 2 list đã sắp xếp, chỉ cần so sánh 2 con trỏ đầu mỗi lần và nối phần tử nhỏ hơn — độ phức tạp O(n+m), không cần cấu trúc dữ liệu phụ."},
+    {title:"Tìm chuỗi con không lặp ký tự dài nhất", diff:"medium",
+     desc:"Tìm độ dài chuỗi con liên tiếp dài nhất không chứa ký tự lặp lại — kết hợp Sliding Window + Hash Set.",
+     example:'longest_unique_substring("abcabcbb") → 3 ("abc")',
+     code:`def longest_unique_substring(s):
+    seen = {}
+    left = 0
+    max_len = 0
+    for right, ch in enumerate(s):
+        if ch in seen and seen[ch] >= left:
+            left = seen[ch] + 1       # thu hẹp cửa sổ từ bên trái
+        seen[ch] = right
+        max_len = max(max_len, right - left + 1)
+    return max_len
+
+print(longest_unique_substring("abcabcbb"))  # 3
+print(longest_unique_substring("bbbbb"))     # 1
+print(longest_unique_substring("pwwkew"))    # 3`,
+     explain:"Kỹ thuật <b>Sliding Window</b> kết hợp Hash Map lưu vị trí gần nhất của mỗi ký tự. Khi gặp ký tự trùng lặp bên trong cửa sổ hiện tại, co left về ngay sau vị trí trùng — tổng độ phức tạp chỉ O(n), mỗi ký tự được xét quá 2 lần (right và có thể left)."},
+  ]},
+};
+
+const PART_ORDER = [1,2,3,4,5,6,7,8,9,10,11,12];
+let currentPart = 1;
+
+function renderTabs(){
+  const wrap = document.getElementById('tabsScroll');
+  wrap.innerHTML = '';
+  PART_ORDER.forEach(p=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab-chip' + (p===currentPart ? ' active' : '');
+    btn.textContent = DATA[p].label;
+    btn.addEventListener('click', ()=>{ currentPart = p; renderTabs(); renderPart(); });
+    wrap.appendChild(btn);
+  });
+}
+
+function renderPart(){
+  const part = DATA[currentPart];
+  document.getElementById('partIntro').innerHTML = `<h2>${part.title}</h2><p>${part.desc}</p>`;
+
+  const list = document.getElementById('problemsList');
+  list.innerHTML = '';
+  part.problems.forEach((prob, idx)=>{
+    const diffLabel = {easy:'Dễ', medium:'Trung bình', hard:'Khó'}[prob.diff];
+    const card = document.createElement('div');
+    card.className = 'problem-card';
+    card.innerHTML = `
+      <div class="problem-head">
+        <div class="problem-title">Bài ${idx+1}: ${prob.title}</div>
+        <span class="diff-badge diff-${prob.diff}">${diffLabel}</span>
+      </div>
+      <div class="problem-desc">${prob.desc}</div>
+      <div class="problem-example">${prob.example}</div>
+      <button class="toggle-solution">👁 Hiện lời giải</button>
+      <div class="solution-box">
+        <div class="solution-inner">
+          <span class="solution-label">Lời giải tham khảo</span>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <button class="copy-btn">📋 Copy</button>
+            </div>
+            <pre><code>${escapeHtml(prob.code.trim())}</code></pre>
+          </div>
+          <div class="explain">${prob.explain}</div>
+        </div>
+      </div>
+    `;
+    const toggleBtn = card.querySelector('.toggle-solution');
+    const solBox = card.querySelector('.solution-box');
+    toggleBtn.addEventListener('click', ()=>{
+      const isOpen = solBox.classList.toggle('show');
+      toggleBtn.classList.toggle('open', isOpen);
+      toggleBtn.textContent = isOpen ? '🙈 Ẩn lời giải' : '👁 Hiện lời giải';
+    });
+    const copyBtn = card.querySelector('.copy-btn');
+    copyBtn.addEventListener('click', ()=>{
+      const codeText = card.querySelector('pre code').innerText;
+      navigator.clipboard.writeText(codeText).then(()=>{
+        copyBtn.textContent = '✅ Đã chép';
+        copyBtn.classList.add('copied');
+        setTimeout(()=>{ copyBtn.textContent = '📋 Copy'; copyBtn.classList.remove('copied'); }, 1600);
+      });
+    });
+    list.appendChild(card);
+  });
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+renderTabs();
+renderPart();
+
+let isLight = (typeof localStorage!=='undefined' && localStorage.getItem('algo-mastery-theme')==='light');
+if(isLight){
+  document.body.classList.add('light');
+  const __tl = document.getElementById('themeLabel');
+  if(__tl) __tl.textContent = '☀️ Light';
+}
+document.getElementById('themeToggle').addEventListener('click',()=>{
+  isLight=!isLight;if(typeof localStorage!=='undefined'){localStorage.setItem('algo-mastery-theme', isLight?'light':'dark');}
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('themeLabel').textContent=isLight?'☀️ Light':'🌙 Dark';
+});
+
+const btt=document.getElementById('back-to-top');
+window.addEventListener('scroll',()=>btt.classList.toggle('show',window.scrollY>400));
+btt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>

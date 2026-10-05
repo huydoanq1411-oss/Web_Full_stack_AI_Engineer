@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Mastery — Cheat Sheet (In được)</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F1117;--bg-elevated:#161922;--bg-card:#1B1F2A;--border:#2A2F3D;--text:#E8E6E1;--text-muted:#9CA3AF;--accent:#22d3ee;--accent-2:#818cf8;--danger:#F2789A;--info:#7DB8F2;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+body.light{--bg:#FAF8F3;--bg-elevated:#FFFFFF;--bg-card:#F2EEE3;--border:#E2DDD0;--text:#1F2329;--text-muted:#6B6458;--accent:#22d3ee;--accent-2:#818cf8;--info:#2E6FB5;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.55;transition:background .25s,color .25s;}
+
+/* SCREEN-ONLY TOPBAR */
+.topbar{position:sticky;top:0;z-index:500;background:rgba(15,17,23,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+body.light .topbar{background:rgba(250,248,243,.9);}
+.topbar-inner{max-width:1000px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;color:#0F1117;font-size:15px;flex-shrink:0;}
+.brand h1{font-family:var(--font-display);font-size:15px;font-weight:700;}
+.brand p{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+.topbar-actions{display:flex;gap:8px;align-items:center;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:9px 16px;border-radius:100px;cursor:pointer;}
+.print-link{font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);padding:8px 14px;border-radius:8px;cursor:pointer;}
+.back-link:hover,.print-link:hover{border-color:var(--accent);color:var(--accent);}
+.print-link{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0F1117;border:none;font-weight:700;}
+.print-link:hover{opacity:.88;color:#0F1117;}
+.theme-toggle{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:var(--font-body);}
+.theme-toggle:hover{border-color:var(--accent);}
+.menu-toggle{background:var(--bg-card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px;}
+.menu-toggle:hover{border-color:var(--accent);color:var(--accent);}
+#toolbox-sidebar{position:fixed;top:0;right:-300px;width:280px;height:100%;background:var(--bg-elevated);border-left:1px solid var(--border);padding:22px 20px;z-index:700;transition:right .3s ease;overflow-y:auto;}
+#toolbox-sidebar.open{right:0;}
+#toolbox-sidebar .sb-title{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+#toolbox-sidebar .sb-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;}
+#toolbox-sidebar a{display:block;color:var(--text);text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;margin-bottom:2px;}
+#toolbox-sidebar a:hover{background:var(--bg-card);color:var(--accent);}
+#toolbox-sidebar a.current{color:var(--accent);font-weight:600;}
+#toolbox-sidebar a.home-link{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:var(--accent-2);font-family:var(--font-mono);font-size:12.5px;}
+#toolbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;}
+#toolbox-overlay.open{display:block;}
+@media print{ #toolbox-sidebar,#toolbox-overlay,.menu-toggle{ display:none; } }
+
+.page{max-width:1000px;margin:0 auto;padding:32px 24px 60px;}
+.sheet-header{text-align:center;margin-bottom:26px;}
+.sheet-header .eyebrow{font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;}
+.sheet-header h1{font-family:var(--font-display);font-size:26px;font-weight:700;margin:6px 0 4px;}
+.sheet-header p{font-size:12.5px;color:var(--text-muted);}
+
+/* GRID COLUMNS FOR PRINT-FRIENDLY LAYOUT */
+.sheet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.sheet-block{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:14px 16px;break-inside:avoid;page-break-inside:avoid;}
+.sheet-block h3{font-family:var(--font-display);font-size:13.5px;font-weight:700;color:var(--accent-2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.sheet-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.sheet-table td{padding:3px 0;border-bottom:1px dotted var(--border);}
+.sheet-table tr:last-child td{border-bottom:none;}
+.sheet-table td.op{color:var(--text);font-family:var(--font-body);}
+.sheet-table td.val{font-family:var(--font-mono);color:var(--accent-2);text-align:right;white-space:nowrap;}
+
+.pattern-mini{width:100%;border-collapse:collapse;font-size:11px;}
+.pattern-mini td{padding:4px 0;border-bottom:1px dotted var(--border);vertical-align:top;}
+.pattern-mini tr:last-child td{border-bottom:none;}
+.pattern-mini td.sig{color:var(--info);font-family:var(--font-mono);font-size:10.3px;padding-right:8px;width:52%;}
+.pattern-mini td.alg{color:var(--accent-2);font-family:var(--font-mono);font-size:10.3px;font-weight:600;}
+
+.full-width{grid-column:1/-1;}
+
+.template-code{background:#0B0D12;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font-mono);font-size:10.5px;line-height:1.5;color:#E8E6E1;overflow-x:auto;white-space:pre;}
+body.light .template-code{background:#1E2128;}
+
+.mnemonic-row{display:flex;gap:8px;flex-wrap:wrap;}
+.mnemonic-chip{font-family:var(--font-mono);font-size:10.5px;background:var(--bg-card);border:1px solid var(--border);padding:4px 9px;border-radius:14px;color:var(--text-muted);}
+
+.footer-note{text-align:center;margin-top:20px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);}
+
+/* ============ PRINT STYLES ============ */
+@media print{
+  @page{ size: A4; margin: 12mm; }
+  .topbar{ display:none; }
+  body{ background:#FFFFFF !important; color:#111319 !important; }
+  .page{ max-width:100%; padding:0; }
+  .sheet-header{ margin-bottom:14px; }
+  .sheet-header .eyebrow{ color:#C9762F; }
+  .sheet-block{
+    background:#FFFFFF !important;
+    border:1px solid #ccc !important;
+    box-shadow:none !important;
+  }
+  .sheet-block h3{ color:#0E8C7A !important; border-bottom-color:#ccc !important; }
+  .sheet-table td.val, .pattern-mini td.alg{ color:#0E8C7A !important; }
+  .pattern-mini td.sig{ color:#2E6FB5 !important; }
+  .template-code{ background:#F4F4F4 !important; color:#111319 !important; border-color:#ccc !important; }
+  .mnemonic-chip{ border-color:#ccc !important; color:#555 !important; }
+  .sheet-grid{ gap:8px; }
+  a{ text-decoration:none; color:inherit; }
+  .footer-note{ display:none; }
+}
+
+@media(max-width:700px){
+  .sheet-grid{grid-template-columns:1fr;}
+  .sheet-header h1{font-size:22px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo-mark">{ }</div>
+      <div><h1>Algorithm Mastery</h1><p>Cheat Sheet in được</p></div>
+    </div>
+    <div class="topbar-actions">
+      <a href="../index.html" class="back-link">🏠 Trang chủ</a>
+      <button class="menu-toggle" id="toolboxMenuBtn" aria-label="Mở mục lục" onclick="document.getElementById('toolbox-sidebar').classList.toggle('open');document.getElementById('toolbox-overlay').classList.toggle('open');">☰</button>
+      <button class="theme-toggle" id="themeToggle"><span id="themeLabel">🌙 Dark</span></button>
+      <button class="print-link" onclick="window.print()">🖨️ In trang này</button>
+    </div>
+  </div>
+</div>
+
+<div id="toolbox-overlay" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="toolbox-sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');document.getElementById('toolbox-overlay').classList.remove('open');">✕</button></div>
+  <a class="current" href="cheatsheet.html">📄 Cheat Sheet</a>
+  <a href="exercises.html">✍️ Bài tập &amp; Lời giải</a>
+  <a href="flashcards.html">🃏 Flashcards</a>
+  <a href="glossary.html">📖 Glossary Anh-Việt</a>
+  <a href="quiz-tong-hop.html">📝 Quiz tổng hợp</a>
+  <a href="free-apis-giao-trinh.html">🔌 Free APIs</a>
+  <a href="../ai-engineer/tong-hop-prompt-agent-cong-cu-ai-2026.html">🤖 AI Agent Toolbox</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+</aside>
+
+<div class="page">
+  <div class="sheet-header">
+    <span class="eyebrow">📄 Tối ưu để in A4</span>
+    <h1>Algorithm Mastery — Cheat Sheet</h1>
+    <p>Bảng tra cứu nhanh Big-O, mẫu nhận diện bài toán, và template code — gói gọn trong 1-2 trang giấy A4.</p>
+  </div>
+
+  <div class="sheet-grid">
+
+    <div class="sheet-block">
+      <h3>⏱️ Big-O — Cấu trúc dữ liệu</h3>
+      <table class="sheet-table">
+        <tr><td class="op">Array — truy cập</td><td class="val">O(1)</td></tr>
+        <tr><td class="op">Array — tìm kiếm</td><td class="val">O(n)</td></tr>
+        <tr><td class="op">Linked List — chèn đầu</td><td class="val">O(1)</td></tr>
+        <tr><td class="op">Linked List — tìm kiếm</td><td class="val">O(n)</td></tr>
+        <tr><td class="op">Hash Table — tra cứu (avg)</td><td class="val">O(1)</td></tr>
+        <tr><td class="op">Hash Table — worst case</td><td class="val">O(n)</td></tr>
+        <tr><td class="op">BST cân bằng — tìm/chèn/xóa</td><td class="val">O(log n)</td></tr>
+        <tr><td class="op">Heap — insert/extract</td><td class="val">O(log n)</td></tr>
+        <tr><td class="op">Trie — tìm từ độ dài m</td><td class="val">O(m)</td></tr>
+        <tr><td class="op">Union-Find (tối ưu)</td><td class="val">O(α(n))≈O(1)</td></tr>
+      </table>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🔀 Big-O — Sắp xếp</h3>
+      <table class="sheet-table">
+        <tr><td class="op">Merge Sort (mọi TH)</td><td class="val">O(n log n)</td></tr>
+        <tr><td class="op">Quick Sort (avg)</td><td class="val">O(n log n)</td></tr>
+        <tr><td class="op">Quick Sort (worst)</td><td class="val">O(n²)</td></tr>
+        <tr><td class="op">Heap Sort</td><td class="val">O(n log n)</td></tr>
+        <tr><td class="op">Bubble/Insertion Sort</td><td class="val">O(n²)</td></tr>
+        <tr><td class="op">Counting Sort</td><td class="val">O(n+k)</td></tr>
+        <tr><td class="op">Radix Sort</td><td class="val">O(d(n+k))</td></tr>
+        <tr><td class="op">Ổn định (Stable)</td><td class="val">Merge/Insert/Bubble</td></tr>
+        <tr><td class="op">Không ổn định</td><td class="val">Quick/Heap/Selection</td></tr>
+      </table>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🕸️ Big-O — Đồ thị</h3>
+      <table class="sheet-table">
+        <tr><td class="op">BFS / DFS</td><td class="val">O(V+E)</td></tr>
+        <tr><td class="op">Dijkstra (Min-Heap)</td><td class="val">O((V+E)logV)</td></tr>
+        <tr><td class="op">Bellman-Ford</td><td class="val">O(V×E)</td></tr>
+        <tr><td class="op">Floyd-Warshall</td><td class="val">O(V³)</td></tr>
+        <tr><td class="op">Kruskal (MST)</td><td class="val">O(E log E)</td></tr>
+        <tr><td class="op">Prim (MST)</td><td class="val">O((V+E)logV)</td></tr>
+        <tr><td class="op">Tarjan/Kosaraju (SCC)</td><td class="val">O(V+E)</td></tr>
+        <tr><td class="op">Edmonds-Karp (Max Flow)</td><td class="val">O(VE²)</td></tr>
+      </table>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🔤 Big-O — Chuỗi & DP</h3>
+      <table class="sheet-table">
+        <tr><td class="op">Naive String Search</td><td class="val">O(nm)</td></tr>
+        <tr><td class="op">KMP</td><td class="val">O(n+m)</td></tr>
+        <tr><td class="op">Rabin-Karp (avg)</td><td class="val">O(n+m)</td></tr>
+        <tr><td class="op">Manacher (Palindrome)</td><td class="val">O(n)</td></tr>
+        <tr><td class="op">0/1 Knapsack</td><td class="val">O(n×W)</td></tr>
+        <tr><td class="op">LCS / Edit Distance</td><td class="val">O(m×n)</td></tr>
+        <tr><td class="op">LIS (tối ưu)</td><td class="val">O(n log n)</td></tr>
+      </table>
+    </div>
+
+    <div class="sheet-block full-width">
+      <h3>🎯 Nhận diện mẫu bài toán — Dấu hiệu → Kỹ thuật</h3>
+      <table class="pattern-mini">
+        <tr><td class="sig">"Đường đi ngắn nhất", "bước ít nhất"</td><td class="alg">BFS / Dijkstra</td></tr>
+        <tr><td class="sig">"Tất cả khả năng", "liệt kê mọi cách"</td><td class="alg">Backtracking</td></tr>
+        <tr><td class="sig">"Tối đa/tối thiểu", "số cách" + mảng/chuỗi</td><td class="alg">Dynamic Programming</td></tr>
+        <tr><td class="sig">"Lựa chọn tốt nhất mỗi bước", không cần nhìn lại</td><td class="alg">Greedy</td></tr>
+        <tr><td class="sig">Mảng đã sắp xếp, tìm phần tử/khoảng</td><td class="alg">Binary Search</td></tr>
+        <tr><td class="sig">"Chuỗi con", pattern matching</td><td class="alg">KMP / Rabin-Karp / Trie</td></tr>
+        <tr><td class="sig">Cửa sổ trượt, mảng con liên tiếp thỏa X</td><td class="alg">Sliding Window / Two Pointers</td></tr>
+        <tr><td class="sig">Phần tử lớn/nhỏ hơn gần nhất</td><td class="alg">Monotonic Stack</td></tr>
+        <tr><td class="sig">Tổng/min/max trên khoảng, có cập nhật</td><td class="alg">Segment Tree / Fenwick Tree</td></tr>
+        <tr><td class="sig">"Liên thông", "cùng nhóm"</td><td class="alg">Union-Find</td></tr>
+        <tr><td class="sig">"Mạng lưới", "luồng", "phân bổ tối đa"</td><td class="alg">Max Flow</td></tr>
+        <tr><td class="sig">"Cây khung", chi phí kết nối thấp nhất</td><td class="alg">Kruskal / Prim</td></tr>
+        <tr><td class="sig">"Đồ thị có hướng", thứ tự thực hiện</td><td class="alg">Topological Sort</td></tr>
+        <tr><td class="sig">K phần tử lớn/nhỏ nhất, median liên tục</td><td class="alg">Heap / Priority Queue</td></tr>
+      </table>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🧩 Template — Backtracking</h3>
+      <div class="template-code">def backtrack(state, choices, res):
+    if is_solution(state):
+        res.append(list(state)); return
+    for c in choices:
+        if is_valid(state, c):
+            state.append(c)
+            backtrack(state, next(state), res)
+            state.pop()  # quay lui</div>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🧩 Template — DP Bottom-Up</h3>
+      <div class="template-code">dp = [base_case] * (n + 1)
+for i in range(1, n + 1):
+    for choice in choices:
+        dp[i] = best(dp[i], dp[i-choice] + cost)
+return dp[n]</div>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🧩 Template — BFS</h3>
+      <div class="template-code">from collections import deque
+def bfs(start):
+    q = deque([start]); visited = {start}
+    while q:
+        node = q.popleft()
+        for nxt in graph[node]:
+            if nxt not in visited:
+                visited.add(nxt); q.append(nxt)</div>
+    </div>
+
+    <div class="sheet-block">
+      <h3>🧩 Template — Binary Search</h3>
+      <div class="template-code">def binary_search(arr, target):
+    lo, hi = 0, len(arr) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if arr[mid] == target: return mid
+        elif arr[mid] < target: lo = mid + 1
+        else: hi = mid - 1
+    return -1</div>
+    </div>
+
+    <div class="sheet-block full-width">
+      <h3>💡 Ghi nhớ nhanh trước phỏng vấn</h3>
+      <div class="mnemonic-row">
+        <span class="mnemonic-chip">DP = Optimal Substructure + Overlapping Subproblems</span>
+        <span class="mnemonic-chip">Greedy = Greedy Choice Property + Optimal Substructure</span>
+        <span class="mnemonic-chip">Dijkstra ≠ trọng số âm → dùng Bellman-Ford</span>
+        <span class="mnemonic-chip">MST cạnh = V - 1</span>
+        <span class="mnemonic-chip">Euler = mọi đỉnh bậc chẵn</span>
+        <span class="mnemonic-chip">Hamilton = NP-Complete</span>
+        <span class="mnemonic-chip">Fractional Knapsack → Greedy | 0/1 Knapsack → DP</span>
+        <span class="mnemonic-chip">Union-Find: Path Compression + Union by Rank</span>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="footer-note">Algorithm Mastery — Cheat Sheet · Xem chi tiết đầy đủ tại Phần 12 hoặc <a href="glossary.html" style="color:var(--accent-2);">Từ điển thuật ngữ</a></p>
+</div>
+
+<script>
+let isLight = (typeof localStorage!=='undefined' && localStorage.getItem('algo-mastery-theme')==='light');
+if(isLight){
+  document.body.classList.add('light');
+  const __tl = document.getElementById('themeLabel');
+  if(__tl) __tl.textContent = '☀️ Light';
+}
+document.getElementById('themeToggle').addEventListener('click',()=>{
+  isLight=!isLight;
+  if(typeof localStorage!=='undefined'){localStorage.setItem('algo-mastery-theme', isLight?'light':'dark');}
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('themeLabel').textContent=isLight?'☀️ Light':'🌙 Dark';
+});
+</script>
+</body>
+</html>

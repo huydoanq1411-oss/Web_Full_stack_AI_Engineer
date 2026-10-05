@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithm Mastery — Flashcards Ôn Tập</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F1117;--bg-elevated:#161922;--bg-card:#1B1F2A;--border:#2A2F3D;--text:#E8E6E1;--text-muted:#9CA3AF;--accent:#22d3ee;--accent-2:#818cf8;--danger:#F2789A;--info:#7DB8F2;--radius:14px;--font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;}
+body.light{--bg:#FAF8F3;--bg-elevated:#FFFFFF;--bg-card:#F2EEE3;--border:#E2DDD0;--text:#1F2329;--text-muted:#6B6458;--accent:#22d3ee;--accent-2:#818cf8;--info:#2E6FB5;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;transition:background .25s,color .25s;}
+
+.topbar{position:sticky;top:0;z-index:500;background:rgba(15,17,23,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+body.light .topbar{background:rgba(250,248,243,.85);}
+.topbar-inner{max-width:900px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;color:#0F1117;font-size:15px;flex-shrink:0;}
+.brand h1{font-family:var(--font-display);font-size:15px;font-weight:700;}
+.brand p{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+.topbar-actions{display:flex;gap:8px;align-items:center;}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);text-decoration:none;background:var(--bg-card);border:1px solid var(--border);padding:9px 16px;border-radius:100px;}
+.back-link:hover{border-color:var(--accent);color:var(--accent);}
+.theme-toggle{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:var(--font-body);}
+.theme-toggle:hover{border-color:var(--accent);}
+.menu-toggle{{background:var(--bg-card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px;}}
+.menu-toggle:hover{{border-color:var(--accent);color:var(--accent);}}
+#toolbox-sidebar{{position:fixed;top:0;right:-300px;width:280px;height:100%;background:var(--bg-elevated);border-left:1px solid var(--border);padding:22px 20px;z-index:700;transition:right .3s ease;overflow-y:auto;}}
+#toolbox-sidebar.open{{right:0;}}
+#toolbox-sidebar .sb-title{{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}}
+#toolbox-sidebar .sb-close{{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;}}
+#toolbox-sidebar a{{display:block;color:var(--text);text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;margin-bottom:2px;}}
+#toolbox-sidebar a:hover{{background:var(--bg-card);color:var(--accent);}}
+#toolbox-sidebar a.current{{color:var(--accent);font-weight:600;}}
+#toolbox-sidebar a.home-link{{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:var(--accent-2);font-family:var(--font-mono);font-size:12.5px;}}
+#toolbox-overlay{{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;}}
+#toolbox-overlay.open{{display:block;}}
+
+.hero{max-width:900px;margin:0 auto;padding:48px 24px 20px;text-align:center;}
+.hero .eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;background:var(--bg-card);padding:6px 16px;border-radius:20px;border:1px solid var(--border);margin-bottom:18px;}
+.hero h1{font-family:var(--font-display);font-size:34px;font-weight:700;margin-bottom:12px;}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{color:var(--text-muted);max-width:560px;margin:0 auto;font-size:15px;}
+
+/* DECK SELECTOR */
+.deck-row{max-width:900px;margin:28px auto 0;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.deck-chip{font-family:var(--font-mono);font-size:12.5px;padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.deck-chip:hover{border-color:var(--accent);}
+.deck-chip.active{background:var(--accent);color:#0F1117;border-color:var(--accent);font-weight:700;}
+
+/* CARD AREA */
+.card-area{max-width:560px;margin:40px auto 0;padding:0 24px;}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);}
+.progress-info .track{flex:1;height:5px;background:var(--bg-card);border-radius:4px;margin:0 14px;overflow:hidden;}
+.progress-info .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:4px;transition:width .3s;}
+
+.flip-scene{perspective:1400px;height:280px;}
+.flip-card{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;cursor:pointer;}
+.flip-card.flipped{transform:rotateY(180deg);}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;background:var(--bg-elevated);}
+.flip-front{background:linear-gradient(135deg,var(--bg-elevated),var(--bg-card));}
+.flip-back{transform:rotateY(180deg);background:linear-gradient(135deg,rgba(129,140,248,.08),var(--bg-elevated));}
+.flip-tag{font-family:var(--font-mono);font-size:10.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;background:var(--bg-card);border:1px solid var(--border);padding:3px 12px;border-radius:20px;margin-bottom:18px;}
+.flip-title{font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:10px;line-height:1.3;}
+.flip-hint{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);position:absolute;bottom:14px;}
+.flip-answer{font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent-2);margin-bottom:14px;}
+.flip-detail{font-size:13.5px;color:var(--text-muted);max-width:420px;}
+
+.card-controls{display:flex;justify-content:center;gap:12px;margin-top:26px;flex-wrap:wrap;}
+.ctrl-btn{font-family:var(--font-mono);font-size:13px;padding:11px 22px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);cursor:pointer;font-weight:600;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ctrl-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#0F1117;border:none;}
+.ctrl-btn.primary:hover{opacity:.88;}
+.ctrl-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.shuffle-row{text-align:center;margin-top:16px;}
+.shuffle-btn{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;}
+.shuffle-btn:hover{color:var(--accent);}
+
+.footer{border-top:1px solid var(--border);margin-top:60px;}
+.footer-inner{max-width:900px;margin:0 auto;padding:36px 24px;text-align:center;color:var(--text-muted);font-size:13px;font-family:var(--font-mono);}
+
+@media(max-width:600px){
+  .hero h1{font-size:26px;}
+  .flip-scene{height:320px;}
+  .flip-answer{font-size:20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo-mark">{ }</div>
+      <div><h1>Algorithm Mastery</h1><p>Flashcards ôn tập</p></div>
+    </div>
+    <div class="topbar-actions">
+      <a href="../index.html" class="back-link">🏠 Trang chủ</a>
+      <button class="menu-toggle" id="toolboxMenuBtn" aria-label="Mở mục lục" onclick="document.getElementById('toolbox-sidebar').classList.toggle('open');document.getElementById('toolbox-overlay').classList.toggle('open');">☰</button>
+      <button class="theme-toggle" id="themeToggle"><span id="themeLabel">🌙 Dark</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toolbox-overlay" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="toolbox-sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');document.getElementById('toolbox-overlay').classList.remove('open');">✕</button></div>
+  <a href="cheatsheet.html">📄 Cheat Sheet</a>
+  <a href="exercises.html">✍️ Bài tập & Lời giải</a>
+  <a class="current" href="flashcards.html">🃏 Flashcards</a>
+  <a href="glossary.html">📖 Glossary Anh-Việt</a>
+  <a href="quiz-tong-hop.html">📝 Quiz tổng hợp</a>
+  <a href="free-apis-giao-trinh.html">🔌 Free APIs</a>
+  <a href="../ai-engineer/tong-hop-prompt-agent-cong-cu-ai-2026.html">🤖 AI Agent Toolbox</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+</aside>
+
+<div class="hero">
+  <span class="eyebrow">🃏 Ôn tập nhanh</span>
+  <h1>Flashcards<br><span>Độ phức tạp & Công thức</span></h1>
+  <p>Bấm vào thẻ để lật xem đáp án. Dùng nút Trước/Sau để duyệt qua bộ thẻ, hoặc Xáo trộn để ôn tập ngẫu nhiên.</p>
+</div>
+
+<div class="deck-row" id="deckRow">
+  <button class="deck-chip active" data-deck="complexity">📐 Độ phức tạp</button>
+  <button class="deck-chip" data-deck="sorting">🔀 Sắp xếp</button>
+  <button class="deck-chip" data-deck="graph">🕸️ Đồ thị</button>
+  <button class="deck-chip" data-deck="dp">💡 DP & Greedy</button>
+  <button class="deck-chip" data-deck="structure">🗂️ CTDL</button>
+</div>
+
+<div class="card-area">
+  <div class="progress-info">
+    <span id="cardIndex">1 / 10</span>
+    <div class="track"><div class="fill" id="cardProgressFill" style="width:10%"></div></div>
+    <span id="deckLabel">Độ phức tạp</span>
+  </div>
+
+  <div class="flip-scene">
+    <div class="flip-card" id="flipCard">
+      <div class="flip-face flip-front">
+        <span class="flip-tag" id="frontTag">Câu hỏi</span>
+        <div class="flip-title" id="frontTitle">...</div>
+        <span class="flip-hint">👆 Bấm để xem đáp án</span>
+      </div>
+      <div class="flip-face flip-back">
+        <span class="flip-tag" id="backTag">Đáp án</span>
+        <div class="flip-answer" id="backAnswer">...</div>
+        <div class="flip-detail" id="backDetail">...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-controls">
+    <button class="ctrl-btn" id="prevBtn">← Trước</button>
+    <button class="ctrl-btn primary" id="flipBtn">🔄 Lật thẻ</button>
+    <button class="ctrl-btn" id="nextBtn">Sau →</button>
+  </div>
+  <div class="shuffle-row">
+    <button class="shuffle-btn" id="shuffleBtn">🔀 Xáo trộn bộ thẻ này</button>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">Algorithm Mastery — Flashcards ôn tập · <a href="../index.html" style="color:var(--accent-2);">Về trang chủ</a></div>
+</div>
+
+<script>
+const DECKS={
+  complexity:{
+    label:"Độ phức tạp",
+    cards:[
+      {q:"Binary Search",a:"O(log n)",d:"Chia đôi phạm vi tìm kiếm mỗi bước trên mảng đã sắp xếp."},
+      {q:"Truy cập phần tử Array theo chỉ số",a:"O(1)",d:"Truy cập trực tiếp qua địa chỉ bộ nhớ, không cần duyệt."},
+      {q:"Tìm kiếm trong Linked List",a:"O(n)",d:"Phải duyệt tuần tự từ đầu vì không có truy cập ngẫu nhiên."},
+      {q:"Chèn/Xóa đầu Linked List",a:"O(1)",d:"Chỉ cần cập nhật con trỏ head, không cần dịch chuyển phần tử."},
+      {q:"Tra cứu Hash Table (trung bình)",a:"O(1)",d:"Hàm băm tính trực tiếp chỉ số — nhưng worst case là O(n)."},
+      {q:"Tìm kiếm BST cân bằng",a:"O(log n)",d:"Mỗi bước loại bỏ một nửa cây con — cần cây cân bằng (AVL/Red-Black)."},
+      {q:"Merge Sort (mọi trường hợp)",a:"O(n log n)",d:"Chia đôi mảng log n lần, mỗi lần merge tốn O(n)."},
+      {q:"Quick Sort (worst case)",a:"O(n²)",d:"Xảy ra khi pivot luôn là phần tử nhỏ/lớn nhất (mảng đã sắp xếp)."},
+      {q:"BFS / DFS trên đồ thị",a:"O(V+E)",d:"Duyệt qua mỗi đỉnh và mỗi cạnh đúng 1 lần."},
+      {q:"Dijkstra (dùng Min-Heap)",a:"O((V+E) log V)",d:"Mỗi lần extract-min từ heap tốn O(log V), làm V+E lần."},
+      {q:"Floyd-Warshall",a:"O(V³)",d:"3 vòng lặp lồng nhau qua mọi đỉnh trung gian, nguồn, đích."},
+      {q:"Union-Find (path compression + rank)",a:"O(α(n)) ≈ O(1)",d:"α là hàm Ackermann ngược, tăng cực kỳ chậm — gần như hằng số."},
+    ]
+  },
+  sorting:{
+    label:"Sắp xếp",
+    cards:[
+      {q:"Bubble Sort",a:"O(n²)",d:"So sánh và hoán đổi từng cặp liền kề, lặp lại n lần."},
+      {q:"Insertion Sort (best case - mảng đã sắp xếp)",a:"O(n)",d:"Chỉ cần 1 lượt duyệt nếu không có phần tử nào cần dịch chuyển."},
+      {q:"Heap Sort",a:"O(n log n)",d:"Build heap O(n) + n lần extract-max O(log n)."},
+      {q:"Counting Sort",a:"O(n + k)",d:"k là phạm vi giá trị — không so sánh, đếm tần suất trực tiếp."},
+      {q:"Radix Sort",a:"O(d × (n + k))",d:"d là số chữ số, sắp xếp theo từng chữ số bằng Counting Sort."},
+      {q:"Sắp xếp nào ổn định (Stable)?",a:"Merge, Insertion, Bubble, Counting",d:"Giữ nguyên thứ tự tương đối của các phần tử bằng nhau."},
+      {q:"Sắp xếp nào KHÔNG ổn định?",a:"Quick Sort, Heap Sort, Selection Sort",d:"Có thể làm đảo thứ tự các phần tử bằng nhau."},
+      {q:"Quick Sort — độ phức tạp không gian",a:"O(log n)",d:"Do đệ quy trên stack, trung bình chia đôi mỗi lần."},
+    ]
+  },
+  graph:{
+    label:"Đồ thị",
+    cards:[
+      {q:"BFS dùng cấu trúc dữ liệu nào?",a:"Queue",d:"Duyệt theo từng lớp (level-order), FIFO."},
+      {q:"DFS dùng cấu trúc dữ liệu nào?",a:"Stack (hoặc đệ quy)",d:"Đi sâu nhất có thể trước khi quay lui."},
+      {q:"Thuật toán nào xử lý được cạnh trọng số ÂM?",a:"Bellman-Ford",d:"Dijkstra không xử lý được trọng số âm vì giả định greedy."},
+      {q:"Kruskal dùng cấu trúc dữ liệu nào để kiểm tra chu trình?",a:"Union-Find",d:"Kiểm tra 2 đỉnh có cùng nhóm (component) hay không."},
+      {q:"MST của đồ thị V đỉnh có bao nhiêu cạnh?",a:"V - 1",d:"Đủ để kết nối tất cả đỉnh mà không tạo chu trình."},
+      {q:"Điều kiện tồn tại Euler Circuit",a:"Liên thông + mọi đỉnh bậc chẵn",d:"Đi qua mỗi CẠNH đúng 1 lần rồi quay về điểm xuất phát."},
+      {q:"Hamilton Circuit thuộc lớp bài toán nào?",a:"NP-Complete",d:"Đi qua mỗi ĐỈNH đúng 1 lần — chưa có thuật toán đa thức."},
+      {q:"Định lý Max-Flow Min-Cut phát biểu gì?",a:"Luồng cực đại = Lát cắt tối thiểu",d:"Hai giá trị này luôn bằng nhau trong mọi mạng luồng."},
+    ]
+  },
+  dp:{
+    label:"DP & Greedy",
+    cards:[
+      {q:"2 điều kiện bắt buộc để dùng DP",a:"Optimal Substructure + Overlapping Subproblems",d:"Cấu trúc con tối ưu và bài toán con chồng chéo."},
+      {q:"0/1 Knapsack — độ phức tạp",a:"O(n × W)",d:"n = số đồ vật, W = sức chứa ba lô."},
+      {q:"LCS (Longest Common Subsequence)",a:"O(m × n)",d:"m, n là độ dài 2 chuỗi — bảng DP 2 chiều."},
+      {q:"LIS tối ưu (Binary Search)",a:"O(n log n)",d:"Dùng patience sorting + binary search thay vì O(n²) DP chuẩn."},
+      {q:"Điều kiện Greedy cho kết quả ĐÚNG",a:"Greedy Choice Property + Optimal Substructure",d:"Thiếu 1 trong 2 → Greedy có thể sai (VD: Coin Change tổng quát)."},
+      {q:"Fractional Knapsack giải bằng gì?",a:"Greedy (theo tỉ lệ value/weight)",d:"Vì cho phép chia nhỏ đồ vật — 0/1 Knapsack thì không."},
+      {q:"Edit Distance ('kitten' → 'sitting')",a:"3",d:"3 phép: thay k→s, thay e→i, chèn g."},
+      {q:"Top-Down vs Bottom-Up — cái nào ít tốn stack hơn?",a:"Bottom-Up (Tabulation)",d:"Dùng vòng lặp, không có overhead của đệ quy."},
+    ]
+  },
+  structure:{
+    label:"CTDL",
+    cards:[
+      {q:"Trie tìm kiếm từ độ dài m",a:"O(m)",d:"Không phụ thuộc số lượng từ đã lưu trong Trie."},
+      {q:"Segment Tree — truy vấn khoảng",a:"O(log n)",d:"Cả truy vấn và cập nhật đều O(log n)."},
+      {q:"Fenwick Tree dùng phép bit nào để tìm bucket tiếp theo?",a:"i & (-i)",d:"Lấy bit thấp nhất (lowest set bit) của i."},
+      {q:"Load Factor trong Hash Table là gì?",a:"số phần tử / kích thước mảng",d:"Khi vượt ngưỡng (~0.7), bảng tự động resize."},
+      {q:"2 chiến lược xử lý xung đột Hash Table",a:"Separate Chaining, Open Addressing",d:"Chaining dùng linked list mỗi bucket; Open Addressing dò bucket khác."},
+      {q:"Priority Queue thường cài đặt bằng gì?",a:"Heap (Min-Heap/Max-Heap)",d:"Insert và extract-min/max đều O(log n)."},
+      {q:"Monotonic Stack giải bài toán dạng nào?",a:"Next Greater/Smaller Element",d:"Tìm phần tử lớn/nhỏ hơn gần nhất trong O(n)."},
+      {q:"Union-Find — 2 tối ưu hóa quan trọng",a:"Path Compression + Union by Rank",d:"Giúp độ phức tạp gần O(1) thay vì O(n)."},
+    ]
+  }
+};
+
+let currentDeckKey='complexity';
+let currentIndex=0;
+let cards=[...DECKS[currentDeckKey].cards];
+
+const flipCard=document.getElementById('flipCard');
+const frontTitle=document.getElementById('frontTitle');
+const backAnswer=document.getElementById('backAnswer');
+const backDetail=document.getElementById('backDetail');
+const cardIndexEl=document.getElementById('cardIndex');
+const cardProgressFill=document.getElementById('cardProgressFill');
+const deckLabelEl=document.getElementById('deckLabel');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+const flipBtn=document.getElementById('flipBtn');
+const shuffleBtn=document.getElementById('shuffleBtn');
+
+function renderCard(){
+  const card=cards[currentIndex];
+  flipCard.classList.remove('flipped');
+  frontTitle.textContent=card.q;
+  backAnswer.textContent=card.a;
+  backDetail.textContent=card.d;
+  cardIndexEl.textContent=`${currentIndex+1} / ${cards.length}`;
+  cardProgressFill.style.width=((currentIndex+1)/cards.length*100)+'%';
+  deckLabelEl.textContent=DECKS[currentDeckKey].label;
+  prevBtn.disabled=currentIndex===0;
+  nextBtn.disabled=currentIndex===cards.length-1;
+}
+
+flipCard.addEventListener('click',()=>flipCard.classList.toggle('flipped'));
+flipBtn.addEventListener('click',()=>flipCard.classList.toggle('flipped'));
+
+prevBtn.addEventListener('click',()=>{
+  if(currentIndex>0){currentIndex--;renderCard();}
+});
+nextBtn.addEventListener('click',()=>{
+  if(currentIndex<cards.length-1){currentIndex++;renderCard();}
+});
+
+shuffleBtn.addEventListener('click',()=>{
+  for(let i=cards.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [cards[i],cards[j]]=[cards[j],cards[i]];
+  }
+  currentIndex=0;
+  renderCard();
+});
+
+document.querySelectorAll('.deck-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.deck-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentDeckKey=chip.dataset.deck;
+    cards=[...DECKS[currentDeckKey].cards];
+    currentIndex=0;
+    renderCard();
+  });
+});
+
+// Keyboard navigation
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowLeft')prevBtn.click();
+  else if(e.key==='ArrowRight')nextBtn.click();
+  else if(e.key===' '){e.preventDefault();flipCard.classList.toggle('flipped');}
+});
+
+renderCard();
+
+let isLight = (typeof localStorage!=='undefined' && localStorage.getItem('algo-mastery-theme')==='light');
+if(isLight){
+  document.body.classList.add('light');
+  const __tl = document.getElementById('themeLabel');
+  if(__tl) __tl.textContent = '☀️ Light';
+}
+document.getElementById('themeToggle').addEventListener('click',()=>{
+  isLight=!isLight;if(typeof localStorage!=='undefined'){localStorage.setItem('algo-mastery-theme', isLight?'light':'dark');}
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('themeLabel').textContent=isLight?'☀️ Light':'🌙 Dark';
+});
+</script>
+</body>
+</html>

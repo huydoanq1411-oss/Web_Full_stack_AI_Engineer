@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 6 · Supervised Learning: Linear &amp; Logistic Regression</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 6</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html" class="active"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 6</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 6</a></li>
+      <li><a href="#chuong-19"><span class="num">19</span> Tổng quan Supervised Learning</a></li>
+      <li><a href="#chuong-20"><span class="num">20</span> Linear Regression</a></li>
+      <li><a href="#chuong-21"><span class="num">21</span> Logistic Regression</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">22</span> KNN &amp; Naive Bayes</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">23</span> Decision Tree &amp; SVM</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 6. Supervised Learning</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 6 / N — Thuật toán Supervised Learning đầu tiên</span>
+        <h1>Thuật toán "kinh điển" đầu tiên:<br>Linear &amp; Logistic Regression</h1>
+        <p class="lead">Sau 5 phần chuẩn bị nền tảng, đây là lúc bạn chính thức xây dựng mô hình dự đoán đầu tiên. Phần 6 giới thiệu tổng quan
+        <b>Supervised Learning</b>, rồi đi sâu vào 2 thuật toán "phải biết" trước tiên: <b>Linear Regression</b> (dự đoán số) và
+        <b>Logistic Regression</b> (phân loại) — nền tảng để hiểu mọi mô hình phức tạp hơn sau này, kể cả neural network.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="80" cy="110" r="13" fill="var(--border)"/><text x="80" y="150" text-anchor="middle" font-size="10" fill="var(--muted)">Phần 1-5 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 19</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Tổng quan SL</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 20</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Linear Regression</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 21</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Logistic Regression</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 7 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" đầu tiên của khối thuật toán Supervised Learning.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Từ đây, giáo trình chuyển sang "học thuật toán"</div>
+        Toàn bộ kiến thức Phần 1-5 (toán, xử lý dữ liệu, pipeline) giờ sẽ được áp dụng liên tục. Mỗi thuật toán từ Phần 6 trở đi sẽ luôn theo cấu trúc:
+        <b>trực giác → công thức toán → code từ đầu (from scratch) → dùng scikit-learn → đánh giá → khi nào nên/không nên dùng</b>.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 19: TỔNG QUAN SUPERVISED LEARNING -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-19">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">19</div>
+            <div>
+              <h2>Tổng quan Supervised Learning</h2>
+              <div class="ch-sub">Regression vs Classification, quy trình chung, các thuật toán sẽ học</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>19.1. Ôn lại: Supervised Learning là gì?</h3>
+            <p>Nhắc lại từ Chương 1: Supervised Learning là bài toán học từ dữ liệu <b>có nhãn</b> — mỗi mẫu dữ liệu đầu vào <code>X</code> đi kèm một đáp án đúng <code>y</code>.
+            Mô hình học một hàm ánh xạ <code>f(X) ≈ y</code>, sao cho khi gặp dữ liệu mới (chưa có nhãn), nó có thể dự đoán <code>y</code> chính xác nhất có thể.</p>
+
+            <h3>19.2. Hai nhánh lớn: Regression và Classification</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tiêu chí</th><th>Regression</th><th>Classification</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Kiểu biến mục tiêu (y)</b></td><td>Số liên tục</td><td>Danh mục rời rạc</td></tr>
+                  <tr><td><b>Ví dụ bài toán</b></td><td>Dự đoán giá nhà, doanh thu, nhiệt độ</td><td>Spam/không spam, chẩn đoán bệnh, nhận diện chữ số</td></tr>
+                  <tr><td><b>Loss function phổ biến</b></td><td>MSE, MAE (Chương 9)</td><td>Cross-Entropy Loss (Chương 9)</td></tr>
+                  <tr><td><b>Metric đánh giá</b></td><td>MAE, RMSE, R²</td><td>Accuracy, Precision, Recall, F1, AUC-ROC</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 560 180" width="100%">
+                <g font-family="Space Grotesk" font-size="12">
+                  <text x="140" y="20" text-anchor="middle" fill="var(--teal)" font-weight="700">Regression</text>
+                  <line x1="30" y1="140" x2="250" y2="140" stroke="var(--border)"/>
+                  <line x1="30" y1="140" x2="30" y2="30" stroke="var(--border)"/>
+                  <circle cx="60" cy="120" r="4" fill="var(--teal)"/>
+                  <circle cx="90" cy="100" r="4" fill="var(--teal)"/>
+                  <circle cx="120" cy="90" r="4" fill="var(--teal)"/>
+                  <circle cx="150" cy="70" r="4" fill="var(--teal)"/>
+                  <circle cx="180" cy="55" r="4" fill="var(--teal)"/>
+                  <circle cx="210" cy="40" r="4" fill="var(--teal)"/>
+                  <line x1="45" y1="130" x2="225" y2="35" stroke="var(--teal)" stroke-width="2" stroke-dasharray="3 3"/>
+                  <text x="140" y="160" text-anchor="middle" font-size="10" fill="var(--muted)">Dự đoán 1 giá trị số liên tục</text>
+
+                  <text x="420" y="20" text-anchor="middle" fill="var(--violet)" font-weight="700">Classification</text>
+                  <line x1="310" y1="140" x2="530" y2="140" stroke="var(--border)"/>
+                  <line x1="310" y1="140" x2="310" y2="30" stroke="var(--border)"/>
+                  <circle cx="350" cy="100" r="5" fill="var(--teal)"/>
+                  <circle cx="370" cy="120" r="5" fill="var(--teal)"/>
+                  <circle cx="330" cy="110" r="5" fill="var(--teal)"/>
+                  <circle cx="450" cy="60" r="5" fill="var(--rose)"/>
+                  <circle cx="480" cy="45" r="5" fill="var(--rose)"/>
+                  <circle cx="460" cy="75" r="5" fill="var(--rose)"/>
+                  <path d="M400,130 Q420,80 440,35" stroke="var(--violet)" stroke-width="2" stroke-dasharray="3 3" fill="none"/>
+                  <text x="420" y="160" text-anchor="middle" font-size="10" fill="var(--muted)">Phân chia dữ liệu thành các lớp</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">Regression tìm đường "vừa khớp" nhất; Classification tìm ranh giới phân chia các lớp.</div>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — LLM về bản chất là một bài toán Classification khổng lồ</div>
+              Nghe có vẻ ngạc nhiên, nhưng việc một LLM (khóa AI Engineer) "viết văn bản" thực chất được huấn luyện như một bài toán <b>Classification</b> đúng như định nghĩa trong bảng trên, chỉ khác về quy mô:
+              <ul>
+                <li><b>Biến mục tiêu (y):</b> thay vì vài lớp như "spam/không spam", LLM dự đoán <b>token tiếp theo</b> trong số hàng chục nghìn đến hơn 100.000 token có thể có trong "từ điển" của nó — vẫn là bài toán phân loại nhiều lớp (multi-class classification), chỉ số lớp lớn hơn rất nhiều.</li>
+                <li><b>Loss function:</b> vẫn dùng chính <b>Cross-Entropy Loss</b> đã nhắc ở Chương 9 — giống hệt loss dùng cho các bài toán classification cổ điển trong chương này.</li>
+                <li><b>Cách sinh văn bản:</b> LLM lặp lại việc "dự đoán token tiếp theo, thêm vào chuỗi, dự đoán tiếp" hàng nghìn lần liên tiếp — mỗi bước là một lần chạy classification, không có gì "huyền bí" hơn những gì bạn sắp học ở Logistic Regression (Chương 21) hay Softmax cho multi-class.</li>
+              </ul>
+              💡 Điểm khác biệt thực sự nằm ở <b>kiến trúc mô hình</b> (Transformer, hàng tỷ tham số) và <b>quy mô dữ liệu huấn luyện</b> — chứ không nằm ở loại bài toán học máy nền tảng, vốn vẫn là Classification mà bạn đang học ngay trong Phần 6 này.
+            </div>
+
+            <h3>19.3. Quy trình chung khi học mỗi thuật toán mới</h3>
+            <ul class="checklist">
+              <li>Trực giác: thuật toán "nghĩ" như thế nào?</li>
+              <li>Công thức toán đứng sau (dùng lại kiến thức Phần 2)</li>
+              <li>Cài đặt from-scratch bằng NumPy để hiểu bản chất</li>
+              <li>Dùng scikit-learn để áp dụng nhanh trong thực tế</li>
+              <li>Đánh giá bằng metric phù hợp</li>
+              <li>Ưu điểm, nhược điểm, khi nào nên/không nên dùng</li>
+            </ul>
+
+            <div class="box tip">
+              <div class="box-title">💡 Vì sao lại cài đặt "from scratch" nếu đã có scikit-learn?</div>
+              Tự cài đặt thuật toán bằng NumPy (dù chỉ 1 lần) giúp bạn hiểu rõ bản chất toán học đứng sau — điều rất hữu ích khi cần debug mô hình, tinh chỉnh siêu tham số, hoặc trả lời phỏng vấn kỹ thuật. Trong công việc hàng ngày, bạn vẫn sẽ dùng scikit-learn là chính.
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 19</h4>
+              <ul>
+                <li>Supervised Learning chia làm 2 nhánh: Regression (dự đoán số) và Classification (phân loại danh mục).</li>
+                <li>Mỗi thuật toán trong các chương tiếp theo sẽ theo cùng một khung học: trực giác → toán → code → đánh giá → khi nào dùng.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 20: LINEAR REGRESSION -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-20">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">20</div>
+            <div>
+              <h2>Linear Regression (Hồi quy tuyến tính)</h2>
+              <div class="ch-sub">Thuật toán Regression cơ bản nhất, nền tảng cho mọi mô hình tuyến tính</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>20.1. Trực giác: tìm đường thẳng "vừa khớp" nhất</h3>
+            <p>Linear Regression tìm một đường thẳng (hoặc mặt phẳng khi có nhiều đặc trưng) sao cho tổng bình phương khoảng cách từ các điểm dữ liệu tới đường thẳng đó là <b>nhỏ nhất</b>.</p>
+
+            <h3>20.2. Công thức toán học</h3>
+            <p>Với 1 đặc trưng: <code>ŷ = w·x + b</code>, trong đó <code>w</code> là hệ số góc (weight), <code>b</code> là hệ số chặn (bias/intercept). Với nhiều đặc trưng, tổng quát hóa thành dạng vector:
+            <code>ŷ = w₁x₁ + w₂x₂ + ... + wₙxₙ + b = Xw + b</code> — đây chính là phép nhân ma trận đã học ở Chương 6.</p>
+
+            <p>Mô hình "học" bằng cách tìm <code>w, b</code> sao cho hàm mất mát <b>MSE (Mean Squared Error)</b> nhỏ nhất — đúng bài toán tối ưu hóa đã học ở Chương 9:</p>
+            <div class="box note" style="text-align:center;font-family:'JetBrains Mono';font-size:15px;">MSE = (1/n) · Σ(yᵢ - ŷᵢ)²</div>
+
+            <h3>20.3. Cài đặt Linear Regression từ đầu bằng Gradient Descent</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+
+np.random.seed(0)
+X = np.random.rand(100, 1) * 10        # 1 đặc trưng, 100 mẫu
+y = 3 * X.flatten() + 5 + np.random.randn(100) * 2   # y = 3x + 5 + nhiễu
+
+w, b = 0.0, 0.0
+learning_rate = 0.01
+so_vong_lap = 1000
+n = len(X)
+
+for i in range(so_vong_lap):
+    y_pred = w * X.flatten() + b
+    sai_so = y_pred - y
+
+    # Đạo hàm của MSE theo w và b (áp dụng chain rule - Chương 7)
+    grad_w = (2/n) * np.sum(sai_so * X.flatten())
+    grad_b = (2/n) * np.sum(sai_so)
+
+    # Cập nhật tham số theo Gradient Descent (Chương 9)
+    w -= learning_rate * grad_w
+    b -= learning_rate * grad_b
+
+print(f"Mô hình học được: y = {w:.2f}x + {b:.2f}")   # nên gần y = 3x + 5</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>y = 3 * X + 5 + nhiễu</code> — dữ liệu giả lập theo đúng công thức đường thẳng thật <code>y = 3x + 5</code>, cộng thêm nhiễu ngẫu nhiên để giống dữ liệu thực tế.</li>
+                <li><code>y_pred = w * X + b</code> — dự đoán hiện tại của mô hình với tham số <code>w, b</code> đang có.</li>
+                <li><code>grad_w</code>, <code>grad_b</code> — đạo hàm riêng của hàm mất mát MSE theo từng tham số, tính bằng công thức giải tích (đạo hàm của <code>(y_pred - y)²</code>).</li>
+                <li><code>w -= learning_rate * grad_w</code> — đúng công thức Gradient Descent đã học ở Chương 9, áp dụng riêng cho từng tham số của Linear Regression.</li>
+                <li>Sau 1000 vòng lặp, <code>w</code> và <code>b</code> hội tụ về gần giá trị thật <code>3</code> và <code>5</code> — chứng minh mô hình đã "học" đúng quy luật từ dữ liệu.</li>
+              </ol>
+            </div>
+
+            <h3>20.4. Dùng scikit-learn trong thực tế</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Hệ số w:", model.coef_[0])
+print("Hệ số chặn b:", model.intercept_)
+
+y_pred = model.predict(X_test)
+print("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
+print("R²:", r2_score(y_test, y_pred))</code></pre>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Metric</th><th>Ý nghĩa</th><th>Đọc kết quả thế nào</th></tr></thead>
+                <tbody>
+                  <tr><td><b>RMSE</b></td><td>Căn bậc hai của MSE, cùng đơn vị với biến mục tiêu</td><td>Càng nhỏ càng tốt; dễ diễn giải hơn MSE</td></tr>
+                  <tr><td><b>R² (R-squared)</b></td><td>Tỉ lệ phương sai của y được mô hình giải thích</td><td>Từ 0 đến 1 (có thể âm nếu mô hình rất tệ); càng gần 1 càng tốt</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Giả định của Linear Regression</div>
+              Linear Regression giả định mối quan hệ giữa X và y là <b>tuyến tính</b>. Nếu quan hệ thật sự là phi tuyến (ví dụ hình parabol), Linear Regression sẽ fit rất tệ dù đã tối ưu hoàn hảo — lúc này cần polynomial features hoặc thuật toán phi tuyến khác (Decision Tree, Random Forest — học ở phần sau).
+            </div>
+
+            <h3>20.5. Regularization: Ridge &amp; Lasso — chống overfitting</h3>
+            <p>Khi có nhiều đặc trưng, Linear Regression dễ overfitting. <b>Regularization</b> thêm một "hình phạt" vào hàm mất mát để giữ các hệ số <code>w</code> nhỏ lại:</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Biến thể</th><th>Hình phạt thêm vào loss</th><th>Đặc điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Ridge (L2)</b></td><td>λ · Σw²</td><td>Giữ mọi hệ số nhỏ nhưng khác 0</td></tr>
+                  <tr><td><b>Lasso (L1)</b></td><td>λ · Σ|w|</td><td>Có thể đưa một số hệ số về đúng 0 → tự động feature selection (liên hệ Chương 17)</td></tr>
+                  <tr><td><b>Elastic Net</b></td><td>Kết hợp cả L1 + L2 (có trọng số giữa 2 phần)</td><td>Cân bằng giữa feature selection (Lasso) và giữ ổn định khi các đặc trưng tương quan cao với nhau (Ridge)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="box tip">
+              <div class="box-title">💡 Khi nào chọn Elastic Net thay vì chỉ Ridge hoặc chỉ Lasso?</div>
+              Lasso có một nhược điểm khi nhiều đặc trưng tương quan cao với nhau: nó có xu hướng chọn ngẫu nhiên 1 đặc trưng trong nhóm tương quan và loại bỏ hoàn toàn các đặc trưng còn lại — có thể loại nhầm đặc trưng thực sự hữu ích. <b>Elastic Net</b> (<code>ElasticNet</code> trong scikit-learn, tham số <code>l1_ratio</code> điều chỉnh tỷ lệ L1/L2) khắc phục phần nào vấn đề này, thường là lựa chọn an toàn khi không chắc nên dùng Ridge hay Lasso.
+            </div>
+
+            <h3>20.5b. Thêm các chỉ số đánh giá Regression khác</h3>
+            <p>Ngoài MSE/RMSE/MAE/R² đã học ở Chương 8, còn vài chỉ số khác thường gặp trong thực hành:</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Chỉ số</th><th>Công thức / Đặc điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Adjusted R²</b></td><td><code>1 − (1−R²)(n−1)/(n−p−1)</code> — "phạt" R² khi thêm biến không thực sự cần thiết (n = số mẫu, p = số đặc trưng). R² thường luôn tăng hoặc giữ nguyên khi thêm biến bất kỳ, kể cả biến vô nghĩa — Adjusted R² sửa điều này.</td></tr>
+                  <tr><td><b>MAPE</b> (Mean Absolute Percentage Error)</td><td><code>(100/n) · Σ|yi−ŷi|/|yi|</code> — sai số tính theo phần trăm, hữu ích khi so sánh mô hình trên các thang đo hoàn toàn khác nhau (VD: so sánh sai số dự đoán giá nhà ở Việt Nam và ở Mỹ).</td></tr>
+                  <tr><td><b>Huber Loss</b></td><td>Kết hợp MSE (với sai số nhỏ) và MAE (với sai số lớn) — robust hơn MSE trước outlier, nhưng vẫn khả vi mượt mà tại điểm 0 (khác MAE, vốn không khả vi tại 0).</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Vì sao Huber Loss "khả vi" lại quan trọng?</div>
+              Nhớ lại Chương 9: Gradient Descent cần tính đạo hàm của loss function ở mọi điểm. MAE có "góc nhọn" tại 0 (đạo hàm không xác định đúng tại đó), gây khó khăn nhỏ cho tối ưu hóa bằng gradient. Huber Loss thiết kế mượt mà quanh 0 (giống MSE ở vùng sai số nhỏ) nhưng vẫn tuyến tính ở vùng sai số lớn (giống MAE, ít bị outlier chi phối) — kết hợp ưu điểm của cả hai.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với dữ liệu <code>X, y</code> ở mục 20.3, hãy dùng <code>Ridge</code> của scikit-learn (<code>from sklearn.linear_model import Ridge</code>) với <code>alpha=1.0</code>, so sánh hệ số <code>coef_</code> với Linear Regression thường.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>from sklearn.linear_model import Ridge
+
+ridge_model = Ridge(alpha=1.0)
+ridge_model.fit(X_train, y_train)
+print("Hệ số Ridge:", ridge_model.coef_[0])
+print("Hệ số Linear Regression thường:", model.coef_[0])
+# Hệ số Ridge thường nhỏ hơn một chút do bị "phạt" bởi regularization</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Áp dụng Linear Regression cho dữ liệu có quan hệ rõ ràng phi tuyến mà không kiểm tra trước bằng scatter plot (Chương 10).</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn vẽ scatter plot giữa từng đặc trưng và biến mục tiêu trước khi chọn Linear Regression, để xác nhận giả định tuyến tính là hợp lý.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 20</h4>
+              <ul>
+                <li>Linear Regression tìm đường thẳng/mặt phẳng tối thiểu hóa MSE giữa dự đoán và giá trị thật.</li>
+                <li>Có thể cài đặt bằng Gradient Descent hoặc dùng trực tiếp <code>LinearRegression</code> của scikit-learn.</li>
+                <li>Ridge/Lasso thêm regularization để chống overfitting khi có nhiều đặc trưng; Elastic Net kết hợp cả hai, cân bằng khi các đặc trưng tương quan cao.</li>
+                <li>Adjusted R² phạt việc thêm biến không cần thiết; MAPE so sánh sai số theo phần trăm; Huber Loss robust với outlier hơn MSE nhưng vẫn khả vi mượt mà.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 21: LOGISTIC REGRESSION -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-21">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">21</div>
+            <div>
+              <h2>Logistic Regression (Hồi quy Logistic)</h2>
+              <div class="ch-sub">Thuật toán Classification cơ bản nhất, dù tên có chữ "Regression"</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>21.1. Vì sao không dùng thẳng Linear Regression cho bài toán phân loại?</h3>
+            <p>Nếu dùng Linear Regression để dự đoán "Có/Không" (mã hóa 0/1), đầu ra có thể là bất kỳ số nào (âm, hoặc lớn hơn 1) — vô nghĩa khi ta cần một <b>xác suất</b> nằm trong [0, 1].
+            Logistic Regression giải quyết vấn đề này bằng cách "nén" đầu ra tuyến tính qua <b>hàm Sigmoid</b>.</p>
+
+            <h3>21.2. Hàm Sigmoid — trái tim của Logistic Regression</h3>
+            <div class="box note" style="text-align:center;font-family:'JetBrains Mono';font-size:15px;">σ(z) = 1 / (1 + e⁻ᶻ), với z = w·x + b</div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 400 180" width="360">
+                <line x1="20" y1="150" x2="380" y2="150" stroke="var(--border)"/>
+                <line x1="200" y1="10" x2="200" y2="170" stroke="var(--border)" stroke-dasharray="3 3"/>
+                <path d="M20,145 C100,145 160,20 200,80 C240,140 300,15 380,15" fill="none" stroke="var(--violet)" stroke-width="3"/>
+                <text x="200" y="185" text-anchor="middle" font-size="10" fill="var(--muted)">z = 0 → σ(z) = 0.5</text>
+                <text x="30" y="140" font-size="10" fill="var(--muted)">σ(z) → 0</text>
+                <text x="330" y="25" font-size="10" fill="var(--muted)">σ(z) → 1</text>
+              </svg>
+              <div class="diagram-caption">Hàm Sigmoid: nén mọi giá trị thực về khoảng (0, 1), hình chữ S đặc trưng.</div>
+            </div>
+
+            <p>Đầu ra <code>σ(z)</code> được diễn giải là <b>xác suất</b> mẫu thuộc lớp dương (ví dụ "1" = spam). Quy tắc quyết định mặc định: nếu <code>σ(z) ≥ 0.5</code> → dự đoán lớp 1, ngược lại → lớp 0.</p>
+
+            <h3>21.3. Cài đặt Logistic Regression từ đầu</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+
+np.random.seed(1)
+gio_hoc = np.random.uniform(0, 10, 100)
+# Xác suất đậu tăng dần theo giờ học, có nhiễu
+xac_suat_that = 1 / (1 + np.exp(-(gio_hoc - 5)))
+dau_mon = (np.random.rand(100) < xac_suat_that).astype(int)   # nhãn 0/1
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+w, b = 0.0, 0.0
+learning_rate = 0.1
+n = len(gio_hoc)
+
+for i in range(2000):
+    z = w * gio_hoc + b
+    y_pred = sigmoid(z)               # xác suất dự đoán
+    sai_so = y_pred - dau_mon
+
+    # Đạo hàm của Cross-Entropy Loss theo w, b (dạng rất giống Linear Regression!)
+    grad_w = (1/n) * np.sum(sai_so * gio_hoc)
+    grad_b = (1/n) * np.sum(sai_so)
+
+    w -= learning_rate * grad_w
+    b -= learning_rate * grad_b
+
+print(f"Mô hình học được: sigmoid({w:.2f}*x + {b:.2f})")
+
+# Dự đoán cho học sinh học 6 giờ
+xs_dau = sigmoid(w * 6 + b)
+print(f"Xác suất đậu nếu học 6 giờ: {xs_dau:.2%}")</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>xac_suat_that = 1/(1+exp(-(gio_hoc-5)))</code> — mô phỏng quy luật thật: học càng nhiều giờ, xác suất đậu càng cao, với "điểm giữa" ở 5 giờ.</li>
+                <li><code>dau_mon = (np.random.rand(100) < xac_suat_that)</code> — sinh nhãn 0/1 ngẫu nhiên nhưng tuân theo xác suất thật, giống cách dữ liệu thực tế được sinh ra.</li>
+                <li><code>y_pred = sigmoid(z)</code> — khác với Linear Regression, đầu ra được đưa qua hàm sigmoid để luôn nằm trong (0,1), diễn giải được như xác suất.</li>
+                <li>Công thức gradient <code>grad_w</code>, <code>grad_b</code> có dạng gần giống hệt Linear Regression — đây là một "sự trùng hợp đẹp" về mặt toán học khi dùng Cross-Entropy Loss kết hợp Sigmoid.</li>
+                <li><code>sigmoid(w * 6 + b)</code> — sau khi huấn luyện, đưa vào giá trị mới (6 giờ học) để lấy ra xác suất dự đoán, đúng bản chất "hồi quy xác suất" của Logistic Regression.</li>
+              </ol>
+            </div>
+
+            <h3>21.4. Dùng scikit-learn và đọc kết quả</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X = gio_hoc.reshape(-1, 1)
+y = dau_mon
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)                    # nhãn 0/1
+y_proba = model.predict_proba(X_test)[:, 1]        # xác suất thuộc lớp 1
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))</code></pre>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Hàm</th><th>Trả về</th></tr></thead>
+                <tbody>
+                  <tr><td><code>model.predict()</code></td><td>Nhãn dự đoán cuối cùng (0 hoặc 1)</td></tr>
+                  <tr><td><code>model.predict_proba()</code></td><td>Xác suất thuộc từng lớp — hữu ích khi cần điều chỉnh ngưỡng quyết định (không nhất thiết 0.5)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo: Confusion Matrix sẽ được học kỹ ở chương Model Evaluation</div>
+              Ngoài Accuracy, với bài toán phân loại (đặc biệt khi các lớp mất cân bằng — ví dụ 95% không mắc bệnh, 5% mắc bệnh), cần nhìn thêm Precision, Recall, F1-score để đánh giá đúng đắn — Accuracy một mình có thể gây hiểu lầm nghiêm trọng.
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Vì sao gọi là "Regression" dù dùng để phân loại?</div>
+              Vì bản chất mô hình vẫn học một hàm hồi quy tuyến tính <code>z = wx+b</code>, chỉ khác là kết quả được "hồi quy" ra một <b>xác suất</b> (qua sigmoid) rồi mới chuyển thành nhãn phân loại ở bước cuối — cái tên phản ánh đúng cơ chế toán học bên trong, không phải kết quả đầu ra.
+            </div>
+
+            <h3>21.5. Softmax Regression — mở rộng cho nhiều hơn 2 lớp</h3>
+            <p>Mọi nội dung ở trên áp dụng cho phân loại <b>2 lớp</b> (binary). Khi có nhiều hơn 2 lớp (VD: phân loại 3 loại hoa Iris), <b>Sigmoid</b> không còn phù hợp — thay vào đó dùng <b>Softmax</b>: thay vì cho ra 1 xác suất, Softmax cho ra <i>một xác suất cho mỗi lớp</i>, sao cho tổng tất cả các xác suất này luôn bằng 1.</p>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+
+def softmax(z):
+    """z: mảng điểm số thô (logits) cho từng lớp"""
+    e_z = np.exp(z - np.max(z))   # trừ max(z) để tránh tràn số (overflow) khi z lớn
+    return e_z / np.sum(e_z)
+
+diem_tho = np.array([2.0, 1.0, 0.1])   # điểm thô cho 3 lớp: Setosa, Versicolor, Virginica
+xac_suat = softmax(diem_tho)
+print(xac_suat)          # VD: [0.659, 0.242, 0.099] - tổng = 1.0
+print(np.argmax(xac_suat))  # chỉ số lớp có xác suất cao nhất -> dự đoán cuối cùng
+
+# Trong scikit-learn: chỉ cần đổi 1 tham số, không cần tự viết softmax
+from sklearn.linear_model import LogisticRegression
+mo_hinh_da_lop = LogisticRegression(multi_class='multinomial')
+mo_hinh_da_lop.fit(X_train, y_train)   # y_train giờ có thể là 0, 1, 2, ... nhiều lớp</code></pre>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Softmax chính là Sigmoid tổng quát hóa cho nhiều lớp</div>
+              Thử với đúng 2 lớp: Softmax sẽ cho ra kết quả tương đương hệt Sigmoid — Sigmoid là trường hợp đặc biệt của Softmax khi chỉ có 2 lựa chọn. Đây chính xác là hàm đã nhắc tới ở Phần 16 (Chương 49) khi học Activation Function cho lớp Output của mạng nơ-ron phân loại đa lớp — và cũng là bước cuối cùng để một LLM (khóa AI Engineer) chọn ra token tiếp theo trong số hàng chục nghìn token khả dĩ: về bản chất, đó chính là một phép Softmax Regression khổng lồ.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với mô hình đã huấn luyện ở mục 21.4, viết code tính xác suất dự đoán đậu môn cho học sinh học 3 giờ và 8 giờ, so sánh kết quả.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>import numpy as np
+hoc_sinh_moi = np.array([[3], [8]])
+xac_suat = model.predict_proba(hoc_sinh_moi)[:, 1]
+print(f"Học 3 giờ: {xac_suat[0]:.2%} | Học 8 giờ: {xac_suat[1]:.2%}")
+# Học càng nhiều giờ, xác suất đậu càng cao - đúng như quy luật đã mô phỏng</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chỉ nhìn Accuracy mà bỏ qua Precision/Recall khi dữ liệu mất cân bằng lớp mạnh — một mô hình luôn dự đoán "Không" cũng có thể đạt Accuracy 95% nhưng vô dụng.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn xem thêm <code>classification_report</code> đầy đủ, không chỉ dựa vào 1 con số Accuracy duy nhất.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 21</h4>
+              <ul>
+                <li>Logistic Regression dùng hàm Sigmoid để biến đầu ra tuyến tính thành xác suất trong (0,1).</li>
+                <li>Huấn luyện bằng cách tối thiểu hóa Cross-Entropy Loss, cũng dùng Gradient Descent như Linear Regression.</li>
+                <li><code>predict()</code> cho nhãn cuối cùng, <code>predict_proba()</code> cho xác suất — rất hữu ích khi cần điều chỉnh ngưỡng quyết định.</li>
+                <li>Softmax Regression mở rộng Logistic Regression cho nhiều hơn 2 lớp; Sigmoid chính là Softmax khi chỉ có 2 lựa chọn.</li>
+              </ul>
+              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn vừa hoàn thành 2 thuật toán Supervised Learning nền tảng nhất! Phần 7 sẽ tiếp tục với KNN, Naive Bayes, Decision Tree và SVM.</b></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 6</b>: Tổng quan Supervised Learning, Linear Regression và Logistic Regression.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-5-feature-engineering-pipeline.html" class="kbd" style="text-decoration:none;">← Phần 5. Feature Engineering</a>
+        <a href="phan-7-knn-bayes-tree-svm.html" class="kbd" style="text-decoration:none;">Sang Phần 7 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

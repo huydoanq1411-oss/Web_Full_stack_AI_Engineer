@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 3: State & useState — Full Stack Blueprint</title>
+
+<style>
+/* ============================================================
+   FONTS + TOKENS — đồng bộ với trang chủ index.html
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg: #eef1f6;
+  --bg-grid: rgba(11,31,58,0.05);
+  --paper: #ffffff;
+  --paper-soft: #f7f5ef;
+  --ink: #0b1f3a;
+  --ink-soft: #4a5b74;
+  --line: #22d3ee;
+  --line-soft: #c7dbe8;
+  --amber: #e78a00;
+  --amber-soft: #fff1d6;
+  --green: #2e9e5b;
+  --green-soft: #e3f6ea;
+  --red: #d64545;
+  --red-soft: #fdeaea;
+  --shadow: 0 10px 30px rgba(11,31,58,0.08);
+  --shadow-hover: 0 18px 40px rgba(11,31,58,0.16);
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --header-h: 70px;
+  --progress-h: 4px;
+}
+
+html[data-theme="dark"]{
+  --bg: #0b1f3a;
+  --bg-grid: rgba(34,211,238,0.07);
+  --paper: #102a4c;
+  --paper-soft: #0e2544;
+  --ink: #eef4fb;
+  --ink-soft: #9db2cf;
+  --line: #22d3ee;
+  --line-soft: #1e3f66;
+  --amber: #ffb703;
+  --amber-soft: rgba(255,183,3,0.12);
+  --green: #47c982;
+  --green-soft: rgba(71,201,130,0.12);
+  --red: #ff6b6b;
+  --red-soft: rgba(255,107,107,0.12);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow-hover: 0 20px 45px rgba(0,0,0,0.5);
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  color: var(--ink);
+  font-family:'Inter', sans-serif;
+  transition: background-color .4s ease, color .4s ease;
+  min-height:100vh;
+}
+
+h1,h2,h3,h4{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+.mono{ font-family:'JetBrains Mono', monospace; }
+a{ color: var(--line); }
+
+/* ============================================================
+   PROGRESS BAR — tiến độ đọc bài (theo scroll)
+   ============================================================ */
+.reading-progress{
+  position: fixed;
+  top: var(--header-h);
+  left:0; right:0;
+  height: var(--progress-h);
+  background: var(--line-soft);
+  z-index: 99;
+}
+.reading-progress-fill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, var(--line), var(--amber));
+  transition: width .1s linear;
+}
+
+/* ============================================================
+   HEADER cố định
+   ============================================================ */
+.site-header{
+  position: fixed;
+  top:0; left:0; right:0;
+  height: var(--header-h);
+  z-index: 100;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 0 clamp(14px, 3vw, 36px);
+}
+.brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand-mark{
+  width:38px; height:38px; border-radius:11px;
+  background: var(--ink); color: var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono', monospace; font-weight:600; font-size:12px;
+  flex-shrink:0;
+}
+html[data-theme="dark"] .brand-mark{ background: var(--line); color:#04121f; }
+.brand-text strong{ display:block; font-size:15px; font-weight:700; line-height:1.1; }
+.brand-text span{ display:block; font-size:10.5px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; letter-spacing:.05em; margin-top:2px; }
+
+.header-actions{ display:flex; align-items:center; gap:10px; }
+.icon-btn{
+  width:40px; height:40px; border-radius:11px;
+  border:1px solid var(--line-soft); background: var(--paper-soft); color: var(--ink);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  text-decoration:none;
+}
+.icon-btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--line); }
+.home-btn-pill{
+  display:flex; align-items:center; gap:7px; width:auto; height:auto;
+  padding:9px 16px; border-radius:100px;
+  border:1px solid var(--line-soft); background: var(--paper-soft); color: var(--ink);
+  font-size:13px; font-weight:600; font-family:'JetBrains Mono', monospace;
+  text-decoration:none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.home-btn-pill:hover{ transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--line); }
+
+/* ============================================================
+   LAYOUT — sidebar trái + nội dung
+   ============================================================ */
+.layout{
+  display:grid;
+  grid-template-columns: 270px 1fr;
+  gap: 32px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 30px) clamp(14px,3vw,36px) 60px;
+  align-items:start;
+}
+
+/* SIDEBAR (Mục lục) */
+.sidebar{
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  max-height: calc(100vh - var(--header-h) - 48px);
+  overflow-y:auto;
+}
+.sidebar h4{
+  font-size: 12px;
+  font-family:'JetBrains Mono', monospace;
+  color: var(--line);
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+.toc{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; }
+.toc a{
+  display:block;
+  text-decoration:none;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border-left: 2px solid transparent;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.toc a:hover{ background: var(--paper-soft); color: var(--ink); }
+.toc a.active{ background: var(--amber-soft); color: var(--ink); border-left-color: var(--amber); font-weight:600; }
+.toc .toc-num{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--line); margin-right:6px; }
+
+.sidebar-progress{
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line-soft);
+}
+.sidebar-progress span{ font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; }
+.mini-track{ height:7px; border-radius:999px; background:var(--paper-soft); border:1px solid var(--line-soft); margin-top:8px; overflow:hidden; }
+.mini-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--line), var(--amber)); transition: width .1s linear; }
+
+/* CONTENT */
+.content{ min-width:0; }
+
+.breadcrumb{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+.breadcrumb a{ text-decoration:none; color: var(--ink-soft); }
+.breadcrumb a:hover{ color: var(--line); }
+.breadcrumb .sep{ opacity:.5; }
+.breadcrumb .current{ color: var(--ink); font-weight:600; }
+
+.lesson-head{
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 28px clamp(20px,4vw,36px);
+  box-shadow: var(--shadow);
+  margin-bottom: 26px;
+  position:relative;
+}
+.lesson-eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--line);
+  background: var(--amber-soft);
+  border: 1px dashed var(--line);
+  padding: 5px 12px;
+  border-radius: 999px;
+  display:inline-block;
+  margin-bottom: 14px;
+}
+.lesson-head h1{ font-size: clamp(24px, 3.4vw, 32px); line-height:1.25; }
+.lesson-head p{ color: var(--ink-soft); margin-top:10px; font-size:15px; max-width:640px; }
+.lesson-tags{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+.lesson-tags .tag{
+  font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--line);
+  background: var(--amber-soft); border:1px solid var(--line-soft);
+  padding:4px 10px; border-radius:999px;
+}
+
+/* SECTION card */
+.lesson-section{
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 26px clamp(20px,4vw,36px);
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+  scroll-margin-top: calc(var(--header-h) + 30px);
+}
+.lesson-section h2{
+  font-size: 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom: 14px;
+}
+.lesson-section h2 .num{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--paper);
+  background: var(--ink);
+  width: 28px; height:28px;
+  border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+html[data-theme="dark"] .lesson-section h2 .num{ background: var(--line); color:#04121f; }
+.lesson-section h3{ font-size:16px; margin: 18px 0 8px; }
+.lesson-section p, .lesson-section li{ color: var(--ink-soft); font-size:14.5px; line-height:1.75; }
+.lesson-section ul, .lesson-section ol{ padding-left: 20px; margin: 8px 0; }
+.lesson-section strong{ color: var(--ink); }
+
+/* TABLE */
+.data-table{ width:100%; border-collapse:collapse; margin: 14px 0; font-size:13.5px; }
+.data-table th, .data-table td{
+  border:1px solid var(--line-soft);
+  padding: 10px 14px;
+  text-align:left;
+  color: var(--ink-soft);
+}
+.data-table th{
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  letter-spacing:.03em;
+}
+.data-table td code{ font-family:'JetBrains Mono', monospace; color: var(--line); background:var(--paper-soft); padding:2px 6px; border-radius:6px; }
+.data-table-wrap{ overflow-x:auto; }
+
+/* CODE BLOCK */
+.code-block{
+  position: relative;
+  background: #0b1f3a;
+  border-radius: var(--radius-md);
+  margin: 14px 0;
+  overflow:hidden;
+  border: 1px solid var(--line-soft);
+}
+.code-block .code-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 9px 16px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.code-block .code-bar span{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #9db2cf;
+  letter-spacing:.04em;
+}
+.copy-btn{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #eef4fb;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor:pointer;
+  transition: background-color .2s ease;
+}
+.copy-btn:hover{ background: rgba(255,255,255,0.18); }
+.copy-btn.copied{ background: var(--green); border-color: var(--green); color:#04121f; }
+.code-block pre{
+  margin:0;
+  padding: 18px;
+  overflow-x:auto;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #dce8f5;
+}
+.code-block .tag-name{ color:#5fb4d6; }
+.code-block .attr-name{ color:#ffb703; }
+.code-block .attr-value{ color:#a8d98e; }
+.code-block .cm{ color:#6a7f9c; font-style:italic; }
+
+/* CALLOUT BOXES: note / warning / tip */
+.callout{
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin: 16px 0;
+  display:flex;
+  gap: 12px;
+  border: 1px solid var(--line-soft);
+}
+.callout .ic{ font-size: 18px; flex-shrink:0; line-height:1.4; }
+.callout .body strong{ display:block; margin-bottom:4px; font-family:'Space Grotesk', sans-serif; font-size:14px; }
+.callout .body p{ margin:0; font-size:13.5px; }
+.callout-note{ background: var(--paper-soft); border-color: var(--line-soft); }
+.callout-note .body strong{ color: var(--line); }
+.callout-tip{ background: var(--amber-soft); border-color: var(--amber); }
+.callout-tip .body strong{ color: var(--amber); }
+.callout-warning{ background: var(--red-soft); border-color: var(--red); }
+.callout-warning .body strong{ color: var(--red); }
+
+/* ACCORDION — Lỗi thường gặp */
+.accordion-item{
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  overflow:hidden;
+}
+.accordion-header{
+  width:100%;
+  background: var(--paper-soft);
+  border:none;
+  padding: 14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  font-family:'Inter', sans-serif;
+  font-weight:600;
+  font-size: 14px;
+  color: var(--ink);
+  text-align:left;
+}
+.accordion-header .plus{
+  font-family:'JetBrains Mono', monospace;
+  color: var(--line);
+  transition: transform .3s ease;
+  flex-shrink:0;
+  margin-left: 10px;
+}
+.accordion-item.open .plus{ transform: rotate(45deg); }
+.accordion-panel{
+  max-height:0;
+  overflow:hidden;
+  transition: max-height .35s ease;
+  background: var(--paper);
+}
+.accordion-panel-inner{ padding: 4px 18px 16px; }
+.accordion-panel-inner p{ margin:0 0 8px; }
+.accordion-panel-inner .fix{ color: var(--green); font-weight:600; }
+
+/* EXERCISES */
+.exercise{
+  background: var(--paper-soft);
+  border: 1px dashed var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.exercise strong{ color: var(--ink); font-family:'JetBrains Mono', monospace; font-size:12.5px; }
+
+/* QUIZ */
+.quiz-item{
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  background: var(--paper-soft);
+}
+.quiz-item p.q{ font-weight:600; color: var(--ink); margin:0 0 12px; font-size:14.5px; }
+.quiz-options{ display:flex; flex-direction:column; gap:8px; }
+.quiz-option{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: var(--paper);
+  cursor:pointer;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.quiz-option:hover{ border-color: var(--line); }
+.quiz-option.correct{ background: var(--green-soft); border-color: var(--green); color: var(--ink); font-weight:600; }
+.quiz-option.incorrect{ background: var(--red-soft); border-color: var(--red); color: var(--ink); }
+.quiz-feedback{ margin-top:10px; font-size:13px; font-family:'JetBrains Mono', monospace; display:none; }
+.quiz-feedback.show{ display:block; }
+.quiz-feedback.ok{ color: var(--green); }
+.quiz-feedback.no{ color: var(--red); }
+.quiz-score{
+  text-align:center;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  border: 1px dashed var(--amber);
+  font-family:'JetBrains Mono', monospace;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* PREV / NEXT NAV */
+.lesson-nav{
+  display:flex;
+  gap: 16px;
+  margin-top: 26px;
+}
+.nav-btn{
+  flex:1;
+  background: var(--paper);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  text-decoration:none;
+  color: var(--ink);
+  display:flex;
+  flex-direction:column;
+  gap: 4px;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  box-shadow: var(--shadow);
+}
+.nav-btn:hover{ transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--line); }
+.nav-btn span.dir{ font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--ink-soft); }
+.nav-btn strong{ font-size:14.5px; }
+.nav-btn.next{ text-align:right; align-items:flex-end; }
+.nav-btn.disabled{ opacity:.4; pointer-events:none; }
+
+/* BACK TO TOP */
+.top-btn{
+  position: fixed; bottom:26px; right:26px;
+  width:46px; height:46px; border-radius:13px;
+  border:1px solid var(--line-soft); background: var(--paper); color: var(--ink);
+  box-shadow: var(--shadow); cursor:pointer; font-size:17px;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; visibility:hidden; transform: translateY(10px);
+  transition: all .3s ease; z-index:90;
+}
+.top-btn.show{ opacity:1; visibility:visible; transform: translateY(0); }
+.top-btn:hover{ transform: translateY(-4px); }
+
+/* RESPONSIVE */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr; }
+  .sidebar{ position:static; max-height:none; order:2; }
+  .content{ order:1; }
+}
+@media (max-width: 520px){
+  .lesson-nav{ flex-direction:column; }
+  .nav-btn.next{ align-items:flex-start; text-align:left; }
+}
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- Thanh tiến độ đọc bài -->
+<div class="reading-progress"><div class="reading-progress-fill" id="readingFill"></div></div>
+
+<!-- ============================================================
+     HEADER cố định
+     ============================================================ -->
+<header class="site-header">
+  <a href="../index.html" class="brand">
+    <span class="brand-mark">FS</span>
+    <span class="brand-text">
+      <strong>Full Stack Blueprint</strong>
+      <span>REACT · BÀI 03</span>
+    </span>
+  </a>
+  <div class="header-actions">
+    <a href="../index.html" class="home-btn-pill" title="Trang chủ" aria-label="Trang chủ">🏠 Trang chủ</a>
+    <button class="icon-btn" id="themeBtn" title="Chuyển giao diện" aria-label="Dark mode">🌙</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ============================================================
+       SIDEBAR — Mục lục
+       ============================================================ -->
+  <aside class="sidebar">
+    <h4 class="mono">CÁC BÀI HỌC</h4>
+    <ul class="toc" style="margin-bottom:18px;">
+      <li><a href="chapter01.html"><span class="toc-num">01</span>Nhập Môn React & JSX</a></li>
+      <li><a href="chapter02.html"><span class="toc-num">02</span>Props</a></li>
+      <li><a href="chapter03.html" class="active"><span class="toc-num">03</span>State & useState</a></li>
+      <li><a href="chapter04.html"><span class="toc-num">04</span>Xử Lý Sự Kiện & Form Trong React</a></li>
+      <li><a href="chapter05.html"><span class="toc-num">05</span>Conditional Rendering — Hiển thị có điều kiện</a></li>
+      <li><a href="chapter06.html"><span class="toc-num">06</span>Lists & Keys — Danh sách trong React</a></li>
+      <li><a href="chapter07.html"><span class="toc-num">07</span>useEffect — Side Effects & Vòng đời Component</a></li>
+      <li><a href="chapter08.html"><span class="toc-num">08</span>Fetch dữ liệu từ API trong React</a></li>
+      <li><a href="chapter09.html"><span class="toc-num">09</span>Custom Hooks — Tái sử dụng logic</a></li>
+      <li><a href="chapter10.html"><span class="toc-num">10</span>useRef & Thao tác DOM trực tiếp</a></li>
+      <li><a href="chapter11.html"><span class="toc-num">11</span>Context API — Chia sẻ state toàn cục</a></li>
+      <li><a href="chapter12.html"><span class="toc-num">12</span>useReducer — Quản lý state phức tạp</a></li>
+      <li><a href="chapter13.html"><span class="toc-num">13</span>React Router — Điều hướng SPA cơ bản</a></li>
+      <li><a href="chapter14.html"><span class="toc-num">14</span>React Router nâng cao — Nested Routes & Params</a></li>
+      <li><a href="chapter15.html"><span class="toc-num">15</span>Styling trong React — CSS Modules & styled-components</a></li>
+      <li><a href="chapter16.html"><span class="toc-num">16</span>Performance — useMemo & useCallback</a></li>
+      <li><a href="chapter17.html"><span class="toc-num">17</span>React.memo & Tối ưu re-render</a></li>
+      <li><a href="chapter18.html"><span class="toc-num">18</span>Error Boundaries & Xử lý lỗi</a></li>
+      <li><a href="chapter19.html"><span class="toc-num">19</span>Portals — Modal & Tooltip</a></li>
+      <li><a href="chapter20.html"><span class="toc-num">20</span>Redux Toolkit — Giới thiệu & Store</a></li>
+      <li><a href="chapter21.html"><span class="toc-num">21</span>Redux Toolkit — Slice, Thunk & kết nối API</a></li>
+      <li><a href="chapter22.html"><span class="toc-num">22</span>Form nâng cao — react-hook-form & Validation</a></li>
+      <li><a href="chapter23.html"><span class="toc-num">23</span>Testing React Components — Jest & Testing Library</a></li>
+      <li><a href="chapter24.html"><span class="toc-num">24</span>Giới thiệu Next.js — SSR & File-based Routing</a></li>
+      <li><a href="chapter25.html"><span class="toc-num">25</span>Triển khai ứng dụng React lên Production</a></li>
+      <li><a href="chapter26.html"><span class="toc-num">26</span>Dự án cuối khóa: Ứng dụng React hoàn chỉnh</a></li>
+    </ul>
+    <h4 class="mono">MỤC LỤC BÀI HỌC</h4>
+    <ul class="toc" id="toc">
+      <li><a href="#gioi-thieu"><span class="toc-num">01</span>Giới thiệu</a></li>
+      <li><a href="#ly-thuyet"><span class="toc-num">02</span>Kiến thức lý thuyết</a></li>
+      <li><a href="#vi-du"><span class="toc-num">03</span>Ví dụ minh họa</a></li>
+      <li><a href="#code-mau"><span class="toc-num">04</span>Code mẫu</a></li>
+      <li><a href="#giai-thich"><span class="toc-num">05</span>Giải thích code</a></li>
+      <li><a href="#loi-thuong-gap"><span class="toc-num">06</span>Lỗi thường gặp</a></li>
+      <li><a href="#best-practices"><span class="toc-num">07</span>Best Practices</a></li>
+      <li><a href="#tip-note"><span class="toc-num">08</span>Tip &amp; Note</a></li>
+      <li><a href="#bai-tap"><span class="toc-num">09</span>Bài tập</a></li>
+      <li><a href="#quiz"><span class="toc-num">10</span>Quiz tương tác</a></li>
+      <li><a href="#tong-ket"><span class="toc-num">11</span>Tổng kết</a></li>
+    </ul>
+    <div class="sidebar-progress">
+      <span class="mono">TIẾN ĐỘ ĐỌC BÀI</span>
+      <div class="mini-track"><div class="mini-fill" id="miniFill"></div></div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       NỘI DUNG CHÍNH
+       ============================================================ -->
+  <main class="content">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="breadcrumb">
+      <a href="../index.html">Trang chủ</a>
+      <span class="sep">/</span>
+      <a href="../index.html#roadmap">React.js Từ Zero Đến Hero</a>
+      <span class="sep">/</span>
+      <span class="current">Bài 3</span>
+    </nav>
+
+    <!-- Header bài học -->
+    <div class="lesson-head">
+      <span class="lesson-eyebrow mono">STACK/03 · CHƯƠNG 3 · BÀI 3/26</span>
+      <h1>State &amp; useState Hook</h1>
+      <p>Cho component "trí nhớ" của riêng nó — dữ liệu có thể tự thay đổi theo thời gian, và giao diện tự động cập nhật theo mỗi khi nó đổi.</p>
+      <div class="lesson-tags">
+        <span class="tag">React</span>
+        <span class="tag">Cơ bản</span>
+        <span class="tag">⏱ 40 phút</span>
+      </div>
+    </div>
+
+    <!-- ============================== 1. GIỚI THIỆU ============================== -->
+    <section class="lesson-section" id="gioi-thieu">
+      <h2><span class="num">01</span>Giới thiệu</h2>
+      <p>
+        Props (Bài 2) chỉ giải quyết được dữ liệu <strong>truyền từ ngoài vào</strong>. Nhưng nếu muốn đếm số lần người dùng
+        nhấp vào một nút, hay theo dõi nội dung một ô input đang gõ — dữ liệu đó không đến từ component cha nào cả, nó
+        <strong>tự phát sinh và thay đổi</strong> ngay bên trong chính component đó. Đây là lúc cần đến <strong>state</strong>
+        (trạng thái) — "bộ nhớ riêng" của một component.
+      </p>
+      <p>
+        React cung cấp <code class="mono">useState</code> — một <strong>Hook</strong> (hàm đặc biệt bắt đầu bằng "use") để
+        thêm state vào component. Khi state thay đổi, React <strong>tự động render lại</strong> component đó — chính xác
+        là điều bạn từng tự viết bằng tay ở hàm <code class="mono">render()</code> tại Bài 18 chương JavaScript.
+      </p>
+      <div class="callout callout-note">
+        <span class="ic">🎯</span>
+        <div class="body">
+          <strong>Mục tiêu sau bài học</strong>
+          <p>Tự dùng useState để tạo state, cập nhật state đúng cách bằng hàm setter, và hiểu vì sao React tự render lại khi state đổi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 2. LÝ THUYẾT ============================== -->
+    <section class="lesson-section" id="ly-thuyet">
+      <h2><span class="num">02</span>Kiến thức lý thuyết</h2>
+
+      <h3>2.1. Cú pháp <code class="mono">useState</code></h3>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">cú pháp cơ bản</span></div>
+        <pre><code>const [soLuot, setSoLuot] = useState(0);
+<span class="cm">// soLuot: giá trị hiện tại — setSoLuot: hàm để CẬP NHẬT giá trị đó — 0: giá trị khởi tạo</span></code></pre>
+      </div>
+      <p>
+        <code class="mono">useState(0)</code> trả về một <strong>mảng có 2 phần tử</strong>, "bóc" ra bằng destructuring mảng
+        (Bài 7, chương JavaScript): phần tử đầu là giá trị hiện tại, phần tử sau là hàm dùng để đổi giá trị đó.
+      </p>
+
+      <h3>2.2. Cập nhật state — luôn qua hàm setter</h3>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">cập nhật state</span></div>
+        <pre><code>function DemSoLan() {
+  const [soLuot, setSoLuot] = useState(0);
+
+  function xuLyClick() {
+    setSoLuot(soLuot + 1); <span class="cm">// KHÔNG BAO GIỜ viết soLuot = soLuot + 1</span>
+  }
+
+  return &lt;button onClick={xuLyClick}&gt;Đã nhấn: {soLuot}&lt;/button&gt;;
+}</code></pre>
+      </div>
+      <p>
+        <strong>Tuyệt đối không</strong> gán trực tiếp (<code class="mono">soLuot = soLuot + 1</code>) — React sẽ không biết
+        giá trị đã đổi và <strong>không render lại</strong>. Phải luôn gọi hàm setter (<code class="mono">setSoLuot(...)</code>)
+        để React nhận biết và tự động cập nhật giao diện.
+      </p>
+
+      <h3>2.3. State vs Props — khác nhau ở đâu?</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th></th><th>Props</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td>Nguồn gốc</td><td>Từ component cha truyền xuống</td><td>Tự phát sinh bên trong chính component</td></tr>
+            <tr><td>Ai sửa được</td><td>Chỉ component cha (con chỉ đọc)</td><td>Chính component đó, qua hàm setter</td></tr>
+            <tr><td>Ví dụ</td><td><code>ten</code>, <code>icon</code> ở Bài 2</td><td>Số lần click, nội dung input</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.4. Cập nhật state dựa trên giá trị trước đó — dùng hàm callback</h3>
+      <p>Khi giá trị mới phụ thuộc trực tiếp vào giá trị cũ, nên truyền một hàm vào setter thay vì tính toán trực tiếp:</p>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">functional update</span></div>
+        <pre><code>setSoLuot(soLuotHienTai =&gt; soLuotHienTai + 1);
+<span class="cm">// an toàn hơn khi có nhiều lần cập nhật liên tiếp gần nhau</span></code></pre>
+      </div>
+
+      <h3>2.5. Mỗi component có thể có nhiều state độc lập</h3>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">nhiều state</span></div>
+        <pre><code>const [ten, setTen] = useState("");
+const [dangSang, setDangSang] = useState(true);
+<span class="cm">// gọi useState nhiều lần, mỗi lần quản lý một mảnh dữ liệu riêng biệt</span></code></pre>
+      </div>
+    </section>
+
+    <!-- ============================== 3. VÍ DỤ ============================== -->
+    <section class="lesson-section" id="vi-du">
+      <h2><span class="num">03</span>Ví dụ minh họa</h2>
+      <p>
+        Hãy dựng lại chính xác nút Dark Mode ở header trang <strong>Full Stack Blueprint</strong> theo phong cách React:
+        thay vì <code class="mono">classList.toggle()</code> thủ công như Bài 8-9 chương JavaScript, dùng
+        <code class="mono">useState</code> để lưu trạng thái "đang sáng hay tối", và để React tự render lại giao diện
+        tương ứng mỗi khi trạng thái đó đổi.
+      </p>
+    </section>
+
+    <!-- ============================== 4. CODE MẪU ============================== -->
+    <section class="lesson-section" id="code-mau">
+      <h2><span class="num">04</span>Code mẫu</h2>
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="mono">state.html</span>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+        </div>
+        <pre><code>&lt;div id="root"&gt;&lt;/div&gt;
+
+&lt;script src="https://unpkg.com/react@19/umd/react.development.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/react-dom@19/umd/react-dom.development.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;
+
+&lt;script type="text/babel"&gt;
+  const { useState } = React; <span class="cm">// destructuring Hook từ object React</span>
+
+  function NutDoiTheme() {
+    const [dangDark, setDangDark] = useState(false);
+
+    function xuLyClick() {
+      setDangDark(gtHienTai =&gt; !gtHienTai); <span class="cm">// functional update — đảo ngược giá trị</span>
+    }
+
+    return (
+      &lt;div style={{ background: dangDark ? "#0b1f3a" : "#fff", padding: "20px" }}&gt;
+        &lt;button onClick={xuLyClick}&gt;
+          {dangDark ? "☀️ Chế độ sáng" : "🌙 Chế độ tối"}
+        &lt;/button&gt;
+        &lt;p style={{ color: dangDark ? "white" : "black" }}&gt;
+          Hiện đang ở chế độ: {dangDark ? "Tối" : "Sáng"}
+        &lt;/p&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  function BoDemClick() {
+    const [soLan, setSoLan] = useState(0);
+    return (
+      &lt;button onClick={() =&gt; setSoLan(soLan + 1)}&gt;
+        Đã nhấn {soLan} lần
+      &lt;/button&gt;
+    );
+  }
+
+  function App() {
+    return (
+      &lt;&gt;
+        &lt;NutDoiTheme /&gt;
+        &lt;BoDemClick /&gt;
+      &lt;/&gt;
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(&lt;App /&gt;);
+&lt;/script&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- ============================== 5. GIẢI THÍCH CODE ============================== -->
+    <section class="lesson-section" id="giai-thich">
+      <h2><span class="num">05</span>Giải thích code</h2>
+      <ul>
+        <li><code class="mono">const { useState } = React;</code> — <code class="mono">useState</code> là một hàm nằm trong object <code class="mono">React</code> toàn cục (đã nhúng qua CDN), destructuring ra để dùng gọn hơn.</li>
+        <li><code class="mono">const [dangDark, setDangDark] = useState(false);</code> — state khởi tạo là <code class="mono">false</code> (mặc định chế độ sáng), <code class="mono">dangDark</code> là giá trị đọc, <code class="mono">setDangDark</code> là hàm để đổi nó.</li>
+        <li><code class="mono">setDangDark(gtHienTai =&gt; !gtHienTai);</code> — dùng functional update để đảo ngược boolean an toàn, không phụ thuộc vào việc đọc trực tiếp <code class="mono">dangDark</code> ở thời điểm gọi hàm.</li>
+        <li><code class="mono">style={{ background: ... }}</code> — hai lớp ngoặc nhọn: ngoặc <strong>ngoài</strong> báo hiệu đây là biểu thức JavaScript (như Bài 1), ngoặc <strong>trong</strong> là một object JavaScript thường (Bài 6) chứa các thuộc tính CSS viết theo camelCase.</li>
+        <li><code class="mono">onClick={xuLyClick}</code> — cú pháp lắng nghe sự kiện trong React, tương tự tinh thần <code class="mono">addEventListener</code> (Bài 9) nhưng viết trực tiếp như một prop đặc biệt trên phần tử JSX.</li>
+        <li><code class="mono">&lt;&gt;...&lt;/&gt;</code> trong <code class="mono">App</code> — Fragment đã học ở Bài 1, gộp hai component <code class="mono">NutDoiTheme</code> và <code class="mono">BoDemClick</code> mà không cần thêm <code class="mono">&lt;div&gt;</code> bọc ngoài thừa.</li>
+      </ul>
+    </section>
+
+    <!-- ============================== 6. LỖI THƯỜNG GẶP (accordion) ============================== -->
+    <section class="lesson-section" id="loi-thuong-gap">
+      <h2><span class="num">06</span>Lỗi thường gặp</h2>
+      <p>Nhấp vào từng mục để xem chi tiết lỗi và cách khắc phục:</p>
+
+      <div class="accordion" id="accordion">
+        <div class="accordion-item">
+          <button class="accordion-header">Gán trực tiếp thay vì gọi hàm setter<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">soLan = soLan + 1;</code> thay vì <code class="mono">setSoLan(soLan + 1);</code> — biến state có thể đổi giá trị trong bộ nhớ, nhưng React <strong>không hề biết</strong> điều đó xảy ra, nên không render lại, giao diện vẫn hiển thị giá trị cũ.</p>
+              <p class="fix">✅ Cách khắc phục: luôn dùng hàm setter (được trả về từ <code class="mono">useState</code>) để cập nhật state, không bao giờ gán trực tiếp.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Gọi <code class="mono">useState</code> bên trong điều kiện hoặc vòng lặp<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">if (dieuKien) { const [x, setX] = useState(0); }</code> — React báo lỗi <code class="mono">Rendered more hooks than during the previous render</code>, vì Hook phải được gọi theo <strong>đúng thứ tự</strong> giống hệt nhau ở mọi lần render.</p>
+              <p class="fix">✅ Cách khắc phục: luôn gọi mọi Hook (bao gồm <code class="mono">useState</code>) ở <strong>cấp cao nhất</strong> của component, không đặt trong <code class="mono">if</code>, vòng lặp, hay hàm lồng bên trong.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Gọi hàm ngay khi truyền vào <code class="mono">onClick</code><span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">onClick={setSoLan(soLan + 1)}</code> (có dấu ngoặc gọi hàm ngay) — hàm này chạy <strong>ngay khi render</strong>, không phải khi người dùng click, thường gây vòng lặp render vô hạn.</p>
+              <p class="fix">✅ Cách khắc phục: truyền một hàm (không gọi ngay) — hoặc dùng arrow function bọc lại: <code class="mono">onClick={() =&gt; setSoLan(soLan + 1)}</code>, đúng như code mẫu ở trên.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Nghĩ rằng gọi setter sẽ đổi giá trị ngay lập tức trong cùng dòng code<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">setSoLan(soLan + 1); console.log(soLan);</code> và mong đợi <code class="mono">console.log</code> in ra giá trị mới — thực tế nó vẫn in giá trị <strong>cũ</strong>, vì cập nhật state là <strong>bất đồng bộ</strong> (liên hệ Bài 11 chương JavaScript), giá trị mới chỉ có ở lần render tiếp theo.</p>
+              <p class="fix">✅ Cách khắc phục: không mong đợi đọc được giá trị mới ngay sau khi gọi setter trong cùng một hàm; nếu cần logic dựa trên giá trị mới, xử lý ở lần render kế tiếp hoặc dùng <code class="mono">useEffect</code> (học ở bài sau).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="ic">⚠️</span>
+        <div class="body">
+          <strong>Cảnh báo quan trọng</strong>
+          <p>"Quy tắc của Hooks" (Rules of Hooks) không phải gợi ý — chúng là ràng buộc <strong>bắt buộc</strong> của React: chỉ gọi Hook ở cấp cao nhất của component, chỉ gọi từ component React (hoặc Hook tùy chỉnh khác), không bao giờ từ hàm thường hay điều kiện. Vi phạm quy tắc này gây lỗi khó lường, đôi khi chỉ xuất hiện sau vài lần tương tác chứ không báo ngay từ đầu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 7. BEST PRACTICES ============================== -->
+    <section class="lesson-section" id="best-practices">
+      <h2><span class="num">07</span>Best Practices</h2>
+      <ul>
+        <li>Luôn cập nhật state qua hàm setter, không bao giờ gán trực tiếp.</li>
+        <li>Gọi mọi Hook ở cấp cao nhất của component, không đặt trong điều kiện/vòng lặp.</li>
+        <li>Dùng functional update (<code class="mono">setX(gt =&gt; ...)</code>) khi giá trị mới phụ thuộc trực tiếp vào giá trị cũ.</li>
+        <li>Tách mỗi mảnh dữ liệu độc lập thành một <code class="mono">useState</code> riêng, thay vì gộp mọi thứ vào một state object phức tạp.</li>
+        <li>Không mong đợi đọc được giá trị state mới ngay sau khi gọi setter trong cùng một hàm.</li>
+      </ul>
+    </section>
+
+    <!-- ============================== 8. TIP + NOTE ============================== -->
+    <section class="lesson-section" id="tip-note">
+      <h2><span class="num">08</span>Tip &amp; Note</h2>
+
+      <div class="callout callout-tip">
+        <span class="ic">💡</span>
+        <div class="body">
+          <strong>Tip</strong>
+          <p>Trong React Developer Tools, tab Components hiển thị luôn cả state hiện tại của mỗi component (không chỉ props) — nhấp vào một component đang có state để xem và thậm chí chỉnh sửa trực tiếp giá trị đó, quan sát giao diện phản ứng ngay lập tức.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="ic">📌</span>
+        <div class="body">
+          <strong>Note</strong>
+          <p><code class="mono">useState</code> là Hook đầu tiên và cơ bản nhất trong một họ các Hook của React (bắt đầu bằng "use"). Ở các bài sau, bạn sẽ gặp thêm <code class="mono">useEffect</code> (chạy code khi component tải xong hoặc khi một giá trị đổi) — cả hai đều tuân theo cùng "Quy tắc của Hooks" vừa học.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 9. BÀI TẬP ============================== -->
+    <section class="lesson-section" id="bai-tap">
+      <h2><span class="num">09</span>Bài tập</h2>
+
+      <div class="exercise">
+        <strong>BÀI 1</strong>
+        <p>Viết component <code class="mono">BoDem</code> có state là một số, hiển thị số hiện tại và hai nút "Tăng"/"Giảm" thay đổi giá trị đó.</p>
+      </div>
+      <div class="exercise">
+        <strong>BÀI 2</strong>
+        <p>Viết component <code class="mono">OGoChu</code> có state lưu nội dung một ô input, hiển thị ngay bên dưới dòng chữ người dùng vừa gõ (gợi ý: dùng sự kiện <code class="mono">onChange</code>, tương tự <code class="mono">input</code> ở Bài 9 chương JavaScript).</p>
+      </div>
+      <div class="exercise">
+        <strong>BÀI 3</strong>
+        <p>Giải thích bằng lời: vì sao viết <code class="mono">soLan = soLan + 1;</code> trực tiếp (không qua setter) lại khiến giao diện không cập nhật, dù giá trị biến trong bộ nhớ thực sự đã thay đổi?</p>
+      </div>
+    </section>
+
+    <!-- ============================== 10. QUIZ TƯƠNG TÁC ============================== -->
+    <section class="lesson-section" id="quiz">
+      <h2><span class="num">10</span>Quiz tương tác</h2>
+      <p>Chọn một đáp án cho mỗi câu hỏi, hệ thống sẽ báo đúng/sai ngay lập tức.</p>
+
+      <div id="quizContainer">
+        <div class="quiz-item" data-answer="1">
+          <p class="q">Câu 1: <code class="mono">useState(0)</code> trả về gì?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Một object</div>
+            <div class="quiz-option" data-index="1">Một mảng gồm 2 phần tử: giá trị và hàm setter</div>
+            <div class="quiz-option" data-index="2">Chỉ một số duy nhất</div>
+            <div class="quiz-option" data-index="3">Một component mới</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="2">
+          <p class="q">Câu 2: Cách nào ĐÚNG để cập nhật state?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0"><code class="mono">soLan = soLan + 1;</code></div>
+            <div class="quiz-option" data-index="1"><code class="mono">soLan++;</code></div>
+            <div class="quiz-option" data-index="2"><code class="mono">setSoLan(soLan + 1);</code></div>
+            <div class="quiz-option" data-index="3">Cả ba đều đúng như nhau</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0">
+          <p class="q">Câu 3: Hook nên được gọi ở đâu trong component?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Cấp cao nhất, không trong if/vòng lặp</div>
+            <div class="quiz-option" data-index="1">Chỉ bên trong sự kiện onClick</div>
+            <div class="quiz-option" data-index="2">Bên trong vòng lặp for</div>
+            <div class="quiz-option" data-index="3">Vị trí nào cũng được</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="3">
+          <p class="q">Câu 4: Khác biệt cốt lõi giữa Props và State là gì?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Không có khác biệt nào</div>
+            <div class="quiz-option" data-index="1">Props chỉ dùng cho số, State chỉ dùng cho chuỗi</div>
+            <div class="quiz-option" data-index="2">State không thể thay đổi</div>
+            <div class="quiz-option" data-index="3">Props đến từ component cha, State tự phát sinh và quản lý bên trong chính component</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+      </div>
+
+      <div class="quiz-score" id="quizScore">Điểm của bạn: 0 / 4</div>
+    </section>
+
+    <!-- ============================== 11. TỔNG KẾT (bao gồm Đáp án) ============================== -->
+    <section class="lesson-section" id="tong-ket">
+      <h2><span class="num">11</span>Tổng kết</h2>
+      <p>Qua bài học này, bạn đã nắm được:</p>
+      <ul>
+        <li><code class="mono">useState</code> cho component "trí nhớ" riêng, trả về cặp [giá trị, hàm setter].</li>
+        <li>Luôn cập nhật state qua hàm setter, không bao giờ gán trực tiếp.</li>
+        <li>Props đến từ ngoài (component cha), State tự phát sinh và quản lý bên trong chính component.</li>
+        <li>Hook phải luôn được gọi ở cấp cao nhất của component, theo đúng thứ tự ở mọi lần render.</li>
+      </ul>
+      <div class="callout callout-note">
+        <span class="ic">📖</span>
+        <div class="body">
+          <strong>Đáp án bài tập 3 (gợi ý)</strong>
+          <p>React không "theo dõi" mọi biến JavaScript thông thường trong component — nó chỉ biết render lại khi được <strong>báo hiệu rõ ràng</strong> thông qua việc gọi hàm setter do chính <code class="mono">useState</code> cung cấp. Gán trực tiếp <code class="mono">soLan = soLan + 1;</code> chỉ đổi giá trị trong bộ nhớ ở thời điểm đó, nhưng không kích hoạt được cơ chế render lại của React, nên giao diện tiếp tục hiển thị đúng như lần render gần nhất trước đó.</p>
+        </div>
+      </div>
+      <p>
+        Với useState, component của bạn giờ đã có thể tự phản ứng với tương tác của người dùng. Ở <strong>Bài 4</strong>,
+        bạn sẽ học sâu hơn về <strong>xử lý sự kiện trong React</strong> (event handling) — cách truyền tham số cho sự kiện,
+        và làm việc với form một cách bài bản.
+      </p>
+    </section>
+
+    <!-- ============================== PREV / NEXT ============================== -->
+    <div class="lesson-nav">
+      <a class="nav-btn" href="chapter02.html">
+        <span class="dir mono">← BÀI TRƯỚC</span>
+        <strong>Bài 2: Props</strong>
+      </a>
+      <a class="nav-btn next" href="chapter04.html">
+        <span class="dir mono">BÀI TIẾP THEO →</span>
+        <strong>Bài 4: Xử Lý Sự Kiện &amp; Form Trong React</strong>
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<button class="top-btn" id="topBtn" aria-label="Về đầu trang">↑</button>
+
+<script>
+/* ============================================================
+   DARK / LIGHT MODE — đồng bộ localStorage với trang chủ
+   ============================================================ */
+(function initTheme(){
+  const saved = localStorage.getItem('fsb-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon(theme);
+})();
+function updateThemeIcon(theme){
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+document.getElementById('themeBtn').addEventListener('click', function(){
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('fsb-theme', next);
+  updateThemeIcon(next);
+});
+
+/* ============================================================
+   COPY CODE
+   ============================================================ */
+function copyCode(btn){
+  const code = btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent = '✅ Đã copy';
+    btn.classList.add('copied');
+    setTimeout(function(){
+      btn.textContent = '📋 Copy';
+      btn.classList.remove('copied');
+    }, 1800);
+  });
+}
+
+/* ============================================================
+   ACCORDION — Lỗi thường gặp
+   ============================================================ */
+document.querySelectorAll('.accordion-header').forEach(function(header){
+  header.addEventListener('click', function(){
+    const item = header.parentElement;
+    const panel = item.querySelector('.accordion-panel');
+    const isOpen = item.classList.contains('open');
+
+    // đóng tất cả trước
+    document.querySelectorAll('.accordion-item').forEach(function(el){
+      el.classList.remove('open');
+      el.querySelector('.accordion-panel').style.maxHeight = null;
+    });
+
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ============================================================
+   QUIZ TƯƠNG TÁC — chọn đáp án, chấm điểm ngay
+   ============================================================ */
+let score = 0;
+const answered = new Set();
+document.querySelectorAll('.quiz-item').forEach(function(item, itemIndex){
+  const correctIndex = parseInt(item.dataset.answer, 10);
+  const options = item.querySelectorAll('.quiz-option');
+  const feedback = item.querySelector('.quiz-feedback');
+
+  options.forEach(function(opt){
+    opt.addEventListener('click', function(){
+      if(answered.has(itemIndex)) return; // chỉ cho chọn 1 lần / câu
+      answered.add(itemIndex);
+
+      const chosenIndex = parseInt(opt.dataset.index, 10);
+      options.forEach(function(o){
+        const idx = parseInt(o.dataset.index, 10);
+        if(idx === correctIndex) o.classList.add('correct');
+        else if(o === opt) o.classList.add('incorrect');
+      });
+
+      if(chosenIndex === correctIndex){
+        score++;
+        feedback.textContent = '✅ Chính xác!';
+        feedback.classList.add('show', 'ok');
+      } else {
+        feedback.textContent = '❌ Chưa đúng — đáp án đúng đã được tô xanh.';
+        feedback.classList.add('show', 'no');
+      }
+      document.getElementById('quizScore').textContent = 'Điểm của bạn: ' + score + ' / ' + document.querySelectorAll('.quiz-item').length;
+    });
+  });
+});
+
+/* ============================================================
+   THANH TIẾN ĐỘ ĐỌC + TOC ACTIVE + BACK TO TOP
+   ============================================================ */
+const readingFill = document.getElementById('readingFill');
+const miniFill = document.getElementById('miniFill');
+const topBtn = document.getElementById('topBtn');
+const sections = document.querySelectorAll('.lesson-section');
+const tocLinks = document.querySelectorAll('#toc a');
+
+window.addEventListener('scroll', function(){
+  // % đã cuộn trong toàn trang
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+  readingFill.style.width = pct + '%';
+  miniFill.style.width = pct + '%';
+
+  topBtn.classList.toggle('show', scrollTop > 400);
+
+  // active TOC theo section đang hiện trên màn hình
+  let currentId = '';
+  sections.forEach(function(sec){
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(function(link){
+    link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+  });
+});
+
+topBtn.addEventListener('click', function(){
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>

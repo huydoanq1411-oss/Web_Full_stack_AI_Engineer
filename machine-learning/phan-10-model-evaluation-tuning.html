@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 10 · Model Evaluation, Cross Validation &amp; Hyperparameter Tuning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+.cm-grid{display:grid;grid-template-columns:auto repeat(2,1fr);gap:2px;max-width:340px;margin:16px auto;font-family:'JetBrains Mono';font-size:12px;}
+.cm-cell{padding:14px 8px;text-align:center;border-radius:6px;}
+.cm-head{background:transparent;font-weight:700;font-family:'Space Grotesk';font-size:11px;color:var(--muted);}
+.cm-tp{background:var(--teal-dim);border:2px solid var(--teal);}
+.cm-tn{background:var(--teal-dim);border:2px solid var(--teal);}
+.cm-fp{background:var(--rose-dim);border:2px solid var(--rose);}
+.cm-fn{background:var(--rose-dim);border:2px solid var(--rose);}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 10</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
+      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html" style="opacity:.7;"><span class="num">✓</span> Phần 7 — KNN·Bayes·Tree·SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html" style="opacity:.7;"><span class="num">✓</span> Phần 8 — Ensemble &amp; Boosting</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html" style="opacity:.7;"><span class="num">✓</span> Phần 9 — Clustering &amp; PCA</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html" class="active"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 10</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 10</a></li>
+      <li><a href="#chuong-32"><span class="num">32</span> Model Evaluation</a></li>
+      <li><a href="#chuong-33"><span class="num">33</span> Cross Validation</a></li>
+      <li><a href="#chuong-34"><span class="num">34</span> Hyperparameter Tuning</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">35</span> Explainable AI (SHAP, LIME)</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">36</span> Model Deployment</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 10. Model Evaluation &amp; Tuning</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 10 / N — "Làm sao biết mô hình thực sự tốt?"</span>
+        <h1>Đánh giá đúng chuẩn<br>và tìm siêu tham số tối ưu</h1>
+        <p class="lead">Từ Phần 6 đến Phần 9, các ví dụ thường chỉ in ra 1 con số accuracy đơn giản để giữ mọi thứ ngắn gọn. Phần 10 lấp đầy khoảng trống đó:
+        cách đánh giá mô hình <b>đúng chuẩn chuyên nghiệp</b> (Model Evaluation), cách đảm bảo con số đánh giá đó <b>đáng tin cậy</b> (Cross Validation),
+        và cách tự động tìm ra bộ siêu tham số <b>tốt nhất</b> (Hyperparameter Tuning) thay vì đoán mò như các phần trước.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-9 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 32</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Model Evaluation</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 33</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Cross Validation</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 34</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Hyperparameter Tuning</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 11 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" của Phần 10 — bộ công cụ để tin tưởng và tối ưu mô hình một cách khoa học.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Vì sao phần này lại đến sau khi đã học 8 thuật toán?</div>
+        Cố tình đặt sau để bạn đã có "cảm giác" về accuracy/MAE trước, giờ mới đào sâu để thấy các con số đơn giản đó có thể <b>đánh lừa</b> ra sao —
+        và học cách đánh giá đáng tin cậy hơn nhiều để áp dụng ngược lại cho toàn bộ 8 thuật toán đã học.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 32: MODEL EVALUATION -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-32">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">32</div>
+            <div>
+              <h2>Model Evaluation</h2>
+              <div class="ch-sub">Confusion Matrix, Precision/Recall/F1, ROC-AUC cho Classification; RMSE/R² cho Regression</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>32.1. Vì sao Accuracy một mình có thể "nói dối"?</h3>
+            <p>Nhắc lại cảnh báo ở Chương 21: với dữ liệu mất cân bằng lớp mạnh (ví dụ 95% "không gian lận", 5% "gian lận"),
+            một mô hình luôn luôn dự đoán "không gian lận" vẫn đạt Accuracy 95% — nhưng hoàn toàn vô dụng vì không bao giờ phát hiện được trường hợp gian lận thật.</p>
+
+            <h3>32.2. Confusion Matrix — nền tảng của mọi metric phân loại</h3>
+            <div class="cm-grid">
+              <div class="cm-cell cm-head"></div>
+              <div class="cm-cell cm-head">Dự đoán: Dương</div>
+              <div class="cm-cell cm-head">Dự đoán: Âm</div>
+              <div class="cm-cell cm-head">Thực tế: Dương</div>
+              <div class="cm-cell cm-tp">TP<br><span style="font-size:9px;color:var(--muted);">True Positive</span></div>
+              <div class="cm-cell cm-fn">FN<br><span style="font-size:9px;color:var(--muted);">False Negative</span></div>
+              <div class="cm-cell cm-head">Thực tế: Âm</div>
+              <div class="cm-cell cm-fp">FP<br><span style="font-size:9px;color:var(--muted);">False Positive</span></div>
+              <div class="cm-cell cm-tn">TN<br><span style="font-size:9px;color:var(--muted);">True Negative</span></div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Metric</th><th>Công thức</th><th>Trả lời câu hỏi</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Accuracy</b></td><td>(TP+TN) / Tổng</td><td>Bao nhiêu % dự đoán đúng nói chung?</td></tr>
+                  <tr><td><b>Precision</b></td><td>TP / (TP+FP)</td><td>Trong số dự đoán "Dương", bao nhiêu % thực sự đúng?</td></tr>
+                  <tr><td><b>Recall (Sensitivity)</b></td><td>TP / (TP+FN)</td><td>Trong số các trường hợp "Dương" thật, mô hình bắt được bao nhiêu %?</td></tr>
+                  <tr><td><b>F1-score</b></td><td>2·(Precision·Recall)/(Precision+Recall)</td><td>Trung bình điều hòa của Precision và Recall</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Đánh đổi Precision vs Recall — chọn cái nào tùy bài toán</div>
+              <b>Ưu tiên Recall cao</b> khi bỏ sót trường hợp dương là rất nguy hiểm (ví dụ: chẩn đoán ung thư — thà báo nhầm còn hơn bỏ sót).
+              <b>Ưu tiên Precision cao</b> khi báo động giả gây tốn kém (ví dụ: lọc email spam — không muốn email quan trọng bị đưa nhầm vào spam).
+              Không có câu trả lời đúng tuyệt đối, phụ thuộc hoàn toàn vào ngữ cảnh bài toán thực tế.
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_classification
+from sklearn.metrics import (confusion_matrix, precision_score,
+                              recall_score, f1_score, roc_auc_score, roc_curve)
+
+# Dữ liệu mất cân bằng: chỉ 10% là lớp dương
+X, y = make_classification(n_samples=1000, weights=[0.9, 0.1], random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1, stratify=y)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("Precision:", precision_score(y_test, y_pred))
+print("Recall:", recall_score(y_test, y_pred))
+print("F1-score:", f1_score(y_test, y_pred))
+print("ROC-AUC:", roc_auc_score(y_test, y_proba))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>make_classification(weights=[0.9, 0.1])</code> — tạo chủ động dữ liệu mất cân bằng lớp, giống tình huống thực tế như gian lận/bệnh hiếm.</li>
+                <li><code>train_test_split(..., stratify=y)</code> — tham số <code>stratify</code> đảm bảo tỉ lệ lớp trong tập train và test giống với tỉ lệ gốc — cực kỳ quan trọng với dữ liệu mất cân bằng, tránh trường hợp tập test vô tình không có mẫu lớp thiểu số nào.</li>
+                <li><code>roc_auc_score(y_test, y_proba)</code> — dùng <b>xác suất dự đoán</b> (không phải nhãn 0/1) để tính AUC (Area Under the ROC Curve) — đo khả năng mô hình phân biệt 2 lớp ở mọi ngưỡng quyết định, không chỉ ngưỡng 0.5 mặc định.</li>
+              </ol>
+            </div>
+
+            <h3>32.3. ROC Curve và AUC</h3>
+            <div class="diagram-card">
+              <svg viewBox="0 0 300 260" width="260">
+                <line x1="40" y1="220" x2="270" y2="220" stroke="var(--border)"/>
+                <line x1="40" y1="220" x2="40" y2="20" stroke="var(--border)"/>
+                <path d="M40,220 L60,120 L100,70 L160,40 L270,20" fill="none" stroke="var(--teal)" stroke-width="2.5"/>
+                <path d="M40,220 L270,20" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <text x="155" y="245" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="Space Grotesk">False Positive Rate</text>
+                <text x="15" y="120" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="Space Grotesk" transform="rotate(-90 15 120)">True Positive Rate</text>
+                <text x="200" y="60" font-size="10" fill="var(--teal)" font-family="Space Grotesk" font-weight="700">Mô hình tốt</text>
+                <text x="200" y="150" font-size="10" fill="var(--muted)" font-family="Space Grotesk">Đoán ngẫu nhiên (AUC=0.5)</text>
+              </svg>
+              <div class="diagram-caption">Đường ROC càng "phình" lên góc trên bên trái, AUC càng gần 1, mô hình càng phân biệt tốt 2 lớp.</div>
+            </div>
+
+            <h3>32.4. Metric cho bài toán Regression (ôn lại &amp; mở rộng Chương 20)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Metric</th><th>Đặc điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><b>MAE</b></td><td>Dễ diễn giải (cùng đơn vị y), ít nhạy cảm với outlier</td></tr>
+                  <tr><td><b>RMSE</b></td><td>Phạt nặng hơn với sai số lớn (do bình phương), nhạy cảm với outlier hơn MAE</td></tr>
+                  <tr><td><b>R²</b></td><td>Tỉ lệ phương sai giải thích được; dễ so sánh giữa các mô hình khác loại dữ liệu</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Cho Confusion Matrix: TP=40, FP=10, FN=5, TN=145. Tính Precision, Recall, F1-score và Accuracy.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>TP, FP, FN, TN = 40, 10, 5, 145
+precision = TP / (TP + FP)
+recall = TP / (TP + FN)
+f1 = 2 * precision * recall / (precision + recall)
+accuracy = (TP + TN) / (TP + FP + FN + TN)
+print(f"Precision={precision:.3f}, Recall={recall:.3f}, F1={f1:.3f}, Accuracy={accuracy:.3f}")
+# Precision=0.800, Recall=0.889, F1=0.842, Accuracy=0.925</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chỉ báo cáo Accuracy cho bài toán mất cân bằng lớp mà không kèm Precision/Recall/F1.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng <code>stratify=y</code> khi chia dữ liệu cho bài toán phân loại, đặc biệt khi lớp mất cân bằng.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 32</h4>
+              <ul>
+                <li>Confusion Matrix (TP, FP, FN, TN) là nền tảng để tính mọi metric phân loại.</li>
+                <li>Precision và Recall đánh đổi lẫn nhau; lựa chọn phụ thuộc vào chi phí thực tế của từng loại lỗi.</li>
+                <li>ROC-AUC đánh giá khả năng phân biệt lớp ở mọi ngưỡng, không chỉ ngưỡng 0.5.</li>
+              </ul>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — Vì sao đánh giá LLM lại khó hơn nhiều so với đánh giá ở Chương này?</div>
+              Các metric ở Chương 32 (Accuracy, Precision, Recall, F1, ROC-AUC...) hoạt động tốt vì bài toán phân loại/hồi quy có <b>một đáp án đúng rõ ràng</b> để so sánh. Với LLM, output là văn bản tự do — "đúng" hay "sai" thường không rạch ròi như vậy, nên việc đánh giá cần thêm các cách tiếp cận khác:
+              <ul>
+                <li><b>LLM-as-judge:</b> dùng một LLM khác (thường mạnh hơn) để chấm điểm câu trả lời theo tiêu chí cho trước — vì không thể liệt kê hết "câu trả lời đúng" như nhãn phân loại.</li>
+                <li><b>Human evaluation:</b> vẫn là "tiêu chuẩn vàng" cho chất lượng, nhất là với các tiêu chí mềm như giọng văn, mức độ hữu ích, an toàn.</li>
+                <li><b>Metric so khớp văn bản</b> (BLEU, ROUGE cho dịch máy/tóm tắt) vẫn được dùng cho các tác vụ có đáp án tham chiếu tương đối cố định, nhưng ít phù hợp với hội thoại mở.</li>
+              </ul>
+              💡 Tư duy nền tảng ở Chương 32 — luôn cần một <b>tập dữ liệu đánh giá tách biệt</b> và không chỉ nhìn vào một con số duy nhất — vẫn đúng 100% khi áp dụng cho LLM, chỉ khác ở cách tính điểm.
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 33: CROSS VALIDATION -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-33">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">33</div>
+            <div>
+              <h2>Cross Validation</h2>
+              <div class="ch-sub">Đánh giá đáng tin cậy hơn một lần chia train/test đơn lẻ</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>33.1. Vấn đề của việc chỉ chia train/test 1 lần</h3>
+            <p>Nếu chỉ tách dữ liệu thành 1 tập train/test duy nhất (như hầu hết ví dụ từ Phần 6-9), kết quả đánh giá có thể phụ thuộc nhiều vào việc <i>ngẫu nhiên</i> tập test đó chứa những mẫu nào — "may mắn" hoặc "xui xẻo" khi chia có thể làm sai lệch đáng kể kết luận về mô hình.</p>
+
+            <h3>33.2. K-Fold Cross Validation</h3>
+            <p>Chia dữ liệu thành <code>k</code> phần (fold) bằng nhau. Lặp lại <code>k</code> lần: mỗi lần dùng 1 fold làm validation, <code>k-1</code> fold còn lại làm train — cuối cùng lấy trung bình <code>k</code> kết quả.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 500 190" width="100%">
+                <g font-family="JetBrains Mono" font-size="10">
+                  <!-- fold 1 -->
+                  <rect x="20" y="20" width="80" height="24" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <rect x="100" y="20" width="320" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="450" y="36" font-size="9" fill="var(--muted)">Vòng 1</text>
+
+                  <rect x="20" y="52" width="80" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <rect x="100" y="52" width="80" height="24" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <rect x="180" y="52" width="240" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="450" y="68" font-size="9" fill="var(--muted)">Vòng 2</text>
+
+                  <rect x="20" y="84" width="160" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <rect x="180" y="84" width="80" height="24" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <rect x="260" y="84" width="160" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="450" y="100" font-size="9" fill="var(--muted)">Vòng 3</text>
+
+                  <rect x="20" y="116" width="320" height="24" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <rect x="340" y="116" width="80" height="24" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <text x="450" y="132" font-size="9" fill="var(--muted)">Vòng 4</text>
+
+                  <rect x="20" y="155" width="16" height="12" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="42" y="165" font-size="9" fill="var(--muted)">Train</text>
+                  <rect x="90" y="155" width="16" height="12" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <text x="112" y="165" font-size="9" fill="var(--muted)">Validation</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">4-Fold Cross Validation: mỗi vòng, 1 fold khác nhau đóng vai trò validation, phần còn lại là train.</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+
+X, y = make_classification(n_samples=500, weights=[0.8, 0.2], random_state=1)
+model = RandomForestClassifier(n_estimators=100, random_state=1)
+
+# StratifiedKFold giữ tỉ lệ lớp đồng đều trong mỗi fold (quan trọng với dữ liệu mất cân bằng)
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
+diem_cv = cross_val_score(model, X, y, cv=cv, scoring='f1')
+
+print("F1-score qua từng fold:", diem_cv.round(3))
+print("F1-score trung bình:", diem_cv.mean().round(3))
+print("Độ lệch chuẩn (đo mức độ ổn định):", diem_cv.std().round(3))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>StratifiedKFold(n_splits=5, shuffle=True)</code> — biến thể K-Fold giữ tỉ lệ lớp đồng đều trong mỗi fold; nên dùng mặc định cho bài toán Classification thay vì <code>KFold</code> thường.</li>
+                <li><code>cross_val_score(model, X, y, cv=cv, scoring='f1')</code> — tự động thực hiện toàn bộ quy trình huấn luyện + đánh giá qua 5 fold, trả về mảng 5 điểm số.</li>
+                <li>Nhìn vào cả <b>trung bình</b> lẫn <b>độ lệch chuẩn</b> của điểm CV: trung bình cao nhưng độ lệch chuẩn lớn nghĩa là hiệu năng mô hình không ổn định giữa các fold — cần thận trọng khi diễn giải.</li>
+              </ol>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Liên hệ với Pipeline (Chương 18)</div>
+              Khi truyền <code>model_pipeline</code> (thay vì chỉ mô hình) vào <code>cross_val_score</code>, mọi bước tiền xử lý (scaling, encoding) sẽ tự động được fit lại riêng biệt trên phần train của từng fold — đây chính là lý do Chương 18 nhấn mạnh luôn đóng gói pipeline đầy đủ trước khi cross-validate.
+            </div>
+
+            <h3>33.3. Các biến thể Cross Validation khác</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Biến thể</th><th>Khi nào dùng</th></tr></thead>
+                <tbody>
+                  <tr><td><b>K-Fold</b></td><td>Trường hợp tổng quát, dữ liệu độc lập, phân phối đều</td></tr>
+                  <tr><td><b>Stratified K-Fold</b></td><td>Bài toán Classification, đặc biệt khi lớp mất cân bằng</td></tr>
+                  <tr><td><b>Leave-One-Out (LOO)</b></td><td>Dữ liệu rất nhỏ, mỗi fold chỉ chứa 1 mẫu validation duy nhất</td></tr>
+                  <tr><td><b>TimeSeriesSplit</b></td><td>Dữ liệu chuỗi thời gian — không được xáo trộn ngẫu nhiên vì phá vỡ thứ tự thời gian</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Lưu ý đặc biệt với dữ liệu chuỗi thời gian</div>
+              Không bao giờ dùng K-Fold thông thường (có xáo trộn ngẫu nhiên) cho dữ liệu time series — điều đó khiến mô hình "nhìn thấy tương lai" khi huấn luyện, một dạng data leakage nghiêm trọng. Luôn dùng <code>TimeSeriesSplit</code>, đảm bảo validation luôn nằm ở thời điểm sau train.
+            </div>
+
+            <h3>33.4. Learning Curve — chẩn đoán trực quan Underfitting/Overfitting</h3>
+            <p>Cross Validation cho một con số duy nhất, nhưng không cho biết <i>vì sao</i> mô hình chưa tốt. <b>Learning Curve</b> vẽ điểm số trên tập train và tập validation theo <i>lượng dữ liệu huấn luyện tăng dần</i> — cho thấy trực quan mô hình đang gặp vấn đề gì.</p>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.model_selection import learning_curve
+import matplotlib.pyplot as plt
+import numpy as np
+
+kich_thuoc_train, diem_train, diem_val = learning_curve(
+    model, X, y, cv=5, scoring='f1',
+    train_sizes=np.linspace(0.1, 1.0, 10)   # thử từ 10% đến 100% dữ liệu train
+)
+
+plt.plot(kich_thuoc_train, diem_train.mean(axis=1), 'o-', label='Điểm trên Train')
+plt.plot(kich_thuoc_train, diem_val.mean(axis=1), 'o-', label='Điểm trên Validation')
+plt.xlabel('Số lượng mẫu huấn luyện'); plt.ylabel('F1 Score'); plt.legend()
+plt.show()</code></pre>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Dạng đồ thị quan sát được</th><th>Chẩn đoán</th><th>Hướng xử lý</th></tr></thead>
+                <tbody>
+                  <tr><td>Cả 2 đường đều thấp, hội tụ gần nhau</td><td><b>Underfitting</b> (high bias) — mô hình quá đơn giản</td><td>Dùng mô hình phức tạp hơn, thêm đặc trưng (Chương 16), giảm regularization</td></tr>
+                  <tr><td>Đường train cao, đường validation thấp, khoảng cách lớn</td><td><b>Overfitting</b> (high variance) — mô hình học thuộc lòng</td><td>Thêm dữ liệu, giảm độ phức tạp, tăng regularization (Chương 20), Dropout (Phần 16)</td></tr>
+                  <tr><td>Đường validation vẫn đang tăng khi hết dữ liệu</td><td>Mô hình có thể cải thiện thêm nếu có <b>nhiều dữ liệu hơn</b></td><td>Ưu tiên thu thập thêm dữ liệu thay vì chỉnh mô hình</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Vì sao đây là công cụ chẩn đoán mạnh hơn chỉ nhìn 1 con số CV?</div>
+              Một điểm CV thấp có thể do nhiều nguyên nhân khác nhau — Learning Curve giúp phân biệt rõ đó là do mô hình quá đơn giản (underfitting, cần mô hình mạnh hơn) hay do thiếu dữ liệu (cần thu thập thêm) hay do overfitting (cần regularization) — ba hướng xử lý hoàn toàn khác nhau, nên chẩn đoán đúng trước khi hành động sẽ tiết kiệm rất nhiều thời gian thử sai.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với dữ liệu ở mục 33.2, thử chạy cross-validation với <code>n_splits=3</code> và <code>n_splits=10</code>, so sánh trung bình và độ lệch chuẩn của kết quả.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>for n_splits in [3, 10]:
+    cv_n = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=1)
+    scores = cross_val_score(model, X, y, cv=cv_n, scoring='f1')
+    print(f"n_splits={n_splits}: mean={scores.mean():.3f}, std={scores.std():.3f}")
+# n_splits lớn hơn -> mỗi fold train có nhiều dữ liệu hơn nhưng tốn thời gian tính toán hơn</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng K-Fold ngẫu nhiên thông thường cho dữ liệu time series, gây rò rỉ thông tin tương lai vào quá trình huấn luyện.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn xem cả trung bình và độ lệch chuẩn của điểm CV, không chỉ một con số trung bình duy nhất.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 33</h4>
+              <ul>
+                <li>K-Fold CV lặp qua nhiều cách chia train/validation, lấy trung bình để đánh giá đáng tin cậy hơn.</li>
+                <li>Dùng Stratified K-Fold cho Classification, TimeSeriesSplit cho dữ liệu chuỗi thời gian.</li>
+                <li>Kết hợp Pipeline + Cross Validation là cách chuẩn để tránh data leakage hoàn toàn.</li>
+                <li>Learning Curve chẩn đoán chính xác underfitting/overfitting/thiếu dữ liệu — ba nguyên nhân cần ba cách xử lý khác nhau.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 34: HYPERPARAMETER TUNING -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-34">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">34</div>
+            <div>
+              <h2>Hyperparameter Tuning</h2>
+              <div class="ch-sub">Grid Search, Random Search, Bayesian Optimization</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>34.1. Tham số vs Siêu tham số — ôn lại khái niệm</h3>
+            <p>Nhắc lại: <b>tham số (parameter)</b> là những gì mô hình tự học từ dữ liệu (như <code>w, b</code> trong Linear Regression — Chương 20).
+            <b>Siêu tham số (hyperparameter)</b> là những gì <i>con người</i> cấu hình trước khi huấn luyện (như <code>k</code> trong KNN, <code>max_depth</code> trong Decision Tree, <code>learning_rate</code> trong Gradient Boosting) — không thể học tự động bằng Gradient Descent.</p>
+
+            <h3>34.2. Grid Search — thử mọi tổ hợp có thể</h3>
+            <p>Grid Search định nghĩa một "lưới" các giá trị cho từng siêu tham số, rồi thử <b>mọi tổ hợp</b> có thể, đánh giá bằng cross-validation, chọn tổ hợp tốt nhất.</p>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+
+X, y = make_classification(n_samples=500, random_state=1)
+
+luoi_tham_so = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [3, 5, 10, None],
+    'min_samples_split': [2, 5, 10]
+}
+# Tổng số tổ hợp: 3 * 4 * 3 = 36 tổ hợp, mỗi tổ hợp chạy 5-fold CV -> 180 lần huấn luyện!
+
+grid_search = GridSearchCV(
+    RandomForestClassifier(random_state=1),
+    param_grid=luoi_tham_so,
+    cv=5,
+    scoring='f1',
+    n_jobs=-1   # dùng tất cả CPU cores để chạy song song, tăng tốc đáng kể
+)
+grid_search.fit(X, y)
+
+print("Bộ siêu tham số tốt nhất:", grid_search.best_params_)
+print("F1-score tốt nhất (trung bình CV):", grid_search.best_score_)</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>param_grid</code> — định nghĩa lưới giá trị cần thử cho từng siêu tham số; số tổ hợp tăng theo cấp <b>số nhân</b>, nên Grid Search dễ trở nên rất chậm khi có nhiều siêu tham số hoặc nhiều giá trị mỗi tham số.</li>
+                <li><code>n_jobs=-1</code> — tận dụng đa nhân CPU để chạy song song nhiều tổ hợp cùng lúc, giảm đáng kể thời gian chờ.</li>
+                <li><code>grid_search.best_params_</code> / <code>best_score_</code> — sau khi hoàn tất, trả về tổ hợp siêu tham số cho điểm CV cao nhất, kèm điểm số tương ứng.</li>
+              </ol>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Nhược điểm của Grid Search: "lời nguyền tổ hợp"</div>
+              Với 5 siêu tham số, mỗi tham số có 5 giá trị để thử → <code>5⁵ = 3125</code> tổ hợp, nhân thêm với số fold CV → có thể mất hàng giờ hoặc hàng ngày để chạy hết. Đây là lý do Random Search và Bayesian Optimization ra đời.
+            </div>
+
+            <h3>34.3. Random Search — hiệu quả hơn khi không gian tìm kiếm lớn</h3>
+            <p>Thay vì thử toàn bộ lưới, Random Search chọn <b>ngẫu nhiên</b> một số lượng tổ hợp cố định để thử. Nghe có vẻ "kém khoa học" hơn, nhưng nghiên cứu đã chỉ ra: với không gian tìm kiếm lớn, Random Search thường tìm được kết quả gần tối ưu nhanh hơn nhiều so với Grid Search, vì không lãng phí thời gian vào các vùng tham số ít ảnh hưởng.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 500 180" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <text x="130" y="20" text-anchor="middle" fill="var(--teal)" font-weight="700">Grid Search</text>
+                  <rect x="30" y="35" width="200" height="120" fill="none" stroke="var(--border)"/>
+                  <g fill="var(--teal)">
+                    <circle cx="55" cy="60" r="4"/><circle cx="95" cy="60" r="4"/><circle cx="135" cy="60" r="4"/><circle cx="175" cy="60" r="4"/><circle cx="215" cy="60" r="4"/>
+                    <circle cx="55" cy="95" r="4"/><circle cx="95" cy="95" r="4"/><circle cx="135" cy="95" r="4"/><circle cx="175" cy="95" r="4"/><circle cx="215" cy="95" r="4"/>
+                    <circle cx="55" cy="130" r="4"/><circle cx="95" cy="130" r="4"/><circle cx="135" cy="130" r="4"/><circle cx="175" cy="130" r="4"/><circle cx="215" cy="130" r="4"/>
+                  </g>
+                  <text x="130" y="170" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phủ đều nhưng lãng phí ở vùng ít quan trọng</text>
+
+                  <text x="390" y="20" text-anchor="middle" fill="var(--violet)" font-weight="700">Random Search</text>
+                  <rect x="290" y="35" width="200" height="120" fill="none" stroke="var(--border)"/>
+                  <g fill="var(--violet)">
+                    <circle cx="320" cy="50" r="4"/><circle cx="450" cy="65" r="4"/><circle cx="380" cy="100" r="4"/>
+                    <circle cx="310" cy="130" r="4"/><circle cx="470" cy="45" r="4"/><circle cx="350" cy="145" r="4"/>
+                    <circle cx="420" cy="120" r="4"/><circle cx="300" cy="80" r="4"/>
+                  </g>
+                  <text x="390" y="170" text-anchor="middle" font-size="9.5" fill="var(--muted)">Ngẫu nhiên, khám phá đa dạng hơn với cùng ngân sách</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">Với cùng số lần thử, Random Search thường khám phá không gian tham số hiệu quả hơn Grid Search khi có nhiều siêu tham số.</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint
+
+phan_phoi_tham_so = {
+    'n_estimators': randint(50, 300),
+    'max_depth': [3, 5, 10, 15, None],
+    'min_samples_split': randint(2, 20)
+}
+
+random_search = RandomizedSearchCV(
+    RandomForestClassifier(random_state=1),
+    param_distributions=phan_phoi_tham_so,
+    n_iter=30,        # chỉ thử 30 tổ hợp ngẫu nhiên, thay vì toàn bộ lưới
+    cv=5,
+    scoring='f1',
+    random_state=1,
+    n_jobs=-1
+)
+random_search.fit(X, y)
+print("Bộ siêu tham số tốt nhất:", random_search.best_params_)</code></pre>
+            </div>
+
+            <h3>34.4. Bayesian Optimization — thông minh hơn cả hai</h3>
+            <p>Khác với Grid/Random Search (chọn điểm tiếp theo độc lập với kết quả trước đó), <b>Bayesian Optimization</b> xây dựng một mô hình xác suất (thường gọi là "surrogate model")
+            dự đoán tổ hợp nào có khả năng cho kết quả tốt, dựa trên <i>toàn bộ lịch sử</i> các lần thử trước — áp dụng trực tiếp tư duy Bayes đã học ở Chương 8: liên tục cập nhật niềm tin dựa trên bằng chứng mới.</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Phương pháp</th><th>Cách chọn điểm tiếp theo</th><th>Hiệu quả với không gian lớn</th></tr></thead>
+                <tbody>
+                  <tr><td>Grid Search</td><td>Cố định trước, thử hết lưới</td><td>Kém — tăng theo cấp số nhân</td></tr>
+                  <tr><td>Random Search</td><td>Ngẫu nhiên, độc lập với kết quả trước</td><td>Khá — hiệu quả hơn Grid với không gian lớn</td></tr>
+                  <tr><td>Bayesian Optimization</td><td>Thông minh, dựa trên lịch sử các lần thử trước</td><td>Tốt nhất — cần ít lần thử hơn để đạt kết quả tương đương</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Thư viện phổ biến cho Bayesian Optimization</div>
+              scikit-learn không có sẵn Bayesian Optimization tích hợp; các thư viện phổ biến gồm <code>Optuna</code>, <code>Hyperopt</code>, và <code>scikit-optimize</code>. Với các bài toán thực tế có ngân sách tính toán hạn chế và nhiều siêu tham số, đây thường là lựa chọn hiệu quả nhất.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>So sánh thời gian chạy giữa Grid Search (36 tổ hợp) và Random Search (<code>n_iter=15</code>) trên cùng dữ liệu ở mục 34.2, và so sánh <code>best_score_</code> giữa 2 cách.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>import time
+
+start = time.time()
+grid_search.fit(X, y)
+print("Grid Search:", round(time.time()-start, 2), "giây, best_score=", grid_search.best_score_)
+
+random_search2 = RandomizedSearchCV(
+    RandomForestClassifier(random_state=1),
+    param_distributions=luoi_tham_so, n_iter=15, cv=5, scoring='f1', random_state=1
+)
+start = time.time()
+random_search2.fit(X, y)
+print("Random Search:", round(time.time()-start, 2), "giây, best_score=", random_search2.best_score_)
+# Random Search thường nhanh hơn đáng kể, với best_score gần tương đương Grid Search</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chạy Grid Search với lưới tham số quá lớn mà không ước lượng trước thời gian chạy, dẫn tới treo máy hàng giờ không cần thiết.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Bắt đầu với Random Search để thu hẹp vùng tham số tiềm năng, sau đó dùng Grid Search tinh chỉnh trong vùng hẹp đó nếu cần độ chính xác cao hơn.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 34</h4>
+              <ul>
+                <li>Grid Search thử mọi tổ hợp — chính xác nhưng chậm khi không gian tham số lớn.</li>
+                <li>Random Search thử ngẫu nhiên một số lượng cố định — hiệu quả hơn với không gian lớn.</li>
+                <li>Bayesian Optimization thông minh nhất, học từ lịch sử các lần thử trước, cần thư viện ngoài như Optuna.</li>
+              </ul>
+              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn giờ đã có đủ bộ công cụ để đánh giá và tối ưu bất kỳ mô hình nào một cách khoa học! Phần 11 sẽ khám phá Explainable AI (SHAP, LIME) — làm sao "mở hộp đen" để hiểu vì sao mô hình đưa ra một dự đoán cụ thể.</b></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 10</b>: Model Evaluation, Cross Validation và Hyperparameter Tuning.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-9-unsupervised-clustering-pca.html" class="kbd" style="text-decoration:none;">← Phần 9. Unsupervised &amp; PCA</a>
+        <a href="phan-11-explainable-ai-deployment.html" class="kbd" style="text-decoration:none;">Sang Phần 11 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

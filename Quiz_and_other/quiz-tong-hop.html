@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('algo-mastery-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Tổng Hợp — Kiểm Tra Kiến Thức Lập Trình</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c10; --bg-soft:#12151d; --bg-card:#171b26; --border:#262c3b;
+  --text:#eef0f5; --text-dim:#8b93a7;
+  --py:#22d3ee; --py2:#818cf8; --cpp:#22d3ee; --cpp2:#818cf8;
+  --java:#22d3ee; --java2:#818cf8; --js:#22d3ee; --js2:#818cf8;
+  --algo:#22d3ee; --algo2:#818cf8; --web:#22d3ee; --web2:#818cf8;
+  --ai:#22d3ee; --ai2:#818cf8; --all:#22d3ee; --all2:#818cf8;
+  --ok:#6bd68b; --warn:#f2c14e; --danger:#f47174;
+  --mono:'JetBrains Mono',Consolas,monospace; --sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.18); --shadow-md:0 12px 32px rgba(0,0,0,.35);
+  --radius:14px;
+}
+[data-theme="light"]{
+  --bg:#f7f8fb; --bg-soft:#ffffff; --bg-card:#ffffff; --border:#e5e8ef;
+  --text:#181c25; --text-dim:#5c6373;
+  --shadow-sm:0 2px 8px rgba(20,20,40,.06); --shadow-md:0 12px 32px rgba(20,20,40,.12);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans); background:var(--bg); color:var(--text); line-height:1.65; transition:background .3s,color .3s; -webkit-font-smoothing:antialiased;}
+a{color:inherit; text-decoration:none;}
+
+#theme-toggle{
+  position:fixed; top:18px; right:18px; z-index:60;
+  display:flex; align-items:center; gap:8px; padding:9px 16px; border-radius:10px;
+  border:1px solid var(--border); background:var(--bg-card); color:var(--text); cursor:pointer; font-size:.82rem;
+  box-shadow:var(--shadow-sm);
+}
+#home-btn{
+  position:fixed; top:18px; left:18px; z-index:60;
+  display:flex; align-items:center; gap:6px; padding:9px 16px; border-radius:100px;
+  border:1px solid var(--border); background:var(--bg-card); color:var(--text); font-size:.82rem;
+  box-shadow:var(--shadow-sm);
+}
+#menu-toggle{
+  position:fixed; top:18px; left:150px; z-index:60;
+  width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:10px;
+  border:1px solid var(--border); background:var(--bg-card); color:var(--text); cursor:pointer; font-size:.95rem;
+  box-shadow:var(--shadow-sm);
+}
+#menu-toggle:hover{ border-color:#22d3ee; color:#22d3ee; }
+#toolbox-sidebar{position:fixed;top:0;right:-300px;width:280px;height:100%;background:var(--bg-soft);border-left:1px solid var(--border);padding:22px 20px;z-index:700;transition:right .3s ease;overflow-y:auto;}
+#toolbox-sidebar.open{right:0;}
+#toolbox-sidebar .sb-title{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+#toolbox-sidebar .sb-close{background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
+#toolbox-sidebar a{display:block;color:var(--text);text-decoration:none;font-size:14px;padding:9px 10px;border-radius:8px;margin-bottom:2px;}
+#toolbox-sidebar a:hover{background:var(--bg-card);color:#22d3ee;}
+#toolbox-sidebar a.current{color:#22d3ee;font-weight:600;}
+#toolbox-sidebar a.home-link{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:#818cf8;font-family:var(--mono);font-size:12.5px;}
+#toolbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;}
+#toolbox-overlay.open{display:block;}
+@media (max-width:480px){ #menu-toggle{ left:auto; right:18px; top:66px; } }
+
+.wrap{max-width:760px; margin:0 auto; padding:80px 20px 100px;}
+
+.hero{text-align:center; margin-bottom:40px; animation:fadeInUp .6s ease both;}
+@keyframes fadeInUp{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);}}
+.hero .kicker{
+  display:inline-block; font-size:.75rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--text-dim); padding:5px 14px; border:1px solid var(--border); border-radius:20px; margin-bottom:18px;
+}
+.hero h1{
+  font-size:2.4rem; font-weight:900; letter-spacing:-.03em; margin-bottom:14px;
+  background:linear-gradient(135deg,var(--all),var(--all2)); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p{color:var(--text-dim); font-size:1rem; max-width:520px; margin:0 auto;}
+
+#screen-select{animation:fadeInUp .6s ease both;}
+.topic-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:28px;}
+@media(max-width:560px){.topic-grid{grid-template-columns:1fr;}}
+.topic-card{
+  border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius);
+  padding:18px; cursor:pointer; transition:transform .2s, box-shadow .2s, border-color .2s;
+  display:flex; align-items:center; gap:12px; position:relative; overflow:hidden;
+}
+.topic-card:before{content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--grad); opacity:0; transition:opacity .2s;}
+.topic-card:hover{transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:transparent;}
+.topic-card:hover:before{opacity:1;}
+.topic-card.selected{border-color:var(--sel-color); background:rgba(255,255,255,.02);}
+.topic-card .icon{font-size:1.6rem; width:44px; height:44px; border-radius:11px; display:flex; align-items:center; justify-content:center; background:var(--grad); flex-shrink:0;}
+.topic-card .info h3{font-size:.98rem; font-weight:700; margin-bottom:2px;}
+.topic-card .info p{font-size:.76rem; color:var(--text-dim); margin:0;}
+.topic-card.py{--grad:linear-gradient(135deg,var(--py),var(--py2)); --sel-color:var(--py);}
+.topic-card.cpp{--grad:linear-gradient(135deg,var(--cpp),var(--cpp2)); --sel-color:var(--cpp);}
+.topic-card.java{--grad:linear-gradient(135deg,var(--java),var(--java2)); --sel-color:var(--java);}
+.topic-card.js{--grad:linear-gradient(135deg,var(--js),var(--js2)); --sel-color:var(--js);}
+.topic-card.web{--grad:linear-gradient(135deg,var(--web),var(--web2)); --sel-color:var(--web);}
+.topic-card.algo{--grad:linear-gradient(135deg,var(--algo),var(--algo2)); --sel-color:var(--algo);}
+.topic-card.ai{--grad:linear-gradient(135deg,var(--ai),var(--ai2)); --sel-color:var(--ai);}
+.topic-card.all{--grad:linear-gradient(135deg,var(--all),var(--all2)); --sel-color:var(--all);}
+
+.option-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:24px;}
+.option-chip{
+  padding:8px 16px; border-radius:20px; border:1px solid var(--border); background:var(--bg-card);
+  font-size:.85rem; cursor:pointer; transition:all .15s; font-weight:600; color:var(--text-dim);
+}
+.option-chip.active{background:linear-gradient(135deg,var(--all),var(--all2)); color:#0a0c10; border-color:transparent;}
+
+#start-btn{
+  display:block; margin:0 auto; padding:14px 40px; border-radius:12px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,var(--all),var(--all2)); color:#0a0c10; font-weight:800; font-size:1rem;
+  box-shadow:var(--shadow-md); transition:transform .15s;
+}
+#start-btn:hover{transform:translateY(-2px);}
+#start-btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+
+#screen-quiz{display:none;}
+.quiz-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+.quiz-progress-label{font-size:.82rem; color:var(--text-dim); font-family:var(--mono);}
+.quiz-track{height:6px; background:var(--bg-card); border-radius:4px; overflow:hidden; margin-bottom:28px;}
+.quiz-fill{height:100%; background:linear-gradient(90deg,var(--all),var(--all2)); border-radius:4px; transition:width .3s ease;}
+
+.question-card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:28px; margin-bottom:20px; animation:fadeInUp .4s ease both;
+}
+.question-card .q-topic{font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:10px;}
+.question-card h3{font-size:1.15rem; font-weight:700; margin-bottom:20px; line-height:1.5;}
+
+.opt{
+  display:block; width:100%; text-align:left; padding:13px 16px; margin-bottom:10px; border-radius:11px;
+  border:1px solid var(--border); background:var(--bg-soft); color:var(--text); font-size:.92rem; cursor:pointer;
+  transition:all .15s; font-family:var(--sans);
+}
+.opt:hover{border-color:var(--all); transform:translateX(3px);}
+.opt.correct{border-color:var(--ok); background:rgba(107,214,139,.14); font-weight:700;}
+.opt.wrong{border-color:var(--danger); background:rgba(244,113,116,.14);}
+.opt.disabled{cursor:default; pointer-events:none;}
+
+.explain-box{
+  margin-top:14px; padding:14px 16px; border-radius:10px; background:rgba(129,140,248,.08);
+  border-left:3px solid var(--ai); font-size:.87rem; color:var(--text-dim); display:none;
+}
+.explain-box.show{display:block;}
+
+.next-btn{
+  display:block; width:100%; padding:13px; border-radius:11px; border:none; cursor:pointer;
+  background:var(--bg-card); border:1px solid var(--border); color:var(--text-dim); font-weight:700; font-size:.9rem;
+  transition:all .15s; opacity:.5; pointer-events:none;
+}
+.next-btn.active{opacity:1; pointer-events:auto; background:linear-gradient(135deg,var(--all),var(--all2)); color:#0a0c10; border-color:transparent;}
+.next-btn.active:hover{transform:translateY(-2px);}
+
+#screen-result{display:none; text-align:center; animation:fadeInUp .6s ease both;}
+.result-score{font-size:4rem; font-weight:900; font-family:var(--mono); margin:20px 0 6px;
+  background:linear-gradient(135deg,var(--all),var(--all2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.result-label{color:var(--text-dim); font-size:.95rem; margin-bottom:28px;}
+.result-msg{font-size:1.1rem; font-weight:700; margin-bottom:30px;}
+.result-actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+.btn-secondary{padding:12px 24px; border-radius:11px; border:1px solid var(--border); background:var(--bg-card); color:var(--text); font-weight:700; cursor:pointer; font-size:.9rem; transition:all .15s;}
+.btn-secondary:hover{border-color:var(--all);}
+.btn-primary{padding:12px 24px; border-radius:11px; border:none; background:linear-gradient(135deg,var(--all),var(--all2)); color:#0a0c10; font-weight:800; cursor:pointer; font-size:.9rem; transition:all .15s;}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+
+.review-list{text-align:left; margin-top:36px; border-top:1px dashed var(--border); padding-top:24px;}
+.review-item{padding:14px 16px; border-radius:10px; background:var(--bg-card); border:1px solid var(--border); margin-bottom:10px; font-size:.87rem;}
+.review-item .rq{font-weight:700; margin-bottom:6px;}
+.review-item.ok{border-left:3px solid var(--ok);}
+.review-item.bad{border-left:3px solid var(--danger);}
+
+@media(max-width:600px){
+  .result-score{font-size:3rem;}
+  .question-card{padding:20px;}
+}
+</style>
+</head>
+<body>
+
+<a id="home-btn" href="../index.html">🏠 Trang chủ</a>
+<button id="menu-toggle" aria-label="Mở mục lục" onclick="document.getElementById('toolbox-sidebar').classList.toggle('open');document.getElementById('toolbox-overlay').classList.toggle('open');">☰</button>
+<button id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Chế độ tối</span></button>
+
+<div id="toolbox-overlay" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="toolbox-sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');document.getElementById('toolbox-overlay').classList.remove('open');">✕</button></div>
+  <a href="cheatsheet.html">📄 Cheat Sheet</a>
+  <a href="exercises.html">✍️ Bài tập &amp; Lời giải</a>
+  <a href="flashcards.html">🃏 Flashcards</a>
+  <a href="glossary.html">📖 Glossary Anh-Việt</a>
+  <a class="current" href="quiz-tong-hop.html">📝 Quiz tổng hợp</a>
+  <a href="free-apis-giao-trinh.html">🔌 Free APIs</a>
+  <a href="../ai-engineer/tong-hop-prompt-agent-cong-cu-ai-2026.html">🤖 AI Agent Toolbox</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+</aside>
+
+<div class="wrap">
+
+  <div id="screen-select">
+    <div class="hero">
+      <span class="kicker">Quiz Tổng Hợp</span>
+      <h1>Kiểm Tra Kiến Thức Lập Trình</h1>
+      <p>Chọn một chủ đề để bắt đầu — hoặc chọn "Tổng hợp tất cả" để thử thách kiến thức trên toàn bộ giáo trình.</p>
+    </div>
+
+    <div class="topic-grid" id="topic-grid"></div>
+
+    <p style="text-align:center; font-size:.8rem; color:var(--text-dim); margin-bottom:12px;">Số lượng câu hỏi mỗi lượt:</p>
+    <div class="option-row" id="count-row">
+      <div class="option-chip" data-count="5">5 câu</div>
+      <div class="option-chip active" data-count="10">10 câu</div>
+      <div class="option-chip" data-count="15">15 câu</div>
+      <div class="option-chip" data-count="9999">Tất cả</div>
+    </div>
+
+    <button id="start-btn" disabled>Chọn một chủ đề để bắt đầu</button>
+  </div>
+
+  <div id="screen-quiz">
+    <div class="quiz-header">
+      <span class="quiz-progress-label" id="quiz-progress-label">Câu 1/10</span>
+      <span class="quiz-progress-label" id="quiz-score-label">Đúng: 0</span>
+    </div>
+    <div class="quiz-track"><div class="quiz-fill" id="quiz-fill"></div></div>
+    <div id="question-container"></div>
+    <button class="next-btn" id="next-btn">Câu tiếp theo →</button>
+  </div>
+
+  <div id="screen-result">
+    <div class="hero" style="margin-bottom:0;">
+      <span class="kicker" id="result-topic-label">Kết quả</span>
+      <div class="result-score" id="result-score">0/10</div>
+      <div class="result-label">câu trả lời đúng</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-actions">
+        <button class="btn-secondary" onclick="lamLai()">🔁 Làm lại chủ đề này</button>
+        <button class="btn-primary" onclick="veManHinhChon()">📚 Chọn chủ đề khác</button>
+      </div>
+    </div>
+    <div class="review-list" id="review-list"></div>
+  </div>
+
+</div>
+
+<script>
+const QUESTION_BANK = {
+  py: [
+    {q:"List comprehension nào tạo ra danh sách bình phương các số chẵn từ 0-9?", opts:["[x**2 for x in range(10) if x%2==0]","[x for x in range(10) if x**2%2==0]","(x**2 for x in range(10))[::2]","list(x**2, range(10), x%2==0)"], ans:0, ex:"Cú pháp list comprehension: [biểu_thức for biến in iterable if điều_kiện]."},
+    {q:"Kết quả của 7 // 2 trong Python là gì?", opts:["3.5","3","4","3.0"], ans:1, ex:"// là phép chia lấy phần nguyên (floor division), luôn làm tròn xuống."},
+    {q:"Sự khác biệt giữa list và tuple là gì?", opts:["Không có khác biệt","List có thể thay đổi (mutable), tuple thì không","Tuple nhanh hơn nhưng thay đổi được","List chỉ chứa số"], ans:1, ex:"Tuple bất biến (immutable) sau khi tạo, List có thể sửa đổi tùy ý."},
+    {q:"Decorator trong Python dùng để làm gì?", opts:["Định dạng chuỗi","Mở rộng chức năng của hàm mà không sửa code gốc","Chỉ dùng cho class","Xóa biến"], ans:1, ex:"Decorator (@ten_decorator) là hàm bọc quanh hàm khác để thêm chức năng, ví dụ đo thời gian, ghi log."},
+    {q:"GIL (Global Interpreter Lock) ảnh hưởng gì tới threading trong Python?", opts:["Giúp threading nhanh hơn","Chỉ cho phép 1 luồng thực thi bytecode tại 1 thời điểm, hạn chế đa luồng CPU-bound","Không ảnh hưởng gì","Chỉ áp dụng cho Python 2"], ans:1, ex:"GIL khiến threading không tăng tốc tác vụ CPU-bound; nên dùng multiprocessing cho việc đó."},
+    {q:"Hàm nào dùng để tạo generator trả về giá trị 'lười' (lazy)?", opts:["return","yield","lambda","def"], ans:1, ex:"yield tạm dừng hàm và trả về giá trị, khác với return kết thúc hàm hoàn toàn."},
+    {q:"Dict comprehension nào tạo dict {0:0, 1:1, 2:4, 3:9}?", opts:["{x: x**2 for x in range(4)}","[x**2 for x in range(4)]","{x**2: x for x in range(4)}","dict(range(4))"], ans:0, ex:"Cú pháp dict comprehension: {key_expr: value_expr for x in iterable}."},
+    {q:"Điều gì SAI khi dùng list rỗng làm giá trị mặc định cho tham số hàm?", opts:["Không có gì sai","List mặc định bị chia sẻ giữa các lần gọi hàm khác nhau","Python không cho phép cú pháp này","Chạy chậm hơn"], ans:1, ex:"def f(ds=[]) — list mặc định chỉ được tạo 1 lần, dùng chung cho mọi lần gọi hàm nếu không truyền tham số."},
+    {q:"Toán tử nào dùng để so sánh NỘI DUNG hai object trong Python?", opts:["is","==","===","equals()"], ans:1, ex:"== so sánh giá trị/nội dung, is so sánh xem có phải CÙNG một object trong bộ nhớ hay không."},
+    {q:"Module nào cung cấp cấu trúc dữ liệu Counter, defaultdict?", opts:["itertools","functools","collections","heapq"], ans:2, ex:"collections cung cấp Counter (đếm), defaultdict (dict an toàn), deque, namedtuple."},
+    {q:"@lru_cache dùng để làm gì?", opts:["Xóa cache của hàm","Tự động cache kết quả hàm, tối ưu đệ quy","Giới hạn số lần gọi hàm","Chạy hàm song song"], ans:1, ex:"@lru_cache thêm memoization tự động — lưu lại kết quả đã tính để tránh tính toán lặp lại."},
+  ],
+  cpp: [
+    {q:"Toán tử nào dùng để lấy giá trị mà con trỏ đang trỏ tới?", opts:["&con_tro","*con_tro","con_tro++","con_tro->"], ans:1, ex:"* (dereference) lấy giá trị tại địa chỉ con trỏ đang trỏ tới, & lấy địa chỉ của một biến."},
+    {q:"Sự khác biệt giữa con trỏ và tham chiếu trong C++ là gì?", opts:["Không khác gì nhau","Con trỏ có thể null và đổi trỏ, tham chiếu thì không","Tham chiếu nhanh hơn con trỏ luôn luôn","Con trỏ chỉ dùng cho mảng"], ans:1, ex:"Con trỏ có thể là nullptr và trỏ lại nơi khác; tham chiếu phải gán 1 lần và luôn hợp lệ."},
+    {q:"Từ khóa nào bắt buộc để đa hình (polymorphism) hoạt động đúng qua con trỏ lớp cha?", opts:["static","virtual","const","inline"], ans:1, ex:"virtual cho phép gọi đúng phương thức của lớp con (dynamic binding) thay vì lớp cha (static binding)."},
+    {q:"Smart pointer nào chỉ cho phép MỘT chủ sở hữu tại một thời điểm?", opts:["shared_ptr","unique_ptr","weak_ptr","auto_ptr"], ans:1, ex:"unique_ptr không thể sao chép, chỉ có thể 'move' quyền sở hữu sang biến khác."},
+    {q:"STL container nào phù hợp nhất khi cần tra cứu nhanh O(1) trung bình, không cần thứ tự?", opts:["map","unordered_map","vector","set"], ans:1, ex:"unordered_map dùng hash table, đạt O(1) trung bình; map dùng cây cân bằng, O(log n) nhưng có thứ tự."},
+    {q:"delete[] khác gì so với delete thông thường?", opts:["Không khác gì","delete[] dùng để giải phóng MẢNG cấp phát bằng new[]","delete[] nhanh hơn","delete[] chỉ dùng cho con trỏ null"], ans:1, ex:"new/delete cho 1 đối tượng; new[]/delete[] cho mảng động — dùng sai cặp gây lỗi undefined behavior."},
+    {q:"Phép chia hai số nguyên trong C++ (VD: 7/2) cho kết quả gì?", opts:["3.5","3","4","Lỗi biên dịch"], ans:1, ex:"C++ chia số nguyên luôn làm tròn xuống về phía 0, cho kết quả int (3), khác với ép kiểu double."},
+    {q:"Template trong C++ dùng để làm gì?", opts:["Chỉ dùng cho giao diện đồ họa","Viết hàm/class hoạt động với nhiều kiểu dữ liệu khác nhau","Tăng tốc độ biên dịch","Thay thế hoàn toàn OOP"], ans:1, ex:"template kiểu tổng quát cho phép viết code tổng quát, trình biên dịch tự sinh phiên bản cho từng kiểu dùng."},
+    {q:"Vấn đề gì xảy ra nếu quên delete sau khi new trong C++?", opts:["Không có vấn đề gì","Memory leak — rò rỉ bộ nhớ", "Chương trình chạy nhanh hơn","Biến tự động bị xóa"], ans:1, ex:"Mỗi new cần có delete tương ứng; quên delete khiến bộ nhớ bị chiếm dụng vĩnh viễn cho tới khi chương trình kết thúc."},
+    {q:"Lambda expression trong C++ dùng capture [&] có nghĩa là gì?", opts:["Không lấy biến nào từ ngoài","Lấy tất cả biến ngoài theo THAM CHIẾU","Lấy tất cả biến ngoài theo GIÁ TRỊ","Chỉ lấy biến kiểu int"], ans:1, ex:"[&] capture theo tham chiếu (có thể sửa biến gốc); [=] capture theo giá trị (bản sao)."},
+  ],
+  java: [
+    {q:"Code Java được biên dịch thành gì trước khi chạy?", opts:["Mã máy trực tiếp","Bytecode chạy trên JVM","Mã HTML","Không cần biên dịch"], ans:1, ex:"Java biên dịch ra bytecode (.class), chạy trên JVM — đây là cơ sở của 'Write Once, Run Anywhere'."},
+    {q:"Tại sao KHÔNG nên dùng == để so sánh nội dung hai String trong Java?", opts:["== luôn báo lỗi biên dịch","== so sánh địa chỉ (tham chiếu), không so sánh nội dung","== chỉ dùng được với số","== chạy chậm hơn .equals()"], ans:1, ex:"String là kiểu tham chiếu; == so sánh xem có cùng object hay không. Dùng .equals() để so sánh nội dung."},
+    {q:"Java hỗ trợ đa kế thừa (multiple inheritance) bằng cách nào?", opts:["extends nhiều class cùng lúc","implements nhiều interface cùng lúc","Không hỗ trợ dưới bất kỳ hình thức nào","Dùng từ khóa multi"], ans:1, ex:"Java chỉ đơn kế thừa class (extends), nhưng có thể implements nhiều interface để đạt hiệu ứng tương tự đa kế thừa."},
+    {q:"Exception nào phổ biến nhất khi gọi method trên biến đang là null?", opts:["ArrayIndexOutOfBoundsException","NullPointerException","ClassCastException","IOException"], ans:1, ex:"NullPointerException (NPE) xảy ra khi thao tác trên tham chiếu null — lỗi runtime phổ biến nhất trong Java."},
+    {q:"Collection nào phù hợp nhất khi cần tra cứu key-value với tốc độ O(1) trung bình?", opts:["ArrayList","LinkedList","HashMap","TreeSet"], ans:2, ex:"HashMap dùng hash table để tra cứu O(1) trung bình; ArrayList/LinkedList là List, không phải Map."},
+    {q:"Interface khác Abstract Class ở điểm nào?", opts:["Interface không thể có phương thức default","Một class chỉ implements được 1 interface","Class chỉ extends được 1 abstract class nhưng implements được NHIỀU interface","Interface luôn nhanh hơn"], ans:2, ex:"Java chỉ đơn kế thừa class (kể cả abstract class), nhưng 1 class có thể implements nhiều interface."},
+    {q:"Generics trong Java mang lại lợi ích gì?", opts:["Tăng tốc độ chạy chương trình","Kiểm tra kiểu dữ liệu tại thời điểm BIÊN DỊCH, tránh lỗi ép kiểu runtime","Giảm dung lượng file .class","Chỉ dùng được với String"], ans:1, ex:"Trước Generics, dùng Object chung chung dễ gây ClassCastException lúc runtime; Generics chuyển kiểm tra sang lúc biên dịch."},
+    {q:"record trong Java (14+) tự động sinh ra những gì?", opts:["Chỉ constructor","Constructor, getter, equals(), toString()","Chỉ có getter","Không sinh gì cả, chỉ là comment"], ans:1, ex:"record là cách viết class dữ liệu ngắn gọn, tự động có constructor/getter/equals/toString/hashCode."},
+    {q:"Trong Spring Boot, annotation nào đánh dấu một class ánh xạ với bảng database?", opts:["@Service","@Entity","@RestController","@Repository"], ans:1, ex:"@Entity đánh dấu class là JPA entity, ánh xạ trực tiếp với một bảng trong database."},
+    {q:"ExecutorService dùng để làm gì?", opts:["Xóa các luồng không dùng nữa","Quản lý một nhóm luồng (thread pool) tái sử dụng hiệu quả","Chỉ dùng cho code đơn luồng","Thay thế hoàn toàn class Thread"], ans:1, ex:"ExecutorService quản lý thread pool, tránh việc tạo Thread mới liên tục rất tốn tài nguyên."},
+  ],
+  js: [
+    {q:"Sự khác biệt giữa == và === trong JavaScript là gì?", opts:["Không khác gì nhau","== so sánh lỏng (tự ép kiểu), === so sánh nghiêm ngặt (không ép kiểu)","=== chỉ dùng cho số","== nhanh hơn ==="], ans:1, ex:"\"5\" == 5 là true (ép kiểu), nhưng \"5\" === 5 là false (khác kiểu dữ liệu). Nên ưu tiên ===."},
+    {q:"const với một object trong JS có ý nghĩa gì?", opts:["Không thể sửa BẤT KỲ thuộc tính nào của object","Không thể gán lại biến sang object khác, nhưng vẫn sửa được thuộc tính bên trong","Object sẽ tự động bị đóng băng (freeze)","const không dùng được với object"], ans:1, ex:"const chỉ khóa việc gán lại biến; obj.thuoc_tinh = x vẫn hợp lệ vì không phải gán lại biến obj."},
+    {q:"Phương thức nào dùng để LỌC các phần tử thỏa điều kiện trong mảng?", opts:["map()","filter()","reduce()","forEach()"], ans:1, ex:"filter() trả về mảng mới chỉ chứa phần tử thỏa điều kiện; map() biến đổi từng phần tử, reduce() gộp thành 1 giá trị."},
+    {q:"Arrow function khác function thường ở điểm quan trọng nào?", opts:["Không thể nhận tham số","Không có 'this' riêng, dùng this của phạm vi bao ngoài","Luôn chạy nhanh hơn","Không thể return giá trị"], ans:1, ex:"Arrow function dùng lexical 'this' — không phù hợp làm method cần truy cập this của chính object."},
+    {q:"async/await về bản chất là 'lớp vỏ' cú pháp cho công nghệ nào?", opts:["Callback","Promise","setTimeout","WebSocket"], ans:1, ex:"async/await giúp code Promise trông giống code đồng bộ hơn, nhưng cơ chế nền tảng vẫn là Promise."},
+    {q:"Từ khóa nào NÊN TRÁNH dùng trong JavaScript hiện đại?", opts:["let","const","var","async"], ans:2, ex:"var có phạm vi hoạt động (function scope) dễ gây lỗi khó phát hiện; let/const (block scope) an toàn hơn."},
+    {q:"for...of và for...in khác nhau thế nào?", opts:["Không khác gì","for...of duyệt GIÁ TRỊ (mảng), for...in duyệt KEY (object)","for...in chỉ dùng được với số","for...of chậm hơn nhiều"], ans:1, ex:"Mẹo nhớ: for...OF cho giá trị (Of values), for...IN cho key (In object)."},
+    {q:"Trong React, tại sao không nên sửa trực tiếp một mảng trong state?", opts:["JavaScript không cho phép","React chỉ render lại khi phát hiện thay đổi qua hàm setState, sửa trực tiếp không kích hoạt re-render","Mảng sẽ tự động bị xóa","Sẽ báo lỗi cú pháp"], ans:1, ex:"Luôn tạo mảng/object MỚI (spread, map, filter) rồi gọi setState — React so sánh tham chiếu để biết cần render lại."},
+    {q:"Middleware trong Express dùng để làm gì?", opts:["Chỉ dùng để kết nối database","Xử lý logic chạy 'ở giữa' request và response (logging, xác thực...)","Thay thế hoàn toàn route","Chỉ chạy 1 lần khi khởi động server"], ans:1, ex:"Middleware là hàm (req, res, next) xử lý trước khi tới route handler cuối cùng; quên gọi next() sẽ khiến request bị treo."},
+    {q:"useEffect với dependency array rỗng có ý nghĩa gì?", opts:["Chạy sau MỌI lần render","Chỉ chạy MỘT LẦN khi component mount","Không bao giờ chạy","Chạy trước khi component được tạo"], ans:1, ex:"Mảng rỗng nghĩa là effect không phụ thuộc biến nào thay đổi, nên chỉ chạy 1 lần lúc component được gắn vào DOM."},
+  ],
+  web: [
+    {q:"Thuộc tính nào BẮT BUỘC nên có trên mọi thẻ ảnh (img)?", opts:["width","alt","title","loading"], ans:1, ex:"alt hiện khi ảnh lỗi và giúp screen reader đọc cho người khiếm thị — quan trọng cho SEO và khả năng tiếp cận."},
+    {q:"Nên ưu tiên dùng gì để style CSS, giúp dễ tái sử dụng?", opts:["ID (#ten-id)","Class (.ten-class)","Inline style","Thẻ HTML trực tiếp"], ans:1, ex:"ID chỉ nên dùng 1 lần/trang; Class tái sử dụng được cho nhiều phần tử, linh hoạt hơn nhiều."},
+    {q:"box-sizing: border-box thay đổi điều gì?", opts:["Không có tác dụng gì","width sẽ bao gồm cả padding và border, thay vì cộng thêm ra ngoài","Xóa toàn bộ margin","Chỉ áp dụng cho hình ảnh"], ans:1, ex:"Mặc định (content-box) width chỉ tính nội dung; border-box giúp width = kích thước hộp thực tế, dễ kiểm soát layout."},
+    {q:"display: flex biến một phần tử thành gì?", opts:["Ẩn hoàn toàn phần tử","Flex Container, cho phép dùng justify-content/align-items để căn chỉnh con","Bảng dữ liệu","Vòng lặp CSS"], ans:1, ex:"display:flex bật chế độ Flexbox, justify-content căn theo trục chính, align-items căn theo trục phụ."},
+    {q:"Thẻ meta nào BẮT BUỘC để responsive design hoạt động đúng trên mobile?", opts:["meta name viewport", "meta name responsive", "meta charset UTF-8", "Không cần thẻ nào"], ans:0, ex:"Thiếu viewport, trình duyệt mobile sẽ hiển thị trang như trên desktop rồi tự thu nhỏ, phá vỡ responsive."},
+    {q:"CSS Grid khác Flexbox ở điểm cơ bản nào?", opts:["Không khác gì, dùng thay thế nhau hoàn toàn","Grid kiểm soát layout HAI CHIỀU (hàng+cột), Flexbox chỉ MỘT CHIỀU","Flexbox mạnh hơn Grid trong mọi trường hợp","Grid chỉ dùng được trên Chrome"], ans:1, ex:"Grid phù hợp bố cục tổng thể trang; Flexbox phù hợp bố cục các phần tử theo một hướng (VD: thanh menu)."},
+    {q:"position: fixed định vị phần tử theo gì?", opts:["Phần tử cha gần nhất","Toàn bộ trang, cuộn theo nội dung","Khung nhìn trình duyệt (viewport), KHÔNG cuộn theo trang","Vị trí gốc ban đầu của chính nó"], ans:2, ex:"fixed 'dính' cố định trên màn hình bất kể cuộn trang, khác với sticky chỉ dính sau một điểm nhất định."},
+    {q:"Thẻ ngữ nghĩa (semantic HTML) mang lại lợi ích gì so với dùng toàn thẻ div?", opts:["Chạy nhanh hơn đáng kể","Tốt cho SEO và khả năng tiếp cận (screen reader) vì mô tả đúng vai trò nội dung","Không có lợi ích thực sự nào","Chỉ hoạt động trên trình duyệt Chrome"], ans:1, ex:"header/nav/main/article/footer giúp công cụ tìm kiếm và trình đọc màn hình hiểu đúng cấu trúc trang."},
+    {q:"CSS Variable khai báo bằng cú pháp nào?", opts:["Ký hiệu $ và use()", "Hai gạch ngang -- và hàm var()","Ký hiệu @ và get()","Ký hiệu # và call()"], ans:1, ex:"CSS Custom Properties dùng -- để khai báo trong :root, và var() để sử dụng lại ở bất kỳ đâu."},
+    {q:"Vì sao nên dùng cách tiếp cận Mobile-First khi viết Responsive CSS?", opts:["Vì mobile không hỗ trợ CSS","Viết mặc định cho màn hình nhỏ trước giúp trang tải nhanh hơn trên thiết bị chiếm phần lớn lưu lượng truy cập","Vì desktop không cần CSS","Không có lý do đặc biệt"], ans:1, ex:"Phần lớn traffic web hiện nay đến từ mobile; tối ưu trải nghiệm mobile trước là ưu tiên hợp lý."},
+  ],
+  algo: [
+    {q:"Độ phức tạp thời gian của Binary Search là gì?", opts:["O(n)","O(log n)","O(n log n)","O(1)"], ans:1, ex:"Binary Search liên tục chia đôi phạm vi tìm kiếm, nên đạt O(log n) — nhưng YÊU CẦU dữ liệu đã sắp xếp."},
+    {q:"Thuật toán sắp xếp nào đảm bảo O(n log n) trong MỌI trường hợp (kể cả xấu nhất)?", opts:["Quick Sort","Merge Sort","Bubble Sort","Selection Sort"], ans:1, ex:"Merge Sort luôn chia đôi đều đặn nên ổn định O(n log n); Quick Sort có thể suy biến O(n²) nếu chọn pivot tệ."},
+    {q:"Cấu trúc dữ liệu nào phù hợp để cài đặt BFS (duyệt theo chiều rộng)?", opts:["Stack (ngăn xếp)","Queue (hàng đợi)","Heap","Mảng tĩnh"], ans:1, ex:"BFS cần xử lý theo thứ tự 'vào trước ra trước' (FIFO), đúng bản chất của Queue."},
+    {q:"Độ phức tạp tra cứu TRUNG BÌNH của hash table (dict/HashMap) là gì?", opts:["O(1)","O(log n)","O(n)","O(n²)"], ans:0, ex:"Hash table dùng hàm băm để tính trực tiếp vị trí lưu trữ, đạt O(1) trung bình (có thể suy biến O(n) nếu va chạm nhiều)."},
+    {q:"Duyệt inorder trên một Binary Search Tree (BST) cho kết quả gì?", opts:["Ngẫu nhiên, không quy luật","Danh sách đã sắp xếp TĂNG DẦN","Danh sách đã sắp xếp GIẢM DẦN","Chỉ lấy được node gốc"], ans:1, ex:"Do tính chất trái-nhỏ/phải-lớn của BST, duyệt Trái-Gốc-Phải (inorder) luôn cho kết quả tăng dần."},
+    {q:"Kỹ thuật nào giúp tối ưu đệ quy Fibonacci từ O(2ⁿ) xuống O(n)?", opts:["Backtracking","Memoization (lưu kết quả đã tính)","Greedy","Sắp xếp trước"], ans:1, ex:"Memoization lưu lại kết quả các bài toán con đã tính, tránh tính toán lặp lại nhiều lần — nền tảng của Dynamic Programming."},
+    {q:"Ký hiệu Big O mô tả điều gì?", opts:["Thời gian chạy thực tế tính bằng giây","Tốc độ TĂNG TRƯỞNG của thời gian chạy theo kích thước đầu vào, độc lập phần cứng","Số dòng code của thuật toán","Bộ nhớ RAM tối thiểu cần có"], ans:1, ex:"Big O so sánh thuật toán một cách công bằng, không phụ thuộc vào máy tính cụ thể đang chạy."},
+    {q:"Cấu trúc dữ liệu nào giữ phần tử ưu tiên nhất luôn ở gốc, dùng cho Priority Queue?", opts:["Linked List","Heap","Stack","Array thường"], ans:1, ex:"Heap (thường cài bằng mảng) đảm bảo gốc luôn là phần tử nhỏ nhất/lớn nhất, thao tác thêm/lấy O(log n)."},
+    {q:"Vòng lặp lồng nhau (for trong for) thường có độ phức tạp gì?", opts:["O(n)","O(log n)","O(n²)","O(1)"], ans:2, ex:"Hai vòng lặp LỒNG NHAU nhân độ phức tạp với nhau: O(n) × O(n) = O(n²)."},
+    {q:"Thuật toán nào dùng chiến lược 'chọn lựa chọn tốt nhất tại mỗi bước' mà không xét lại?", opts:["Dynamic Programming","Greedy (Tham lam)","Backtracking","Divide and Conquer"], ans:1, ex:"Greedy luôn chọn phương án tốt nhất ngay tại thời điểm hiện tại — nhanh nhưng không phải lúc nào cũng tối ưu toàn cục."},
+  ],
+  ai: [
+    {q:"Deep Learning là gì trong mối quan hệ với AI và Machine Learning?", opts:["Khái niệm tách biệt hoàn toàn với ML","Một nhánh con của Machine Learning, dùng mạng nơ-ron nhiều tầng","Khái niệm rộng hơn cả AI","Một ngôn ngữ lập trình"], ans:1, ex:"AI bao trùm Machine Learning, Machine Learning bao trùm Deep Learning — ba vòng tròn lồng nhau, không phải khái niệm ngang hàng."},
+    {q:"LLM (Large Language Model) về cơ bản được huấn luyện để làm gì?", opts:["Tra cứu thông tin như một cơ sở dữ liệu","Dự đoán token tiếp theo có khả năng cao nhất dựa trên ngữ cảnh trước đó","Chỉ dịch ngôn ngữ","Chỉ nhận diện hình ảnh"], ans:1, ex:"Cơ chế 'dự đoán token tiếp theo' giải thích cả khả năng lẫn hạn chế (hallucination) của LLM."},
+    {q:"Cơ chế Attention trong Transformer giúp mô hình làm gì?", opts:["Xử lý nhanh hơn bằng cách bỏ qua từ ở xa","Tự động chú ý tới các từ liên quan về ngữ nghĩa, bất kể khoảng cách trong câu","Dịch văn bản sang ngôn ngữ khác","Chỉ dùng cho xử lý ảnh"], ans:1, ex:"Trước Transformer, mô hình xử lý tuần tự khó nắm bắt mối liên hệ giữa các từ xa nhau; Attention giải quyết vấn đề này."},
+    {q:"Chatbot retrieval-based (dùng TF-IDF/Cosine Similarity) hoạt động dựa trên nguyên lý gì?", opts:["Luật if/else cứng nhắc","Tìm câu hỏi mẫu có nội dung GẦN GIỐNG NHẤT với câu hỏi của người dùng","Gọi API LLM trực tiếp","Ghi nhớ toàn bộ lịch sử chat"], ans:1, ex:"TF-IDF biến câu thành vector, Cosine Similarity đo độ giống nhau — chọn câu mẫu có điểm tương đồng cao nhất."},
+    {q:"RAG (Retrieval Augmented Generation) giải quyết vấn đề gì?", opts:["Giúp LLM chạy nhanh hơn","Cho phép chatbot trả lời dựa trên tài liệu RIÊNG mà LLM chưa từng được huấn luyện", "Thay thế hoàn toàn việc cần LLM","Giảm chi phí phần cứng GPU"], ans:1, ex:"RAG tìm và gửi kèm đoạn tài liệu liên quan nhất cho LLM, giúp câu trả lời chính xác và 'neo' vào dữ liệu thật."},
+    {q:"Trong AI Agent (Tool Use), ai là người THỰC SỰ thực thi (chạy) hàm khi LLM yêu cầu?", opts:["Chính LLM tự chạy hàm đó","Chương trình/code của lập trình viên","Trình duyệt web","Hệ điều hành"], ans:1, ex:"LLM chỉ quyết định CẦN gọi hàm nào với tham số gì; code của bạn mới thực sự thực thi hàm và trả kết quả lại."},
+    {q:"Thứ tự ưu tiên thường được khuyên khi cải thiện chatbot là gì?", opts:["Fine-tuning trước, rồi mới Prompt Engineering","Prompt Engineering, sau đó RAG, cuối cùng mới Fine-tuning","Chỉ cần Fine-tuning là đủ","Không có thứ tự ưu tiên nào cả"], ans:1, ex:"Fine-tuning tốn kém nhất (cần dữ liệu, tài nguyên) nên chỉ dùng khi 2 phương pháp trước không đáp ứng đủ."},
+    {q:"'Hallucination' trong AI nghĩa là gì?", opts:["AI tạo ra thông tin sai nhưng trình bày một cách tự tin, hợp lý","AI từ chối trả lời mọi câu hỏi","Lỗi kỹ thuật khiến chatbot bị treo","AI học được kiến thức mới"], ans:0, ex:"Hallucination là rủi ro cố hữu của LLM — RAG giúp giảm thiểu bằng cách neo câu trả lời vào tài liệu thật."},
+    {q:"Tại sao KHÔNG nên dùng một biến toàn cục chung để lưu lịch sử hội thoại trên production?", opts:["Vì biến toàn cục chạy chậm hơn","Nhiều người dùng khác nhau sẽ bị TRỘN LẪN lịch sử hội thoại với nhau","Vì Python không cho phép biến toàn cục","Không có lý do gì đặc biệt"], ans:1, ex:"Cần quản lý lịch sử hội thoại theo từng session/người dùng riêng biệt để tránh trộn lẫn dữ liệu."},
+    {q:"Prompt Injection là gì?", opts:["Một tính năng giúp chatbot thông minh hơn","Kỹ thuật người dùng cố tình viết prompt để vượt qua giới hạn đã đặt cho chatbot","Lỗi cú pháp trong code Python","Cách tăng tốc độ phản hồi của API"], ans:1, ex:"Hệ thống production cần lớp kiểm tra bổ sung, không chỉ dựa vào system prompt để đảm bảo an toàn."},
+  ]
+};
+
+const TOPICS = [
+  {key:"py", icon:"🐍", name:"Python", desc:"OOP, thuật toán, web", cls:"py"},
+  {key:"cpp", icon:"⚡", name:"C++", desc:"Con trỏ, STL, bộ nhớ", cls:"cpp"},
+  {key:"java", icon:"☕", name:"Java", desc:"OOP, Collections, Spring", cls:"java"},
+  {key:"js", icon:"🟨", name:"JavaScript", desc:"DOM, Async, React", cls:"js"},
+  {key:"web", icon:"🌐", name:"HTML & CSS", desc:"Flexbox, Grid, Responsive", cls:"web"},
+  {key:"algo", icon:"🧩", name:"Thuật toán", desc:"Big O, sắp xếp, cây, đồ thị", cls:"algo"},
+  {key:"ai", icon:"🤖", name:"AI Engineer", desc:"LLM, RAG, Prompt Engineering", cls:"ai"},
+  {key:"all", icon:"🎯", name:"Tổng hợp tất cả", desc:"Trộn câu hỏi từ mọi chủ đề", cls:"all"},
+];
+
+let selectedTopic = null;
+let questionCount = 10;
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let reviewData = [];
+
+const grid = document.getElementById('topic-grid');
+TOPICS.forEach(t => {
+  const card = document.createElement('div');
+  card.className = `topic-card ${t.cls}`;
+  card.innerHTML = `<div class="icon">${t.icon}</div><div class="info"><h3>${t.name}</h3><p>${t.desc}</p></div>`;
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedTopic = t.key;
+    updateStartBtn();
+  });
+  grid.appendChild(card);
+});
+
+document.querySelectorAll('.option-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.option-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    questionCount = parseInt(chip.dataset.count);
+  });
+});
+
+function updateStartBtn(){
+  const btn = document.getElementById('start-btn');
+  if(selectedTopic){
+    btn.disabled = false;
+    btn.textContent = `Bắt đầu làm quiz →`;
+  }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getQuestionPool(topicKey){
+  if(topicKey === 'all'){
+    let all = [];
+    Object.keys(QUESTION_BANK).forEach(k => {
+      QUESTION_BANK[k].forEach(q => all.push({...q, topic:k}));
+    });
+    return all;
+  }
+  return QUESTION_BANK[topicKey].map(q => ({...q, topic:topicKey}));
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  if(!selectedTopic) return;
+  const pool = shuffle(getQuestionPool(selectedTopic));
+  currentQuestions = pool.slice(0, Math.min(questionCount, pool.length));
+  currentIndex = 0;
+  score = 0;
+  reviewData = [];
+  document.getElementById('screen-select').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  renderQuestion();
+});
+
+function topicName(key){
+  const t = TOPICS.find(t => t.key === key);
+  return t ? t.name : key;
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = currentQuestions[currentIndex];
+  document.getElementById('quiz-progress-label').textContent = `Câu ${currentIndex+1}/${currentQuestions.length}`;
+  document.getElementById('quiz-score-label').textContent = `Đúng: ${score}`;
+  document.getElementById('quiz-fill').style.width = `${(currentIndex/currentQuestions.length)*100}%`;
+
+  const container = document.getElementById('question-container');
+  const optsHtml = q.opts.map((opt, i) =>
+    `<button class="opt" data-idx="${i}">${opt}</button>`
+  ).join('');
+
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="q-topic">${topicName(q.topic)}</div>
+      <h3>${q.q}</h3>
+      ${optsHtml}
+      <div class="explain-box" id="explain-box">💡 ${q.ex}</div>
+    </div>
+  `;
+
+  document.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.idx)));
+  });
+
+  document.getElementById('next-btn').classList.remove('active');
+  document.getElementById('next-btn').textContent =
+    currentIndex === currentQuestions.length - 1 ? 'Xem kết quả →' : 'Câu tiếp theo →';
+}
+
+function selectAnswer(idx){
+  if(answered) return;
+  answered = true;
+  const q = currentQuestions[currentIndex];
+  const isCorrect = idx === q.ans;
+  if(isCorrect) score++;
+
+  document.querySelectorAll('.opt').forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if(i === q.ans) btn.classList.add('correct');
+    else if(i === idx) btn.classList.add('wrong');
+  });
+  document.getElementById('explain-box').classList.add('show');
+  document.getElementById('next-btn').classList.add('active');
+  document.getElementById('quiz-score-label').textContent = `Đúng: ${score}`;
+
+  reviewData.push({q: q.q, correct: isCorrect, correctAnswer: q.opts[q.ans], yourAnswer: q.opts[idx], topic: q.topic});
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  if(!answered) return;
+  if(currentIndex < currentQuestions.length - 1){
+    currentIndex++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+function showResult(){
+  document.getElementById('screen-quiz').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'block';
+  document.getElementById('result-score').textContent = `${score}/${currentQuestions.length}`;
+  document.getElementById('result-topic-label').textContent = `Kết quả — ${topicName(selectedTopic)}`;
+
+  const pct = (score / currentQuestions.length) * 100;
+  let msg = "";
+  if(pct === 100) msg = "🏆 Hoàn hảo! Bạn nắm rất vững chủ đề này.";
+  else if(pct >= 80) msg = "🎉 Xuất sắc! Chỉ còn vài chỗ nhỏ cần ôn lại.";
+  else if(pct >= 60) msg = "👍 Khá tốt! Xem lại phần giải thích bên dưới để củng cố thêm.";
+  else if(pct >= 40) msg = "📚 Cần ôn tập thêm — đọc lại chương liên quan trong giáo trình nhé.";
+  else msg = "💪 Đừng nản — quay lại đọc kỹ giáo trình rồi thử lại!";
+  document.getElementById('result-msg').textContent = msg;
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '<h3 style="margin-bottom:14px;">Xem lại chi tiết</h3>' + reviewData.map(r => `
+    <div class="review-item ${r.correct ? 'ok' : 'bad'}">
+      <div class="rq">${r.correct ? '✅' : '❌'} ${r.q}</div>
+      ${!r.correct ? `<div>Bạn chọn: <strong>${r.yourAnswer}</strong> — Đáp án đúng: <strong>${r.correctAnswer}</strong></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function lamLai(){
+  currentIndex = 0;
+  score = 0;
+  reviewData = [];
+  currentQuestions = shuffle(currentQuestions);
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'block';
+  renderQuestion();
+}
+
+function veManHinhChon(){
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-quiz').style.display = 'none';
+  document.getElementById('screen-select').style.display = 'block';
+  document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
+  selectedTopic = null;
+  document.getElementById('start-btn').disabled = true;
+  document.getElementById('start-btn').textContent = 'Chọn một chủ đề để bắt đầu';
+}
+
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  try{ localStorage.setItem('algo-mastery-theme', newTheme); }catch(e){}
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if(label) label.textContent = newTheme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+(function(){
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  if(label) label.textContent = current === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = current === 'dark' ? '🌙' : '☀️';
+})();
+</script>
+</body>
+</html>

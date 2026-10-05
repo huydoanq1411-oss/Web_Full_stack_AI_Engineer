@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 2: Props — Full Stack Blueprint</title>
+
+<style>
+/* ============================================================
+   FONTS + TOKENS — đồng bộ với trang chủ index.html
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg: #eef1f6;
+  --bg-grid: rgba(11,31,58,0.05);
+  --paper: #ffffff;
+  --paper-soft: #f7f5ef;
+  --ink: #0b1f3a;
+  --ink-soft: #4a5b74;
+  --line: #22d3ee;
+  --line-soft: #c7dbe8;
+  --amber: #e78a00;
+  --amber-soft: #fff1d6;
+  --green: #2e9e5b;
+  --green-soft: #e3f6ea;
+  --red: #d64545;
+  --red-soft: #fdeaea;
+  --shadow: 0 10px 30px rgba(11,31,58,0.08);
+  --shadow-hover: 0 18px 40px rgba(11,31,58,0.16);
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --header-h: 70px;
+  --progress-h: 4px;
+}
+
+html[data-theme="dark"]{
+  --bg: #0b1f3a;
+  --bg-grid: rgba(34,211,238,0.07);
+  --paper: #102a4c;
+  --paper-soft: #0e2544;
+  --ink: #eef4fb;
+  --ink-soft: #9db2cf;
+  --line: #22d3ee;
+  --line-soft: #1e3f66;
+  --amber: #ffb703;
+  --amber-soft: rgba(255,183,3,0.12);
+  --green: #47c982;
+  --green-soft: rgba(71,201,130,0.12);
+  --red: #ff6b6b;
+  --red-soft: rgba(255,107,107,0.12);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow-hover: 0 20px 45px rgba(0,0,0,0.5);
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  color: var(--ink);
+  font-family:'Inter', sans-serif;
+  transition: background-color .4s ease, color .4s ease;
+  min-height:100vh;
+}
+
+h1,h2,h3,h4{ font-family:'Space Grotesk', sans-serif; margin:0; letter-spacing:-0.01em; }
+.mono{ font-family:'JetBrains Mono', monospace; }
+a{ color: var(--line); }
+
+/* ============================================================
+   PROGRESS BAR — tiến độ đọc bài (theo scroll)
+   ============================================================ */
+.reading-progress{
+  position: fixed;
+  top: var(--header-h);
+  left:0; right:0;
+  height: var(--progress-h);
+  background: var(--line-soft);
+  z-index: 99;
+}
+.reading-progress-fill{
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, var(--line), var(--amber));
+  transition: width .1s linear;
+}
+
+/* ============================================================
+   HEADER cố định
+   ============================================================ */
+.site-header{
+  position: fixed;
+  top:0; left:0; right:0;
+  height: var(--header-h);
+  z-index: 100;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 0 clamp(14px, 3vw, 36px);
+}
+.brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
+.brand-mark{
+  width:38px; height:38px; border-radius:11px;
+  background: var(--ink); color: var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono', monospace; font-weight:600; font-size:12px;
+  flex-shrink:0;
+}
+html[data-theme="dark"] .brand-mark{ background: var(--line); color:#04121f; }
+.brand-text strong{ display:block; font-size:15px; font-weight:700; line-height:1.1; }
+.brand-text span{ display:block; font-size:10.5px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; letter-spacing:.05em; margin-top:2px; }
+
+.header-actions{ display:flex; align-items:center; gap:10px; }
+.icon-btn{
+  width:40px; height:40px; border-radius:11px;
+  border:1px solid var(--line-soft); background: var(--paper-soft); color: var(--ink);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  text-decoration:none;
+}
+.icon-btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--line); }
+.home-btn-pill{
+  display:flex; align-items:center; gap:7px; width:auto; height:auto;
+  padding:9px 16px; border-radius:100px;
+  border:1px solid var(--line-soft); background: var(--paper-soft); color: var(--ink);
+  font-size:13px; font-weight:600; font-family:'JetBrains Mono', monospace;
+  text-decoration:none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.home-btn-pill:hover{ transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--line); }
+
+/* ============================================================
+   LAYOUT — sidebar trái + nội dung
+   ============================================================ */
+.layout{
+  display:grid;
+  grid-template-columns: 270px 1fr;
+  gap: 32px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 30px) clamp(14px,3vw,36px) 60px;
+  align-items:start;
+}
+
+/* SIDEBAR (Mục lục) */
+.sidebar{
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  max-height: calc(100vh - var(--header-h) - 48px);
+  overflow-y:auto;
+}
+.sidebar h4{
+  font-size: 12px;
+  font-family:'JetBrains Mono', monospace;
+  color: var(--line);
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+.toc{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; }
+.toc a{
+  display:block;
+  text-decoration:none;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border-left: 2px solid transparent;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.toc a:hover{ background: var(--paper-soft); color: var(--ink); }
+.toc a.active{ background: var(--amber-soft); color: var(--ink); border-left-color: var(--amber); font-weight:600; }
+.toc .toc-num{ font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--line); margin-right:6px; }
+
+.sidebar-progress{
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line-soft);
+}
+.sidebar-progress span{ font-size:11px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; }
+.mini-track{ height:7px; border-radius:999px; background:var(--paper-soft); border:1px solid var(--line-soft); margin-top:8px; overflow:hidden; }
+.mini-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--line), var(--amber)); transition: width .1s linear; }
+
+/* CONTENT */
+.content{ min-width:0; }
+
+.breadcrumb{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 18px;
+}
+.breadcrumb a{ text-decoration:none; color: var(--ink-soft); }
+.breadcrumb a:hover{ color: var(--line); }
+.breadcrumb .sep{ opacity:.5; }
+.breadcrumb .current{ color: var(--ink); font-weight:600; }
+
+.lesson-head{
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 28px clamp(20px,4vw,36px);
+  box-shadow: var(--shadow);
+  margin-bottom: 26px;
+  position:relative;
+}
+.lesson-eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--line);
+  background: var(--amber-soft);
+  border: 1px dashed var(--line);
+  padding: 5px 12px;
+  border-radius: 999px;
+  display:inline-block;
+  margin-bottom: 14px;
+}
+.lesson-head h1{ font-size: clamp(24px, 3.4vw, 32px); line-height:1.25; }
+.lesson-head p{ color: var(--ink-soft); margin-top:10px; font-size:15px; max-width:640px; }
+.lesson-tags{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+.lesson-tags .tag{
+  font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--line);
+  background: var(--amber-soft); border:1px solid var(--line-soft);
+  padding:4px 10px; border-radius:999px;
+}
+
+/* SECTION card */
+.lesson-section{
+  background: var(--paper);
+  border:1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 26px clamp(20px,4vw,36px);
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+  scroll-margin-top: calc(var(--header-h) + 30px);
+}
+.lesson-section h2{
+  font-size: 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom: 14px;
+}
+.lesson-section h2 .num{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--paper);
+  background: var(--ink);
+  width: 28px; height:28px;
+  border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+html[data-theme="dark"] .lesson-section h2 .num{ background: var(--line); color:#04121f; }
+.lesson-section h3{ font-size:16px; margin: 18px 0 8px; }
+.lesson-section p, .lesson-section li{ color: var(--ink-soft); font-size:14.5px; line-height:1.75; }
+.lesson-section ul, .lesson-section ol{ padding-left: 20px; margin: 8px 0; }
+.lesson-section strong{ color: var(--ink); }
+
+/* TABLE */
+.data-table{ width:100%; border-collapse:collapse; margin: 14px 0; font-size:13.5px; }
+.data-table th, .data-table td{
+  border:1px solid var(--line-soft);
+  padding: 10px 14px;
+  text-align:left;
+  color: var(--ink-soft);
+}
+.data-table th{
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  letter-spacing:.03em;
+}
+.data-table td code{ font-family:'JetBrains Mono', monospace; color: var(--line); background:var(--paper-soft); padding:2px 6px; border-radius:6px; }
+.data-table-wrap{ overflow-x:auto; }
+
+/* CODE BLOCK */
+.code-block{
+  position: relative;
+  background: #0b1f3a;
+  border-radius: var(--radius-md);
+  margin: 14px 0;
+  overflow:hidden;
+  border: 1px solid var(--line-soft);
+}
+.code-block .code-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 9px 16px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.code-block .code-bar span{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #9db2cf;
+  letter-spacing:.04em;
+}
+.copy-btn{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #eef4fb;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor:pointer;
+  transition: background-color .2s ease;
+}
+.copy-btn:hover{ background: rgba(255,255,255,0.18); }
+.copy-btn.copied{ background: var(--green); border-color: var(--green); color:#04121f; }
+.code-block pre{
+  margin:0;
+  padding: 18px;
+  overflow-x:auto;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #dce8f5;
+}
+.code-block .tag-name{ color:#5fb4d6; }
+.code-block .attr-name{ color:#ffb703; }
+.code-block .attr-value{ color:#a8d98e; }
+.code-block .cm{ color:#6a7f9c; font-style:italic; }
+
+/* CALLOUT BOXES: note / warning / tip */
+.callout{
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin: 16px 0;
+  display:flex;
+  gap: 12px;
+  border: 1px solid var(--line-soft);
+}
+.callout .ic{ font-size: 18px; flex-shrink:0; line-height:1.4; }
+.callout .body strong{ display:block; margin-bottom:4px; font-family:'Space Grotesk', sans-serif; font-size:14px; }
+.callout .body p{ margin:0; font-size:13.5px; }
+.callout-note{ background: var(--paper-soft); border-color: var(--line-soft); }
+.callout-note .body strong{ color: var(--line); }
+.callout-tip{ background: var(--amber-soft); border-color: var(--amber); }
+.callout-tip .body strong{ color: var(--amber); }
+.callout-warning{ background: var(--red-soft); border-color: var(--red); }
+.callout-warning .body strong{ color: var(--red); }
+
+/* ACCORDION — Lỗi thường gặp */
+.accordion-item{
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  overflow:hidden;
+}
+.accordion-header{
+  width:100%;
+  background: var(--paper-soft);
+  border:none;
+  padding: 14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  font-family:'Inter', sans-serif;
+  font-weight:600;
+  font-size: 14px;
+  color: var(--ink);
+  text-align:left;
+}
+.accordion-header .plus{
+  font-family:'JetBrains Mono', monospace;
+  color: var(--line);
+  transition: transform .3s ease;
+  flex-shrink:0;
+  margin-left: 10px;
+}
+.accordion-item.open .plus{ transform: rotate(45deg); }
+.accordion-panel{
+  max-height:0;
+  overflow:hidden;
+  transition: max-height .35s ease;
+  background: var(--paper);
+}
+.accordion-panel-inner{ padding: 4px 18px 16px; }
+.accordion-panel-inner p{ margin:0 0 8px; }
+.accordion-panel-inner .fix{ color: var(--green); font-weight:600; }
+
+/* EXERCISES */
+.exercise{
+  background: var(--paper-soft);
+  border: 1px dashed var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.exercise strong{ color: var(--ink); font-family:'JetBrains Mono', monospace; font-size:12.5px; }
+
+/* QUIZ */
+.quiz-item{
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  background: var(--paper-soft);
+}
+.quiz-item p.q{ font-weight:600; color: var(--ink); margin:0 0 12px; font-size:14.5px; }
+.quiz-options{ display:flex; flex-direction:column; gap:8px; }
+.quiz-option{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: var(--paper);
+  cursor:pointer;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.quiz-option:hover{ border-color: var(--line); }
+.quiz-option.correct{ background: var(--green-soft); border-color: var(--green); color: var(--ink); font-weight:600; }
+.quiz-option.incorrect{ background: var(--red-soft); border-color: var(--red); color: var(--ink); }
+.quiz-feedback{ margin-top:10px; font-size:13px; font-family:'JetBrains Mono', monospace; display:none; }
+.quiz-feedback.show{ display:block; }
+.quiz-feedback.ok{ color: var(--green); }
+.quiz-feedback.no{ color: var(--red); }
+.quiz-score{
+  text-align:center;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  border: 1px dashed var(--amber);
+  font-family:'JetBrains Mono', monospace;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* PREV / NEXT NAV */
+.lesson-nav{
+  display:flex;
+  gap: 16px;
+  margin-top: 26px;
+}
+.nav-btn{
+  flex:1;
+  background: var(--paper);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  text-decoration:none;
+  color: var(--ink);
+  display:flex;
+  flex-direction:column;
+  gap: 4px;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  box-shadow: var(--shadow);
+}
+.nav-btn:hover{ transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--line); }
+.nav-btn span.dir{ font-family:'JetBrains Mono', monospace; font-size:11px; color: var(--ink-soft); }
+.nav-btn strong{ font-size:14.5px; }
+.nav-btn.next{ text-align:right; align-items:flex-end; }
+.nav-btn.disabled{ opacity:.4; pointer-events:none; }
+
+/* BACK TO TOP */
+.top-btn{
+  position: fixed; bottom:26px; right:26px;
+  width:46px; height:46px; border-radius:13px;
+  border:1px solid var(--line-soft); background: var(--paper); color: var(--ink);
+  box-shadow: var(--shadow); cursor:pointer; font-size:17px;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; visibility:hidden; transform: translateY(10px);
+  transition: all .3s ease; z-index:90;
+}
+.top-btn.show{ opacity:1; visibility:visible; transform: translateY(0); }
+.top-btn:hover{ transform: translateY(-4px); }
+
+/* RESPONSIVE */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr; }
+  .sidebar{ position:static; max-height:none; order:2; }
+  .content{ order:1; }
+}
+@media (max-width: 520px){
+  .lesson-nav{ flex-direction:column; }
+  .nav-btn.next{ align-items:flex-start; text-align:left; }
+}
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- Thanh tiến độ đọc bài -->
+<div class="reading-progress"><div class="reading-progress-fill" id="readingFill"></div></div>
+
+<!-- ============================================================
+     HEADER cố định
+     ============================================================ -->
+<header class="site-header">
+  <a href="../index.html" class="brand">
+    <span class="brand-mark">FS</span>
+    <span class="brand-text">
+      <strong>Full Stack Blueprint</strong>
+      <span>REACT · BÀI 02</span>
+    </span>
+  </a>
+  <div class="header-actions">
+    <a href="../index.html" class="home-btn-pill" title="Trang chủ" aria-label="Trang chủ">🏠 Trang chủ</a>
+    <button class="icon-btn" id="themeBtn" title="Chuyển giao diện" aria-label="Dark mode">🌙</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ============================================================
+       SIDEBAR — Mục lục
+       ============================================================ -->
+  <aside class="sidebar">
+    <h4 class="mono">CÁC BÀI HỌC</h4>
+    <ul class="toc" style="margin-bottom:18px;">
+      <li><a href="chapter01.html"><span class="toc-num">01</span>Nhập Môn React & JSX</a></li>
+      <li><a href="chapter02.html" class="active"><span class="toc-num">02</span>Props</a></li>
+      <li><a href="chapter03.html"><span class="toc-num">03</span>State & useState</a></li>
+      <li><a href="chapter04.html"><span class="toc-num">04</span>Xử Lý Sự Kiện & Form Trong React</a></li>
+      <li><a href="chapter05.html"><span class="toc-num">05</span>Conditional Rendering — Hiển thị có điều kiện</a></li>
+      <li><a href="chapter06.html"><span class="toc-num">06</span>Lists & Keys — Danh sách trong React</a></li>
+      <li><a href="chapter07.html"><span class="toc-num">07</span>useEffect — Side Effects & Vòng đời Component</a></li>
+      <li><a href="chapter08.html"><span class="toc-num">08</span>Fetch dữ liệu từ API trong React</a></li>
+      <li><a href="chapter09.html"><span class="toc-num">09</span>Custom Hooks — Tái sử dụng logic</a></li>
+      <li><a href="chapter10.html"><span class="toc-num">10</span>useRef & Thao tác DOM trực tiếp</a></li>
+      <li><a href="chapter11.html"><span class="toc-num">11</span>Context API — Chia sẻ state toàn cục</a></li>
+      <li><a href="chapter12.html"><span class="toc-num">12</span>useReducer — Quản lý state phức tạp</a></li>
+      <li><a href="chapter13.html"><span class="toc-num">13</span>React Router — Điều hướng SPA cơ bản</a></li>
+      <li><a href="chapter14.html"><span class="toc-num">14</span>React Router nâng cao — Nested Routes & Params</a></li>
+      <li><a href="chapter15.html"><span class="toc-num">15</span>Styling trong React — CSS Modules & styled-components</a></li>
+      <li><a href="chapter16.html"><span class="toc-num">16</span>Performance — useMemo & useCallback</a></li>
+      <li><a href="chapter17.html"><span class="toc-num">17</span>React.memo & Tối ưu re-render</a></li>
+      <li><a href="chapter18.html"><span class="toc-num">18</span>Error Boundaries & Xử lý lỗi</a></li>
+      <li><a href="chapter19.html"><span class="toc-num">19</span>Portals — Modal & Tooltip</a></li>
+      <li><a href="chapter20.html"><span class="toc-num">20</span>Redux Toolkit — Giới thiệu & Store</a></li>
+      <li><a href="chapter21.html"><span class="toc-num">21</span>Redux Toolkit — Slice, Thunk & kết nối API</a></li>
+      <li><a href="chapter22.html"><span class="toc-num">22</span>Form nâng cao — react-hook-form & Validation</a></li>
+      <li><a href="chapter23.html"><span class="toc-num">23</span>Testing React Components — Jest & Testing Library</a></li>
+      <li><a href="chapter24.html"><span class="toc-num">24</span>Giới thiệu Next.js — SSR & File-based Routing</a></li>
+      <li><a href="chapter25.html"><span class="toc-num">25</span>Triển khai ứng dụng React lên Production</a></li>
+      <li><a href="chapter26.html"><span class="toc-num">26</span>Dự án cuối khóa: Ứng dụng React hoàn chỉnh</a></li>
+    </ul>
+    <h4 class="mono">MỤC LỤC BÀI HỌC</h4>
+    <ul class="toc" id="toc">
+      <li><a href="#gioi-thieu"><span class="toc-num">01</span>Giới thiệu</a></li>
+      <li><a href="#ly-thuyet"><span class="toc-num">02</span>Kiến thức lý thuyết</a></li>
+      <li><a href="#vi-du"><span class="toc-num">03</span>Ví dụ minh họa</a></li>
+      <li><a href="#code-mau"><span class="toc-num">04</span>Code mẫu</a></li>
+      <li><a href="#giai-thich"><span class="toc-num">05</span>Giải thích code</a></li>
+      <li><a href="#loi-thuong-gap"><span class="toc-num">06</span>Lỗi thường gặp</a></li>
+      <li><a href="#best-practices"><span class="toc-num">07</span>Best Practices</a></li>
+      <li><a href="#tip-note"><span class="toc-num">08</span>Tip &amp; Note</a></li>
+      <li><a href="#bai-tap"><span class="toc-num">09</span>Bài tập</a></li>
+      <li><a href="#quiz"><span class="toc-num">10</span>Quiz tương tác</a></li>
+      <li><a href="#tong-ket"><span class="toc-num">11</span>Tổng kết</a></li>
+    </ul>
+    <div class="sidebar-progress">
+      <span class="mono">TIẾN ĐỘ ĐỌC BÀI</span>
+      <div class="mini-track"><div class="mini-fill" id="miniFill"></div></div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       NỘI DUNG CHÍNH
+       ============================================================ -->
+  <main class="content">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="breadcrumb">
+      <a href="../index.html">Trang chủ</a>
+      <span class="sep">/</span>
+      <a href="../index.html#roadmap">React.js Từ Zero Đến Hero</a>
+      <span class="sep">/</span>
+      <span class="current">Bài 2</span>
+    </nav>
+
+    <!-- Header bài học -->
+    <div class="lesson-head">
+      <span class="lesson-eyebrow mono">STACK/03 · CHƯƠNG 3 · BÀI 2/26</span>
+      <h1>Props — Truyền Dữ Liệu Giữa Component</h1>
+      <p>Biến component tĩnh thành khối UI thực sự tái sử dụng được — dựng lại chính xác 6 card khóa học ở trang chủ chỉ bằng MỘT component duy nhất.</p>
+      <div class="lesson-tags">
+        <span class="tag">React</span>
+        <span class="tag">Cơ bản</span>
+        <span class="tag">⏱ 35 phút</span>
+      </div>
+    </div>
+
+    <!-- ============================== 1. GIỚI THIỆU ============================== -->
+    <section class="lesson-section" id="gioi-thieu">
+      <h2><span class="num">01</span>Giới thiệu</h2>
+      <p>
+        Component <code class="mono">ThongTinKhoaHoc</code> ở Bài 1 có một vấn đề lớn: dữ liệu khóa học được viết
+        <strong>cứng</strong> ngay bên trong hàm. Muốn hiển thị 6 khóa học khác nhau (như trang chủ Full Stack Blueprint),
+        bạn sẽ phải copy-paste component đó 6 lần, mỗi lần sửa một chút — đúng vấn đề mà HTML/CSS thuần từng gặp phải trước
+        khi có BEM và component hóa.
+      </p>
+      <p>
+        <strong>Props</strong> (viết tắt của "properties") giải quyết vấn đề này: cho phép component cha
+        <strong>truyền dữ liệu</strong> xuống component con, biến một component thành "khuôn mẫu" dùng lại được với
+        dữ liệu khác nhau mỗi lần — đúng tinh thần Class ở Bài 17 chương JavaScript, nhưng áp dụng cho component giao diện.
+      </p>
+      <div class="callout callout-note">
+        <span class="ic">🎯</span>
+        <div class="body">
+          <strong>Mục tiêu sau bài học</strong>
+          <p>Tự truyền và nhận props giữa component cha-con, và dựng được một danh sách component lặp lại từ mảng dữ liệu bằng .map().</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 2. LÝ THUYẾT ============================== -->
+    <section class="lesson-section" id="ly-thuyet">
+      <h2><span class="num">02</span>Kiến thức lý thuyết</h2>
+
+      <h3>2.1. Truyền props — giống thuộc tính HTML</h3>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">truyền props</span></div>
+        <pre><code>&lt;TheKhoaHoc ten="React.js" icon="⚛️" soBaiHoc={20} /&gt;
+<span class="cm">// ten, icon, soBaiHoc là các props — viết y hệt thuộc tính HTML</span>
+<span class="cm">// giá trị chuỗi dùng dấu nháy, giá trị JS khác (số, biến...) dùng { }</span></code></pre>
+      </div>
+
+      <h3>2.2. Nhận props — tham số của component</h3>
+      <p>Mọi props được gộp thành <strong>một object duy nhất</strong>, truyền vào component như tham số đầu tiên:</p>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">nhận props (cách đầy đủ)</span></div>
+        <pre><code>function TheKhoaHoc(props) {
+  return &lt;h3&gt;{props.ten} — {props.soBaiHoc} bài&lt;/h3&gt;;
+}</code></pre>
+      </div>
+      <p>Nhớ lại destructuring (Bài 7, chương JavaScript) — cách viết phổ biến hơn hẳn trong thực tế:</p>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">nhận props (destructuring — khuyến khích)</span></div>
+        <pre><code>function TheKhoaHoc({ ten, soBaiHoc }) {
+  return &lt;h3&gt;{ten} — {soBaiHoc} bài&lt;/h3&gt;;
+}</code></pre>
+      </div>
+
+      <h3>2.3. Props chỉ đọc (read-only)</h3>
+      <p>
+        <strong>Quy tắc bất di bất dịch của React</strong>: component con <strong>không bao giờ</strong> được sửa trực tiếp
+        props nhận vào (<code class="mono">props.ten = "..."</code> là sai). Props chỉ chảy theo <strong>một chiều</strong>:
+        từ cha xuống con — giống hệt cách bạn không nên sửa trực tiếp tham số truyền vào một hàm thông thường (Bài 5).
+      </p>
+
+      <h3>2.4. Render danh sách component từ mảng dữ liệu</h3>
+      <p>Kết hợp <code class="mono">.map()</code> (Bài 4, chương JavaScript) để biến một mảng dữ liệu thành nhiều component:</p>
+      <div class="code-block">
+        <div class="code-bar"><span class="mono">render danh sách</span></div>
+        <pre><code>const danhSachKhoaHoc = [
+  { id: 1, ten: "HTML & CSS", icon: "🧱" },
+  { id: 2, ten: "JavaScript", icon: "⚡" }
+];
+
+function DanhSach() {
+  return (
+    &lt;div&gt;
+      {danhSachKhoaHoc.map(kh =&gt; (
+        &lt;TheKhoaHoc key={kh.id} ten={kh.ten} icon={kh.icon} /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+      <p>
+        <strong>Prop <code class="mono">key</code></strong> là bắt buộc khi render danh sách — giúp React nhận diện chính xác
+        phần tử nào trong danh sách, tối ưu việc cập nhật lại khi dữ liệu thay đổi. Luôn dùng một id ổn định (không dùng chỉ
+        số mảng nếu danh sách có thể thay đổi thứ tự — đúng bài học từ Bài 18 chương JavaScript).
+      </p>
+    </section>
+
+    <!-- ============================== 3. VÍ DỤ ============================== -->
+    <section class="lesson-section" id="vi-du">
+      <h2><span class="num">03</span>Ví dụ minh họa</h2>
+      <p>
+        Hãy dựng lại chính xác grid 6 card khóa học ở trang chủ <strong>Full Stack Blueprint</strong>, nhưng lần này chỉ cần
+        <strong>một</strong> component <code class="mono">TheKhoaHoc</code> duy nhất, được gọi lại 6 lần với dữ liệu khác nhau
+        thông qua props — đúng nguyên lý component hóa cốt lõi của React.
+      </p>
+    </section>
+
+    <!-- ============================== 4. CODE MẪU ============================== -->
+    <section class="lesson-section" id="code-mau">
+      <h2><span class="num">04</span>Code mẫu</h2>
+      <div class="code-block">
+        <div class="code-bar">
+          <span class="mono">props.html</span>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+        </div>
+        <pre><code>&lt;div id="root"&gt;&lt;/div&gt;
+
+&lt;script src="https://unpkg.com/react@19/umd/react.development.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/react-dom@19/umd/react-dom.development.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;
+
+&lt;script type="text/babel"&gt;
+  <span class="cm">// Component CON — nhận props, không biết gì về dữ liệu thật sự đến từ đâu</span>
+  function TheKhoaHoc({ ten, icon, soBaiHoc }) {
+    return (
+      &lt;div className="course-card"&gt;
+        &lt;span&gt;{icon}&lt;/span&gt;
+        &lt;h3&gt;{ten}&lt;/h3&gt;
+        &lt;p&gt;{soBaiHoc} bài học&lt;/p&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  <span class="cm">// Dữ liệu — giống hệt mảng object đã dùng ở Bài 6, 10 chương JavaScript</span>
+  const danhSachKhoaHoc = [
+    { id: 1, ten: "HTML & CSS", icon: "🧱", soBaiHoc: 11 },
+    { id: 2, ten: "JavaScript", icon: "⚡", soBaiHoc: 19 },
+    { id: 3, ten: "React.js", icon: "⚛️", soBaiHoc: 26 }
+  ];
+
+  <span class="cm">// Component CHA — chứa dữ liệu, "rót" xuống từng component con qua props</span>
+  function TrangChu() {
+    return (
+      &lt;div className="course-grid"&gt;
+        {danhSachKhoaHoc.map(kh =&gt; (
+          &lt;TheKhoaHoc
+            key={kh.id}
+            ten={kh.ten}
+            icon={kh.icon}
+            soBaiHoc={kh.soBaiHoc}
+          /&gt;
+        ))}
+      &lt;/div&gt;
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(&lt;TrangChu /&gt;);
+&lt;/script&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- ============================== 5. GIẢI THÍCH CODE ============================== -->
+    <section class="lesson-section" id="giai-thich">
+      <h2><span class="num">05</span>Giải thích code</h2>
+      <ul>
+        <li><code class="mono">function TheKhoaHoc({ ten, icon, soBaiHoc }) { }</code> — component con hoàn toàn "vô tri" về nguồn gốc dữ liệu, chỉ biết nó sẽ nhận được 3 props này và hiển thị ra — đây chính là tính <strong>tái sử dụng</strong> cốt lõi.</li>
+        <li><code class="mono">danhSachKhoaHoc.map(kh =&gt; (...))</code> — vòng lặp qua từng object trong mảng (Bài 4), mỗi lần tạo ra một phần tử <code class="mono">&lt;TheKhoaHoc /&gt;</code> mới với props tương ứng từ object đó.</li>
+        <li><code class="mono">key={kh.id}</code> — dùng <code class="mono">id</code> ổn định của từng khóa học (không phải chỉ số mảng), giúp React theo dõi đúng từng component khi danh sách thay đổi sau này.</li>
+        <li><code class="mono">ten={kh.ten}</code> — "rót" giá trị cụ thể từ object <code class="mono">kh</code> vào prop <code class="mono">ten</code> của component con; mỗi lần lặp, giá trị khác nhau, nhưng logic hiển thị bên trong <code class="mono">TheKhoaHoc</code> chỉ cần viết <strong>đúng một lần</strong>.</li>
+        <li><code class="mono">function TrangChu() { }</code> — component cha đóng vai trò "điều phối": giữ dữ liệu, quyết định gọi component con bao nhiêu lần với props gì, còn phần hiển thị chi tiết giao lại hoàn toàn cho <code class="mono">TheKhoaHoc</code>.</li>
+      </ul>
+    </section>
+
+    <!-- ============================== 6. LỖI THƯỜNG GẶP (accordion) ============================== -->
+    <section class="lesson-section" id="loi-thuong-gap">
+      <h2><span class="num">06</span>Lỗi thường gặp</h2>
+      <p>Nhấp vào từng mục để xem chi tiết lỗi và cách khắc phục:</p>
+
+      <div class="accordion" id="accordion">
+        <div class="accordion-item">
+          <button class="accordion-header">Cố sửa trực tiếp props<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">props.ten = "Tên mới";</code> bên trong component con — React sẽ báo lỗi hoặc bỏ qua thay đổi, vì props được coi là bất biến (immutable) từ góc nhìn của component con.</p>
+              <p class="fix">✅ Cách khắc phục: nếu cần dữ liệu thay đổi được, đó là dấu hiệu cần dùng <strong>state</strong> (Bài 3) thay vì props.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Quên prop <code class="mono">key</code> khi render danh sách<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">.map(kh =&gt; &lt;TheKhoaHoc ten={kh.ten} /&gt;)</code> (thiếu <code class="mono">key</code>) — React vẫn hiển thị được nhưng cảnh báo trong console <code class="mono">Warning: Each child in a list should have a unique "key" prop</code>, và có thể gây lỗi hiển thị khó lường khi danh sách thay đổi.</p>
+              <p class="fix">✅ Cách khắc phục: luôn thêm <code class="mono">key</code> (dùng id ổn định) cho mọi phần tử được tạo ra từ <code class="mono">.map()</code>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Dùng chỉ số mảng (index) làm <code class="mono">key</code><span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">.map((kh, index) =&gt; &lt;TheKhoaHoc key={index} /&gt;)</code> — hoạt động được với danh sách tĩnh, nhưng gây lỗi hiển thị khó lường nếu danh sách có thể thêm/xóa/sắp xếp lại — đúng bài học "id thay vì index" từ Bài 18 chương JavaScript.</p>
+              <p class="fix">✅ Cách khắc phục: luôn ưu tiên id thật của dữ liệu (như <code class="mono">kh.id</code>) làm key, chỉ dùng index khi chắc chắn danh sách hoàn toàn tĩnh, không bao giờ thay đổi.</p>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-header">Quên dấu ngoặc nhọn khi truyền props không phải chuỗi<span class="plus">+</span></button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
+              <p>Viết <code class="mono">&lt;TheKhoaHoc soBaiHoc="11" /&gt;</code> khi muốn truyền số <code class="mono">11</code> — nếu dùng dấu nháy, giá trị thực chất là <strong>chuỗi</strong> <code class="mono">"11"</code>, không phải số, có thể gây lỗi khi component con thực hiện phép tính trên prop này.</p>
+              <p class="fix">✅ Cách khắc phục: giá trị không phải chuỗi (số, boolean, biến, object...) luôn cần bọc trong <code class="mono">{ }</code>: <code class="mono">soBaiHoc={11}</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="ic">⚠️</span>
+        <div class="body">
+          <strong>Cảnh báo quan trọng</strong>
+          <p>Prop <code class="mono">key</code> là đặc biệt — React <strong>sử dụng nội bộ</strong> để theo dõi danh sách, component con <strong>không</strong> nhận được nó như một prop thông thường (không thể truy cập <code class="mono">props.key</code> bên trong component). Nếu cần giá trị đó bên trong component, phải truyền thêm một prop khác riêng biệt (như <code class="mono">id={kh.id}</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 7. BEST PRACTICES ============================== -->
+    <section class="lesson-section" id="best-practices">
+      <h2><span class="num">07</span>Best Practices</h2>
+      <ul>
+        <li>Luôn destructuring props ngay trong tham số component (<code class="mono">{ ten, icon }</code>) thay vì dùng <code class="mono">props.ten</code> lặp lại nhiều lần.</li>
+        <li>Không bao giờ sửa trực tiếp props — coi chúng như tham số hàm chỉ đọc.</li>
+        <li>Luôn thêm <code class="mono">key</code> ổn định (id thật) khi render danh sách bằng <code class="mono">.map()</code>.</li>
+        <li>Bọc mọi giá trị không phải chuỗi trong <code class="mono">{ }</code> khi truyền props.</li>
+        <li>Giữ component con càng "vô tri" càng tốt — chỉ nhận props và hiển thị, không tự ý biết về nguồn gốc dữ liệu.</li>
+      </ul>
+    </section>
+
+    <!-- ============================== 8. TIP + NOTE ============================== -->
+    <section class="lesson-section" id="tip-note">
+      <h2><span class="num">08</span>Tip &amp; Note</h2>
+
+      <div class="callout callout-tip">
+        <span class="ic">💡</span>
+        <div class="body">
+          <strong>Tip</strong>
+          <p>Với React Developer Tools (đã nhắc ở Bài 1), chọn một component trong tab Components sẽ hiện đầy đủ props nó đang nhận ở panel bên phải — cách nhanh nhất để debug khi nghi ngờ component không nhận đúng dữ liệu.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="ic">📌</span>
+        <div class="body">
+          <strong>Note</strong>
+          <p>Props có một dạng đặc biệt tên <code class="mono">children</code> — tự động chứa mọi thứ nằm <strong>giữa</strong> thẻ mở và đóng của component, ví dụ <code class="mono">&lt;Card&gt;Nội dung ở đây&lt;/Card&gt;</code>. Đây là kỹ thuật hữu ích để tạo component "bao bọc" linh hoạt, sẽ được dùng nhiều hơn ở các bài về layout sau này.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== 9. BÀI TẬP ============================== -->
+    <section class="lesson-section" id="bai-tap">
+      <h2><span class="num">09</span>Bài tập</h2>
+
+      <div class="exercise">
+        <strong>BÀI 1</strong>
+        <p>Viết component <code class="mono">NutBam</code> nhận props <code class="mono">nhan</code> (nhãn nút) và <code class="mono">mau</code> (màu nền), hiển thị một nút với style tương ứng. Gọi lại component này 3 lần với 3 màu khác nhau.</p>
+      </div>
+      <div class="exercise">
+        <strong>BÀI 2</strong>
+        <p>Cho mảng <code class="mono">const gioiThieu = [{id: 1, ten: "An"}, {id: 2, ten: "Bình"}];</code>, viết component <code class="mono">DanhSachTen</code> render ra danh sách tên bằng <code class="mono">.map()</code>, nhớ thêm <code class="mono">key</code> đúng chuẩn.</p>
+      </div>
+      <div class="exercise">
+        <strong>BÀI 3</strong>
+        <p>Giải thích bằng lời: vì sao React coi việc sửa trực tiếp props bên trong component con là sai nguyên tắc, dù về mặt kỹ thuật code đôi khi vẫn "chạy được"?</p>
+      </div>
+    </section>
+
+    <!-- ============================== 10. QUIZ TƯƠNG TÁC ============================== -->
+    <section class="lesson-section" id="quiz">
+      <h2><span class="num">10</span>Quiz tương tác</h2>
+      <p>Chọn một đáp án cho mỗi câu hỏi, hệ thống sẽ báo đúng/sai ngay lập tức.</p>
+
+      <div id="quizContainer">
+        <div class="quiz-item" data-answer="2">
+          <p class="q">Câu 1: Props chảy theo hướng nào giữa các component?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Từ con lên cha</div>
+            <div class="quiz-option" data-index="1">Hai chiều tự do</div>
+            <div class="quiz-option" data-index="2">Từ cha xuống con</div>
+            <div class="quiz-option" data-index="3">Không có hướng cố định</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="1">
+          <p class="q">Câu 2: Prop nào bắt buộc phải có khi render danh sách bằng <code class="mono">.map()</code>?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0"><code class="mono">id</code></div>
+            <div class="quiz-option" data-index="1"><code class="mono">key</code></div>
+            <div class="quiz-option" data-index="2"><code class="mono">name</code></div>
+            <div class="quiz-option" data-index="3">Không cần prop nào đặc biệt</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="0">
+          <p class="q">Câu 3: Component con có được phép sửa trực tiếp props nhận vào không?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Không, props chỉ đọc</div>
+            <div class="quiz-option" data-index="1">Có, thoải mái sửa</div>
+            <div class="quiz-option" data-index="2">Chỉ sửa được số, không sửa được chuỗi</div>
+            <div class="quiz-option" data-index="3">Tùy trình duyệt</div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+
+        <div class="quiz-item" data-answer="3">
+          <p class="q">Câu 4: Khi truyền một giá trị số làm prop, cần dùng ký hiệu nào?</p>
+          <div class="quiz-options">
+            <div class="quiz-option" data-index="0">Dấu nháy đơn <code class="mono">' '</code></div>
+            <div class="quiz-option" data-index="1">Dấu nháy kép <code class="mono">" "</code></div>
+            <div class="quiz-option" data-index="2">Không cần ký hiệu gì</div>
+            <div class="quiz-option" data-index="3">Dấu ngoặc nhọn <code class="mono">{ }</code></div>
+          </div>
+          <div class="quiz-feedback mono"></div>
+        </div>
+      </div>
+
+      <div class="quiz-score" id="quizScore">Điểm của bạn: 0 / 4</div>
+    </section>
+
+    <!-- ============================== 11. TỔNG KẾT (bao gồm Đáp án) ============================== -->
+    <section class="lesson-section" id="tong-ket">
+      <h2><span class="num">11</span>Tổng kết</h2>
+      <p>Qua bài học này, bạn đã nắm được:</p>
+      <ul>
+        <li>Props truyền dữ liệu từ component cha xuống con, theo một chiều duy nhất, chỉ đọc.</li>
+        <li>Nhận props qua destructuring trong tham số component, cách viết phổ biến nhất.</li>
+        <li>Kết hợp <code class="mono">.map()</code> + props để render danh sách component từ mảng dữ liệu.</li>
+        <li>Prop <code class="mono">key</code> bắt buộc khi render danh sách, nên dùng id ổn định thay vì chỉ số mảng.</li>
+      </ul>
+      <div class="callout callout-note">
+        <span class="ic">📖</span>
+        <div class="body">
+          <strong>Đáp án bài tập 3 (gợi ý)</strong>
+          <p>Nếu component con được phép sửa props, dữ liệu sẽ "chảy ngược" từ con lên cha một cách không kiểm soát — component cha (nơi thực sự sở hữu dữ liệu gốc) sẽ không còn biết chắc giá trị hiện tại là gì, vì bất kỳ component con nào cũng có thể âm thầm thay đổi nó. Nguyên tắc luồng dữ liệu một chiều giúp code React luôn <strong>dễ dự đoán</strong>: nhìn vào component cha là biết chắc dữ liệu đến từ đâu và thay đổi ra sao.</p>
+        </div>
+      </div>
+      <p>
+        Với props, bạn đã biết cách "truyền" dữ liệu vào component. Nhưng nếu dữ liệu cần <strong>tự thay đổi</strong> theo
+        thời gian (như số lượt click, nội dung ô input) mà không có component cha nào truyền vào? Ở <strong>Bài 3</strong>,
+        bạn sẽ học <strong>State &amp; useState</strong> — cách cho component "trí nhớ" của riêng nó.
+      </p>
+    </section>
+
+    <!-- ============================== PREV / NEXT ============================== -->
+    <div class="lesson-nav">
+      <a class="nav-btn" href="chapter01.html">
+        <span class="dir mono">← BÀI TRƯỚC</span>
+        <strong>Bài 1: Nhập Môn React &amp; JSX</strong>
+      </a>
+      <a class="nav-btn next" href="chapter03.html">
+        <span class="dir mono">BÀI TIẾP THEO →</span>
+        <strong>Bài 3: State &amp; useState Hook</strong>
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<button class="top-btn" id="topBtn" aria-label="Về đầu trang">↑</button>
+
+<script>
+/* ============================================================
+   DARK / LIGHT MODE — đồng bộ localStorage với trang chủ
+   ============================================================ */
+(function initTheme(){
+  const saved = localStorage.getItem('fsb-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon(theme);
+})();
+function updateThemeIcon(theme){
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+document.getElementById('themeBtn').addEventListener('click', function(){
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('fsb-theme', next);
+  updateThemeIcon(next);
+});
+
+/* ============================================================
+   COPY CODE
+   ============================================================ */
+function copyCode(btn){
+  const code = btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent = '✅ Đã copy';
+    btn.classList.add('copied');
+    setTimeout(function(){
+      btn.textContent = '📋 Copy';
+      btn.classList.remove('copied');
+    }, 1800);
+  });
+}
+
+/* ============================================================
+   ACCORDION — Lỗi thường gặp
+   ============================================================ */
+document.querySelectorAll('.accordion-header').forEach(function(header){
+  header.addEventListener('click', function(){
+    const item = header.parentElement;
+    const panel = item.querySelector('.accordion-panel');
+    const isOpen = item.classList.contains('open');
+
+    // đóng tất cả trước
+    document.querySelectorAll('.accordion-item').forEach(function(el){
+      el.classList.remove('open');
+      el.querySelector('.accordion-panel').style.maxHeight = null;
+    });
+
+    if(!isOpen){
+      item.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+  });
+});
+
+/* ============================================================
+   QUIZ TƯƠNG TÁC — chọn đáp án, chấm điểm ngay
+   ============================================================ */
+let score = 0;
+const answered = new Set();
+document.querySelectorAll('.quiz-item').forEach(function(item, itemIndex){
+  const correctIndex = parseInt(item.dataset.answer, 10);
+  const options = item.querySelectorAll('.quiz-option');
+  const feedback = item.querySelector('.quiz-feedback');
+
+  options.forEach(function(opt){
+    opt.addEventListener('click', function(){
+      if(answered.has(itemIndex)) return; // chỉ cho chọn 1 lần / câu
+      answered.add(itemIndex);
+
+      const chosenIndex = parseInt(opt.dataset.index, 10);
+      options.forEach(function(o){
+        const idx = parseInt(o.dataset.index, 10);
+        if(idx === correctIndex) o.classList.add('correct');
+        else if(o === opt) o.classList.add('incorrect');
+      });
+
+      if(chosenIndex === correctIndex){
+        score++;
+        feedback.textContent = '✅ Chính xác!';
+        feedback.classList.add('show', 'ok');
+      } else {
+        feedback.textContent = '❌ Chưa đúng — đáp án đúng đã được tô xanh.';
+        feedback.classList.add('show', 'no');
+      }
+      document.getElementById('quizScore').textContent = 'Điểm của bạn: ' + score + ' / ' + document.querySelectorAll('.quiz-item').length;
+    });
+  });
+});
+
+/* ============================================================
+   THANH TIẾN ĐỘ ĐỌC + TOC ACTIVE + BACK TO TOP
+   ============================================================ */
+const readingFill = document.getElementById('readingFill');
+const miniFill = document.getElementById('miniFill');
+const topBtn = document.getElementById('topBtn');
+const sections = document.querySelectorAll('.lesson-section');
+const tocLinks = document.querySelectorAll('#toc a');
+
+window.addEventListener('scroll', function(){
+  // % đã cuộn trong toàn trang
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+  readingFill.style.width = pct + '%';
+  miniFill.style.width = pct + '%';
+
+  topBtn.classList.toggle('show', scrollTop > 400);
+
+  // active TOC theo section đang hiện trên màn hình
+  let currentId = '';
+  sections.forEach(function(sec){
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(function(link){
+    link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+  });
+});
+
+topBtn.addEventListener('click', function(){
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>

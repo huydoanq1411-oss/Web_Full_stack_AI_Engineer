@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tổng hợp công thức &amp; khái niệm cốt lõi — Giáo trình ML</title>
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 16px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Inter',-apple-system,sans-serif;background:var(--paper);color:var(--ink);transition:.2s;}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;}
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+.menu-fab{
+  position:fixed;top:20px;right:78px;z-index:60;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);color:var(--ink);cursor:pointer;font-size:17px;transition:.2s;
+}
+.menu-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+#toolbox-sidebar{position:fixed;top:0;right:-300px;width:280px;height:100%;background:var(--surface);border-left:1px solid var(--border);padding:22px 20px;z-index:700;transition:right .3s ease;overflow-y:auto;}
+#toolbox-sidebar.open{right:0;}
+#toolbox-sidebar .sb-title{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+#toolbox-sidebar .sb-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+#toolbox-sidebar a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:8px 10px;border-radius:8px;margin-bottom:2px;}
+#toolbox-sidebar a:hover{background:var(--surface-2);color:var(--teal);}
+#toolbox-sidebar a.current{color:var(--teal);font-weight:600;}
+#toolbox-sidebar a.home-link{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;color:var(--violet);font-size:12.5px;}
+#toolbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;}
+#toolbox-overlay.open{display:block;}
+.topbar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 26px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.topbar h1{font-size:18px;margin:0;flex:1;min-width:200px;}
+.icon-btn{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink);}
+.icon-btn:hover{border-color:var(--teal);}
+#searchBox{flex:1;min-width:200px;max-width:340px;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:13px;}
+.container{max-width:1200px;margin:0 auto;padding:26px;}
+.part-group{margin-bottom:34px;}
+.part-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--violet);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--violet-dim);}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+.ch-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+.ch-card.hidden{display:none;}
+.ch-num{display:inline-block;background:var(--teal-dim);color:var(--teal);font-family:'Space Grotesk';font-weight:700;font-size:11.5px;padding:2px 9px;border-radius:20px;margin-bottom:8px;}
+.ch-card h3{font-size:14px;margin:0 0 8px;line-height:1.3;}
+.ch-card ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--muted);}
+.ch-card code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink);}
+.no-result{text-align:center;color:var(--muted);padding:40px;display:none;}
+@media print{
+  .home-fab,.topbar{display:none;}
+  body{background:#fff;color:#000;}
+  .ch-card{break-inside:avoid;box-shadow:none;border:1px solid #ccc;}
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<button class="menu-fab" id="menu-toggle" aria-label="Mở mục lục" onclick="document.getElementById('toolbox-sidebar').classList.toggle('open');document.getElementById('toolbox-overlay').classList.toggle('open');">☰</button>
+
+<div id="toolbox-overlay" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');this.classList.remove('open');"></div>
+<aside id="toolbox-sidebar">
+  <div class="sb-title">Mục lục <button class="sb-close" onclick="document.getElementById('toolbox-sidebar').classList.remove('open');document.getElementById('toolbox-overlay').classList.remove('open');">✕</button></div>
+  <a href="phan-1-nen-tang-ml.html">01. Nền tảng AI · ML · DL</a>
+  <a href="phan-2-toan-cho-ml.html">02. Toán cho ML</a>
+  <a href="phan-3-truc-quan-hoa-du-lieu.html">03. Trực quan hóa dữ liệu</a>
+  <a href="phan-4-tien-xu-ly-du-lieu.html">04. Data Preprocessing &amp; EDA</a>
+  <a href="phan-5-feature-engineering-pipeline.html">05. Feature Engineering &amp; Pipeline</a>
+  <a href="phan-6-supervised-learning.html">06. Supervised Learning</a>
+  <a href="phan-7-knn-bayes-tree-svm.html">07. KNN, Bayes, Tree &amp; SVM</a>
+  <a href="phan-8-ensemble-random-forest.html">08. Ensemble &amp; Random Forest</a>
+  <a href="phan-9-unsupervised-clustering-pca.html">09. Unsupervised &amp; PCA</a>
+  <a href="phan-10-model-evaluation-tuning.html">10. Model Evaluation &amp; Tuning</a>
+  <a href="phan-11-explainable-ai-deployment.html">11. Explainable AI &amp; Deployment</a>
+  <a href="phan-12-sql-mlops.html">12. SQL cho ML &amp; MLOps</a>
+  <a href="phan-15-kaggle-portfolio.html">15. Kaggle &amp; Portfolio</a>
+  <a href="phan-16-deep-learning.html">16. Deep Learning</a>
+  <a href="phan-17-reinforcement-learning.html">17. Reinforcement Learning</a>
+  <a class="current" href="tong-hop-cheat-sheet.html">📋 Tổng hợp Cheat Sheet</a>
+  <a href="../ai-engineer/tong-hop-prompt-agent-cong-cu-ai-2026.html">🤖 AI Agent Toolbox</a>
+  <a class="home-link" href="../index.html">🏠 Về trang chủ giáo trình</a>
+</aside>
+
+<div class="topbar">
+  <h1>📋 Tổng hợp công thức &amp; khái niệm cốt lõi — 46 chương</h1>
+  <input type="text" id="searchBox" placeholder="🔍 Tìm khái niệm (VD: overfitting, RAG, gradient...)">
+  <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+  <button class="icon-btn" onclick="window.print()">🖨️ In / Lưu PDF</button>
+</div>
+
+<div class="container" id="container">
+  <!-- ============ PHẦN 1 ============ -->
+  <div class="part-group" data-part="1">
+    <div class="part-title">📗 Phần 1 — Nền tảng</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 1</span><h3>AI, ML, DL &amp; Data Science</h3><ul>
+        <li>Quan hệ tập con: <code>AI ⊃ ML ⊃ DL</code>; DS là ngành ứng dụng cả ba.</li>
+        <li>3 loại học: Supervised, Unsupervised, Reinforcement (+ Semi-supervised).</li>
+        <li>2026: Foundation Model, Generative AI, Agentic AI là lớp khái niệm mới cắt ngang bức tranh trên.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 2</span><h3>Quy trình xây dựng mô hình ML</h3><ul>
+        <li>6 bước: Thu thập dữ liệu → Tiền xử lý → EDA → Chọn mô hình → Huấn luyện → Đánh giá/Tinh chỉnh.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 3</span><h3>Cài đặt môi trường Python</h3><ul>
+        <li>Anaconda/venv, Jupyter Notebook, cài scikit-learn/pandas/numpy.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 4</span><h3>NumPy cơ bản</h3><ul>
+        <li>Mảng đa chiều (ndarray), vector hóa phép tính nhanh hơn vòng lặp Python thuần.</li>
+        <li>Broadcasting: tự động khớp shape khi tính toán giữa mảng khác kích thước.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 5</span><h3>Pandas cơ bản</h3><ul>
+        <li>DataFrame/Series; <code>loc/iloc</code>, <code>groupby</code>, <code>merge</code> — thao tác dữ liệu dạng bảng.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 2 ============ -->
+  <div class="part-group" data-part="2">
+    <div class="part-title">📗 Phần 2 — Toán cho ML</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 6</span><h3>Đại số tuyến tính</h3><ul>
+        <li>Vector, ma trận, <code>dot product</code>, norm.</li>
+        <li>Cosine similarity = dot product chuẩn hóa → nền tảng RAG (Ch.45) &amp; Attention (Ch.50).</li>
+        <li>Eigenvalue/Eigenvector → nền tảng PCA (Ch.31).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 7</span><h3>Giải tích (Calculus)</h3><ul>
+        <li>Đạo hàm = độ dốc; Gradient = vector đạo hàm riêng cho nhiều biến.</li>
+        <li>Chain Rule: <code>dy/dx = dy/dg · dg/dx</code> → nền tảng Backpropagation (Ch.49).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 8</span><h3>Xác suất thống kê</h3><ul>
+        <li>Phân phối xác suất, kỳ vọng, phương sai — nền tảng Naive Bayes (Ch.23).</li>
+        <li>A/B Testing: p-value kiểm định chênh lệch có ý nghĩa thống kê hay chỉ do ngẫu nhiên.</li>
+        <li>Multi-Armed Bandit: "A/B Testing động" — vừa thử nghiệm vừa tối ưu, tiền thân của RL (Ch.51).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 9</span><h3>Tối ưu hóa (Optimization)</h3><ul>
+        <li>Gradient Descent: <code>w = w - learning_rate × gradient</code>.</li>
+        <li>Cross-Entropy Loss cho classification, MSE cho regression.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 3 ============ -->
+  <div class="part-group" data-part="3">
+    <div class="part-title">📗 Phần 3 — Trực quan hóa</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 10</span><h3>Matplotlib</h3><ul>
+        <li>Figure chứa Axes; ưu tiên <code>fig, ax = plt.subplots()</code>.</li>
+        <li>Decision Boundary: vẽ vùng dự đoán để "cảm nhận" từng thuật toán classification.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 11</span><h3>Seaborn</h3><ul>
+        <li>Trực quan hóa thống kê nâng cao: heatmap, pairplot, violin plot.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 12</span><h3>Nguyên tắc Data Visualization</h3><ul>
+        <li>Bắt đầu từ câu hỏi cần trả lời rồi mới chọn loại biểu đồ; tránh cắt trục/3D gây hiểu lầm.</li>
+        <li>t-SNE/UMAP: giảm chiều để vẽ embedding nhiều trăm chiều lên 2D.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 4 ============ -->
+  <div class="part-group" data-part="4">
+    <div class="part-title">📗 Phần 4 — Tiền xử lý &amp; EDA</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 13</span><h3>Data Preprocessing</h3><ul>
+        <li>Scaling: fit trên train, transform cả train+test — không bao giờ fit trên test.</li>
+        <li>Label Encoding (có thứ tự) vs One-Hot Encoding (không thứ tự).</li>
+        <li>Mất cân bằng lớp: SMOTE/class_weight — SMOTE chỉ áp dụng SAU khi chia train/test.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 14</span><h3>Data Cleaning</h3><ul>
+        <li>Xử lý missing values (drop/impute), phát hiện outlier (IQR, Z-score).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 15</span><h3>EDA</h3><ul>
+        <li>Khám phá dữ liệu bằng thống kê mô tả + biểu đồ trước khi mô hình hóa.</li>
+        <li>Correlation ≠ Causation: tương quan cao chỉ gợi ý giả thuyết, cần A/B Testing để khẳng định nhân quả.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 5 ============ -->
+  <div class="part-group" data-part="5">
+    <div class="part-title">📗 Phần 5 — Feature Engineering &amp; Pipeline</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 16</span><h3>Feature Engineering</h3><ul>
+        <li>Trích xuất ngày giờ, binning, interaction, log transform.</li>
+        <li>Embedding vector = feature engineering hiện đại cho văn bản (mô hình tự học đặc trưng).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 17</span><h3>Feature Selection</h3><ul>
+        <li>3 nhóm: Filter (thống kê), Wrapper (thử-sai), Embedded (tích hợp trong mô hình).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 18</span><h3>ML Pipeline</h3><ul>
+        <li><code>ColumnTransformer</code> + <code>Pipeline</code> gộp scaling/encoding + mô hình, tránh rò rỉ dữ liệu.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 6 ============ -->
+  <div class="part-group" data-part="6">
+    <div class="part-title">📗 Phần 6 — Supervised Learning nền tảng</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 19</span><h3>Tổng quan Supervised Learning</h3><ul>
+        <li>Regression (dự đoán số) vs Classification (dự đoán nhãn).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 20</span><h3>Linear Regression</h3><ul>
+        <li><code>y = wx + b</code>, tối thiểu hóa MSE bằng Gradient Descent.</li>
+        <li>Ridge/Lasso: thêm regularization chống overfitting khi nhiều đặc trưng.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 21</span><h3>Logistic Regression</h3><ul>
+        <li>Sigmoid biến đầu ra tuyến tính thành xác suất (0,1); loss = Cross-Entropy.</li>
+        <li>Softmax Regression: mở rộng cho &gt;2 lớp — Sigmoid là Softmax khi chỉ có 2 lựa chọn.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 7 ============ -->
+  <div class="part-group" data-part="7">
+    <div class="part-title">📗 Phần 7 — KNN · Bayes · Tree · SVM</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 22</span><h3>K-Nearest Neighbors</h3><ul>
+        <li>"Lazy learning" — dự đoán theo đa số/trung bình của k điểm gần nhất; bắt buộc scale dữ liệu.</li>
+        <li>Curse of Dimensionality: nhiều chiều khiến "gần nhau" mất ý nghĩa.</li>
+        <li>Chính là thuật toán lõi đứng sau bước Retrieval trong RAG (Ch.45) và Recommender System (Collaborative Filtering).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 23</span><h3>Naive Bayes</h3><ul>
+        <li>Định lý Bayes + giả định "ngây thơ" các đặc trưng độc lập với nhau.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 24</span><h3>Decision Tree</h3><ul>
+        <li>Chia node theo Gini/Entropy để tối đa hóa Information Gain.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 25</span><h3>Support Vector Machine</h3><ul>
+        <li>Tìm siêu phẳng phân chia với margin lớn nhất; Kernel trick xử lý dữ liệu phi tuyến.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 8 ============ -->
+  <div class="part-group" data-part="8">
+    <div class="part-title">📗 Phần 8 — Ensemble &amp; Random Forest</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 26</span><h3>Tổng quan Ensemble Learning</h3><ul>
+        <li>Bagging (song song, giảm variance), Boosting (tuần tự, giảm bias), Stacking.</li>
+        <li>2026: Mixture of Experts (MoE) trong LLM — cùng triết lý "nhiều mô hình chuyên biệt".</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 27</span><h3>Random Forest</h3><ul>
+        <li>Bagging + Decision Tree + ngẫu nhiên hóa đặc trưng mỗi node; OOB score đánh giá miễn phí.</li>
+        <li>⚠️ Feature Importance mặc định (MDI) thiên lệch — dùng Permutation Importance đáng tin hơn.</li>
+        <li>Isolation Forest: phát hiện bất thường bằng cách đo "cần bao nhiêu lần chia để cô lập 1 điểm".</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 28</span><h3>Gradient Boosting / XGBoost / LightGBM / CatBoost</h3><ul>
+        <li>Mỗi cây mới học sửa lỗi của các cây trước; learning_rate + n_estimators là cặp tham số cốt lõi.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 9 ============ -->
+  <div class="part-group" data-part="9">
+    <div class="part-title">📗 Phần 9 — Clustering &amp; PCA</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 29</span><h3>Tổng quan Unsupervised Learning</h3><ul>
+        <li>Học cấu trúc dữ liệu không cần nhãn.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 30</span><h3>K-Means &amp; Hierarchical Clustering</h3><ul>
+        <li>K-Means lặp gán nhãn/cập nhật tâm cụm; chọn k bằng Elbow (inertia) + Silhouette Score.</li>
+        <li>DBSCAN: clustering theo mật độ, tự phát hiện nhiễu, không cần biết trước k.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 31</span><h3>PCA (Dimensionality Reduction)</h3><ul>
+        <li>Tìm trục biến thiên nhiều nhất (eigenvector); luôn scale dữ liệu trước PCA.</li>
+        <li>Vector Database (Pinecone/FAISS...) = phiên bản PCA áp dụng cho tìm kiếm embedding quy mô lớn.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 10 ============ -->
+  <div class="part-group" data-part="10">
+    <div class="part-title">📗 Phần 10 — Model Evaluation &amp; Tuning</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 32</span><h3>Model Evaluation</h3><ul>
+        <li>Confusion Matrix (TP/FP/FN/TN); Precision-Recall đánh đổi; ROC-AUC đánh giá mọi ngưỡng.</li>
+        <li>Đánh giá LLM khó hơn: LLM-as-judge, human eval thay vì chỉ số cố định.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 33</span><h3>Cross Validation</h3><ul>
+        <li>K-Fold/Stratified K-Fold; TimeSeriesSplit cho dữ liệu chuỗi thời gian (không xáo trộn).</li>
+        <li>Learning Curve: chẩn đoán underfitting/overfitting/thiếu dữ liệu bằng đồ thị train vs validation.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 34</span><h3>Hyperparameter Tuning</h3><ul>
+        <li>GridSearchCV (vét cạn), RandomizedSearchCV (ngẫu nhiên), Bayesian Optimization (thông minh hơn).</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 11 ============ -->
+  <div class="part-group" data-part="11">
+    <div class="part-title">📗 Phần 11 — XAI &amp; Deployment</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 35</span><h3>Explainable AI: SHAP &amp; LIME</h3><ul>
+        <li>SHAP: đóng góp công bằng của mỗi đặc trưng (lý thuyết game); LIME: giải thích cục bộ từng dự đoán.</li>
+        <li>Fairness Auditing (Demographic Parity, Equalized Odds): mô hình chính xác chưa chắc công bằng giữa các nhóm.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 36</span><h3>Model Deployment: Flask &amp; FastAPI</h3><ul>
+        <li>Lưu Pipeline hoàn chỉnh (không chỉ model) → viết API → Gunicorn/Uvicorn sau Nginx cho production.</li>
+        <li>Model Drift (Data/Concept Drift): mô hình tệ dần theo thời gian mà không báo lỗi kỹ thuật.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 37</span><h3>Docker, Git &amp; GitHub</h3><ul>
+        <li>Docker đóng gói môi trường nhất quán; Git quản lý phiên bản mã nguồn.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 12 ============ -->
+  <div class="part-group" data-part="12">
+    <div class="part-title">📗 Phần 12 — SQL &amp; MLOps</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 38</span><h3>SQL cho ML</h3><ul>
+        <li>SELECT/WHERE/GROUP BY/JOIN; Window Function (<code>OVER PARTITION BY</code>) giữ nguyên từng dòng.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 39</span><h3>MLOps &amp; MLflow</h3><ul>
+        <li>MLflow Tracking ghi log thí nghiệm tự động; Model Registry quản lý phiên bản mô hình.</li>
+        <li>LLMOps: thêm prompt versioning, eval set, theo dõi chi phí/token.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 40</span><h3>DVC &amp; Kubernetes</h3><ul>
+        <li>DVC = "Git cho dữ liệu"; Kubernetes mở rộng quy mô ứng dụng ML.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 15 ============ -->
+  <div class="part-group" data-part="15">
+    <div class="part-title">📗 Phần 15 — Kaggle &amp; Portfolio</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 47</span><h3>Thực hành với Kaggle</h3><ul>
+        <li>Tin vào CV score hơn Public Leaderboard (tránh leaderboard overfitting).</li>
+        <li>Ensemble/Stacking nhiều mô hình khác họ thường cải thiện kết quả đáng kể.</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 48</span><h3>Dự án ML thực tế &amp; Portfolio</h3><ul>
+        <li>Dự án "end-to-end" 9 bước: vấn đề → data → model → deploy → README hoàn chỉnh.</li>
+        <li>Nên có ít nhất 1 dự án tích hợp GenAI/LLM để nổi bật trong thị trường 2026.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 16 ============ -->
+  <div class="part-group" data-part="16">
+    <div class="part-title">📗 Phần 16 — Deep Learning</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 49</span><h3>Mạng nơ-ron cơ bản</h3><ul>
+        <li>Nhiều "Logistic Regression" xếp lớp qua activation phi tuyến (ReLU/Sigmoid/Softmax).</li>
+        <li>Backpropagation = Gradient Descent + Chain Rule cho nhiều lớp; Weight Init tránh "symmetry problem".</li>
+        <li>Dropout/Early Stopping/Data Augmentation chống overfitting; Adam = optimizer mặc định phổ biến.</li>
+        <li>Transfer Learning = nguyên lý đứng sau Foundation Model (Ch.1).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 50</span><h3>CNN &amp; RNN</h3><ul>
+        <li>CNN: Convolution + Pooling khai thác cấu trúc không gian ảnh, chia sẻ trọng số.</li>
+        <li>Object Detection (khung+nhãn) &amp; Segmentation (nhãn từng pixel) mở rộng CNN Classification.</li>
+        <li>RNN/LSTM/GRU: giữ "trạng thái ẩn" cho chuỗi; Vanishing Gradient là hạn chế cố hữu.</li>
+        <li>Time Series: thử ARIMA/Prophet làm baseline trước khi dùng LSTM.</li>
+        <li>Attention: Q·K (dot product, giống cosine similarity) → trọng số Softmax → tổng có trọng số của V.</li>
+        <li>Autoencoder = "PCA phi tuyến"; GAN = sinh dữ liệu bằng cơ chế đối kháng (nay dần thay bằng Diffusion).</li>
+        <li>Graph Neural Network (GNN): xử lý dữ liệu đồ thị (mạng xã hội, phân tử) bằng Message Passing.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ============ PHẦN 17 ============ -->
+  <div class="part-group" data-part="17">
+    <div class="part-title">📗 Phần 17 — Reinforcement Learning</div>
+    <div class="card-grid">
+      <div class="ch-card"><span class="ch-num">Ch 51</span><h3>Nền tảng Reinforcement Learning</h3><ul>
+        <li>5 thành phần: Agent, Environment, State, Action, Reward → học Policy tối đa hóa reward dài hạn.</li>
+        <li>Epsilon-Greedy cân bằng Exploration (khám phá) vs Exploitation (khai thác).</li>
+      </ul></div>
+      <div class="ch-card"><span class="ch-num">Ch 52</span><h3>Q-Learning, Policy Gradient &amp; RLHF</h3><ul>
+        <li>Q-Learning (value-based) học Q-table qua công thức Bellman; DQN thay bằng mạng nơ-ron.</li>
+        <li>Policy Gradient/PPO (Actor-Critic) học trực tiếp Policy — phù hợp không gian hành động khổng lồ (token).</li>
+        <li>RLHF: dùng PPO tinh chỉnh LLM theo Reward Model học từ đánh giá con người.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="no-result" id="noResult">🔍 Không tìm thấy khái niệm nào khớp. Thử từ khóa khác nhé!</div>
+</div>
+
+<script>
+const THEME_KEY = 'ml-theme';
+const darkToggle = document.getElementById('darkToggle');
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+const searchBox = document.getElementById('searchBox');
+const allCards = Array.from(document.querySelectorAll('.ch-card'));
+const allGroups = Array.from(document.querySelectorAll('.part-group'));
+const noResult = document.getElementById('noResult');
+
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.trim().toLowerCase();
+  let anyVisible = false;
+  allGroups.forEach(group => {
+    let groupHasVisible = false;
+    group.querySelectorAll('.ch-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const match = q === '' || text.includes(q);
+      card.classList.toggle('hidden', !match);
+      if(match) groupHasVisible = true;
+    });
+    group.style.display = groupHasVisible ? '' : 'none';
+    if(groupHasVisible) anyVisible = true;
+  });
+  noResult.style.display = anyVisible ? 'none' : 'block';
+});
+</script>
+</body>
+</html>

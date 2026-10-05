@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 4 · Data Preprocessing, Cleaning &amp; EDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 4</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" class="active"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 4</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 4</a></li>
+      <li><a href="#chuong-13"><span class="num">13</span> Data Preprocessing</a></li>
+      <li><a href="#chuong-14"><span class="num">14</span> Data Cleaning</a></li>
+      <li><a href="#chuong-15"><span class="num">15</span> Exploratory Data Analysis</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">16</span> Feature Engineering</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">17</span> Feature Selection &amp; ML Pipeline</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 4. Tiền Xử Lý &amp; EDA</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 4 / N — Chuẩn bị dữ liệu</span>
+        <h1>Dữ liệu thô không bao giờ<br>sẵn sàng để huấn luyện ngay</h1>
+        <p class="lead">Nhớ lại nguyên lý ở Chương 2: <i>60–80% thời gian dự án ML nằm ở khâu dữ liệu</i>. Phần 4 đi sâu vào chính khâu đó:
+        <b>Data Preprocessing</b> (biến dữ liệu về dạng máy hiểu được), <b>Data Cleaning</b> (xử lý dữ liệu thiếu/sai/trùng) và
+        <b>EDA</b> — quy trình khám phá dữ liệu bài bản trước khi chạm vào bất kỳ thuật toán nào.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="80" cy="110" r="13" fill="var(--border)"/><text x="80" y="150" text-anchor="middle" font-size="10" fill="var(--muted)">Phần 1-3 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 13</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Preprocessing</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 14</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Data Cleaning</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 15</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">EDA</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 5 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" của Phần 4 — khâu chuẩn bị dữ liệu trước khi vào mô hình hóa.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Ba khái niệm này khác nhau thế nào?</div>
+        Nhiều người dùng lẫn lộn ba thuật ngữ. <b>Data Cleaning</b> = sửa dữ liệu "bẩn" (thiếu, sai, trùng). <b>Data Preprocessing</b> = biến dữ liệu đã sạch
+        thành dạng số mà thuật toán hiểu được (scaling, encoding). <b>EDA</b> = quá trình khám phá để hiểu dữ liệu, thường đan xen với cả hai bước trên.
+        Thực tế 3 bước này lặp đi lặp lại theo vòng, không phải làm tuần tự một lần rồi xong.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 13: DATA PREPROCESSING -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-13">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">13</div>
+            <div>
+              <h2>Data Preprocessing — biến dữ liệu thành dạng máy hiểu</h2>
+              <div class="ch-sub">Feature Scaling &amp; Encoding biến phân loại</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>13.1. Vì sao phải tiền xử lý dữ liệu?</h3>
+            <p>Hầu hết thuật toán ML chỉ hiểu <b>số</b>, và nhiều thuật toán (đặc biệt các mô hình dựa trên khoảng cách như KNN, hay Gradient Descent)
+            rất nhạy cảm với <b>thang đo (scale)</b> của dữ liệu. Nếu một cột là "tuổi" (20-60) và cột khác là "lương" (10 triệu - 100 triệu), mô hình
+            có thể coi cột lương "quan trọng hơn" chỉ vì con số lớn hơn — dù về mặt ý nghĩa chưa chắc đúng.</p>
+
+            <h3>13.2. Feature Scaling — đưa các đặc trưng về cùng thang đo</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Phương pháp</th><th>Công thức</th><th>Kết quả</th><th>Khi nào dùng</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Min-Max Scaling</b></td><td>(x - min) / (max - min)</td><td>Về khoảng [0, 1]</td><td>Khi biết rõ min/max, dữ liệu không có outlier mạnh</td></tr>
+                  <tr><td><b>Standardization (Z-score)</b></td><td>(x - mean) / std</td><td>Mean=0, Std=1</td><td>Phổ biến nhất, ít nhạy cảm với outlier hơn Min-Max</td></tr>
+                  <tr><td><b>Robust Scaling</b></td><td>(x - median) / IQR</td><td>Dựa trên median/IQR</td><td>Khi dữ liệu có nhiều outlier</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.model_selection import train_test_split
+
+df = pd.DataFrame({
+    'tuoi':  [22, 25, 30, 45, 60],
+    'luong': [10_000_000, 15_000_000, 25_000_000, 60_000_000, 95_000_000],
+})
+
+# Bước 1: LUÔN chia train/test TRƯỚC khi scale (tránh data leakage - Chương 2)
+X_train, X_test = train_test_split(df, test_size=0.4, random_state=42)
+
+# Bước 2: fit scaler CHỈ trên train, rồi transform cả train và test
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # fit_transform = học tham số + áp dụng
+X_test_scaled  = scaler.transform(X_test)        # transform = chỉ áp dụng, KHÔNG học lại
+
+print("Train sau scale:\n", X_train_scaled.round(2))
+print("Test sau scale:\n", X_test_scaled.round(2))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>train_test_split(df, ...)</code> — chia dữ liệu trước tiên, đúng nguyên tắc chống data leakage đã học ở Chương 2.</li>
+                <li><code>scaler.fit_transform(X_train)</code> — <code>fit</code> tính toán mean/std (hoặc min/max) <b>chỉ dựa trên tập train</b>, sau đó <code>transform</code> áp dụng công thức lên chính tập train.</li>
+                <li><code>scaler.transform(X_test)</code> — dùng lại đúng mean/std đã học từ train để biến đổi tập test — <b>không</b> gọi <code>fit</code> lần nữa trên test.</li>
+              </ol>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Quan trọng — lỗi data leakage kinh điển</div>
+              Gọi <code>fit_transform()</code> trên toàn bộ dữ liệu (gồm cả test) rồi mới chia train/test, hoặc gọi <code>fit_transform()</code> riêng trên tập test,
+              đều làm rò rỉ thông tin thống kê của test vào quá trình chuẩn hóa — khiến đánh giá mô hình sau này bị lạc quan giả tạo.
+            </div>
+
+            <h3>13.3. Encoding — mã hóa biến phân loại (categorical)</h3>
+            <p>Các cột dạng chữ (ví dụ "Hà Nội", "TP.HCM", "Đà Nẵng") cần được chuyển thành số trước khi đưa vào hầu hết thuật toán ML.</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Phương pháp</th><th>Cách hoạt động</th><th>Khi nào dùng</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Label Encoding</b></td><td>Gán mỗi danh mục một số nguyên (0, 1, 2...)</td><td>Biến có thứ tự tự nhiên (ví dụ: Thấp/Trung bình/Cao)</td></tr>
+                  <tr><td><b>One-Hot Encoding</b></td><td>Tạo một cột nhị phân (0/1) riêng cho mỗi danh mục</td><td>Biến không có thứ tự (ví dụ: thành phố, màu sắc)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 520 150" width="460">
+                <g font-family="JetBrains Mono" font-size="11">
+                  <text x="80" y="20" text-anchor="middle" font-family="Space Grotesk" font-weight="700" fill="var(--ink)">Cột gốc</text>
+                  <rect x="30" y="30" width="100" height="26" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="47" text-anchor="middle">Hà Nội</text>
+                  <rect x="30" y="56" width="100" height="26" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="73" text-anchor="middle">Đà Nẵng</text>
+                  <rect x="30" y="82" width="100" height="26" fill="var(--surface)" stroke="var(--border)"/><text x="80" y="99" text-anchor="middle">TP.HCM</text>
+
+                  <text x="280" y="20" text-anchor="middle" font-family="Space Grotesk" font-weight="700" fill="var(--ink)">One-Hot Encoding</text>
+                  <rect x="180" y="30" width="66" height="26" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="213" y="47" text-anchor="middle">1</text>
+                  <rect x="248" y="30" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="281" y="47" text-anchor="middle">0</text>
+                  <rect x="316" y="30" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="349" y="47" text-anchor="middle">0</text>
+
+                  <rect x="180" y="56" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="213" y="73" text-anchor="middle">0</text>
+                  <rect x="248" y="56" width="66" height="26" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="281" y="73" text-anchor="middle">1</text>
+                  <rect x="316" y="56" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="349" y="73" text-anchor="middle">0</text>
+
+                  <rect x="180" y="82" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="213" y="99" text-anchor="middle">0</text>
+                  <rect x="248" y="82" width="66" height="26" fill="var(--surface-2)" stroke="var(--border)"/><text x="281" y="99" text-anchor="middle">0</text>
+                  <rect x="316" y="82" width="66" height="26" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="349" y="99" text-anchor="middle">1</text>
+
+                  <text x="213" y="118" text-anchor="middle" font-size="9" fill="var(--muted)">HaNoi</text>
+                  <text x="281" y="118" text-anchor="middle" font-size="9" fill="var(--muted)">DaNang</text>
+                  <text x="349" y="118" text-anchor="middle" font-size="9" fill="var(--muted)">HCM</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">One-Hot Encoding biến 1 cột chữ thành nhiều cột nhị phân, tránh áp đặt thứ tự giả tạo giữa các thành phố.</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.preprocessing import LabelEncoder
+
+df2 = pd.DataFrame({
+    'thanh_pho': ['Ha Noi', 'Da Nang', 'TP.HCM', 'Ha Noi'],
+    'muc_luong': ['Thap', 'Trung binh', 'Cao', 'Trung binh']
+})
+
+# Label Encoding cho biến CÓ thứ tự (muc_luong: Thap < Trung binh < Cao)
+map_thu_tu = {'Thap': 0, 'Trung binh': 1, 'Cao': 2}
+df2['muc_luong_encoded'] = df2['muc_luong'].map(map_thu_tu)
+
+# One-Hot Encoding cho biến KHÔNG có thứ tự (thanh_pho)
+df2_onehot = pd.get_dummies(df2, columns=['thanh_pho'], prefix='tp')
+print(df2_onehot)</code></pre>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Lỗi thường gặp</div>
+              Dùng <code>LabelEncoder</code> (gán 0,1,2...) cho biến <b>không có thứ tự</b> như tên thành phố sẽ vô tình khiến mô hình hiểu nhầm là "TP.HCM (2) > Hà Nội (0)" về mặt số học — một quan hệ hoàn toàn không có ý nghĩa thực tế.
+            </div>
+
+            <h3>13.4. Mất cân bằng lớp (Class Imbalance) — khi 1 lớp áp đảo lớp còn lại</h3>
+            <p>Rất nhiều bài toán thực tế có tỉ lệ lớp cực kỳ lệch — VD: gian lận thẻ tín dụng (thường &lt;1% giao dịch là gian lận), chẩn đoán bệnh hiếm. Nếu huấn luyện trực tiếp, mô hình dễ "học lười": luôn dự đoán lớp đa số vẫn đạt accuracy rất cao (VD: 99%) nhưng vô dụng vì không bao giờ phát hiện được lớp thiểu số quan trọng.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Kỹ thuật</th><th>Cách hoạt động</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Oversampling</b></td><td>Nhân bản/tạo thêm mẫu cho lớp thiểu số. <b>SMOTE</b> (Synthetic Minority Oversampling) tạo mẫu mới bằng cách nội suy giữa các điểm thiểu số gần nhau (liên hệ KNN — Chương 22), thay vì chỉ copy y hệt mẫu cũ.</td></tr>
+                  <tr><td><b>Undersampling</b></td><td>Bớt bớt mẫu của lớp đa số cho cân bằng lại — đơn giản nhưng có thể mất thông tin hữu ích nếu bớt quá nhiều.</td></tr>
+                  <tr><td><b>class_weight</b></td><td>Không đổi dữ liệu, chỉ báo cho mô hình "phạt nặng hơn" khi dự đoán sai lớp thiểu số — hỗ trợ sẵn trong hầu hết mô hình scikit-learn (<code>class_weight='balanced'</code>).</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code># pip install imbalanced-learn
+from imblearn.over_sampling import SMOTE
+from sklearn.linear_model import LogisticRegression
+
+# Cách 1: SMOTE - CHỈ áp dụng lên tập TRAIN, không bao giờ áp dụng lên tập test
+smote = SMOTE(random_state=42)
+X_train_can_bang, y_train_can_bang = smote.fit_resample(X_train, y_train)
+
+# Cách 2: class_weight - đơn giản hơn, không cần tạo dữ liệu giả
+mo_hinh = LogisticRegression(class_weight='balanced')
+mo_hinh.fit(X_train, y_train)</code></pre>
+            </div>
+            <div class="box important">
+              <div class="box-title">🔴 Lỗi nghiêm trọng thường gặp: áp dụng SMOTE trước khi chia train/test</div>
+              Nếu tạo mẫu SMOTE rồi <i>mới</i> chia train/test, các mẫu giả (nội suy từ dữ liệu) có thể "rò rỉ" thông tin rất giống mẫu thật đang nằm ở tập test — gây <b>data leakage</b> (đã cảnh báo dạng khác ở Chương 33), khiến điểm đánh giá cao giả tạo. Luôn chia train/test <b>trước</b>, rồi chỉ áp dụng SMOTE lên riêng tập train, giữ nguyên tập test là dữ liệu thật 100%.
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Nhớ lại: Accuracy không đủ khi dữ liệu mất cân bằng</div>
+              Đây chính là lý do Chương 32 nhấn mạnh Precision/Recall/F1 thay vì chỉ nhìn Accuracy — với dữ liệu lệch lớp, Accuracy cao có thể hoàn toàn đánh lừa, trong khi Recall trên lớp thiểu số mới phản ánh đúng mô hình có thực sự hữu ích hay không.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Cho cột <code>size = ['S', 'M', 'L', 'M', 'XL']</code> (có thứ tự tự nhiên S &lt; M &lt; L &lt; XL). Viết code Label Encoding phù hợp bằng cách map thủ công.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>size = pd.Series(['S', 'M', 'L', 'M', 'XL'])
+map_size = {'S': 0, 'M': 1, 'L': 2, 'XL': 3}
+size_encoded = size.map(map_size)
+print(size_encoded.tolist())  # [0, 1, 2, 1, 3]</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Quên scale dữ liệu trước khi dùng các thuật toán nhạy cảm với khoảng cách như KNN hay SVM, khiến cột có giá trị lớn "áp đảo" các cột khác.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng <code>Pipeline</code> của scikit-learn để gộp bước scaling/encoding và mô hình lại với nhau, tránh quên thứ tự các bước (học kỹ ở phần ML Pipeline).</div>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — Tokenization của LLM là một dạng "Encoding" mở rộng</div>
+              Label Encoding và One-Hot Encoding ở trên giải quyết bài toán "chuyển chữ thành số" cho một số lượng danh mục nhỏ, cố định (vài chục thành phố, vài màu sắc...). LLM (khóa AI Engineer) đối mặt với bài toán tương tự nhưng ở quy mô lớn hơn nhiều — chuyển <b>toàn bộ văn bản tự nhiên</b> thành số:
+              <ul>
+                <li><b>Tokenizer</b> của LLM về bản chất cũng là một dạng Label Encoding: mỗi "token" (một từ, một phần từ, hoặc một ký tự) được gán một số nguyên (token ID) duy nhất trong một "từ điển" cố định thường có vài chục nghìn đến hơn 100.000 token.</li>
+                <li>Khác biệt: thay vì vài chục danh mục như "thành phố", tokenizer phải xử lý gần như vô hạn tổ hợp từ trong ngôn ngữ tự nhiên — nên thay vì tách theo "từ hoàn chỉnh", các tokenizer hiện đại thường tách văn bản thành các <b>mảnh từ con (subword)</b> để vừa gọn từ điển, vừa xử lý được từ mới/từ hiếm.</li>
+                <li>Sau khi có token ID, mỗi ID lại được ánh xạ tiếp sang một <b>embedding vector</b> (Phần 5, Chương 16) — bước này tương tự One-Hot Encoding nhưng "học được ý nghĩa" thay vì chỉ là cột 0/1 vô nghĩa.</li>
+              </ul>
+              💡 Vậy nên nguyên lý cốt lõi của chương này — "máy chỉ hiểu số, mọi dữ liệu chữ đều phải mã hóa thành số trước" — áp dụng đúng cho cả ML cổ điển lẫn LLM hiện đại, chỉ khác về quy mô và độ phức tạp của bước mã hóa.
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 13</h4>
+              <ul>
+                <li>Feature Scaling đưa các cột số về cùng thang đo, quan trọng với các thuật toán dựa trên khoảng cách/gradient.</li>
+                <li>Luôn fit scaler trên train, transform cả train và test — không bao giờ fit trên test.</li>
+                <li>Label Encoding cho biến có thứ tự, One-Hot Encoding cho biến không có thứ tự.</li>
+                <li>Với dữ liệu mất cân bằng lớp: SMOTE/class_weight giúp mô hình học tốt hơn lớp thiểu số — nhưng SMOTE chỉ áp dụng sau khi đã chia train/test.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 14: DATA CLEANING -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-14">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">14</div>
+            <div>
+              <h2>Data Cleaning — làm sạch dữ liệu "bẩn"</h2>
+              <div class="ch-sub">Giá trị thiếu, outlier, dữ liệu trùng lặp và sai định dạng</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>14.1. Xử lý giá trị thiếu (Missing Values) — đi sâu hơn Chương 5</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Chiến lược</th><th>Cách làm</th><th>Ưu / nhược điểm</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Xóa dòng/cột</b></td><td><code>dropna()</code></td><td>Đơn giản, nhưng mất dữ liệu nếu tỉ lệ thiếu cao</td></tr>
+                  <tr><td><b>Điền giá trị trung bình/trung vị</b></td><td><code>fillna(mean/median)</code></td><td>Nhanh, nhưng làm giảm phương sai thật của dữ liệu</td></tr>
+                  <tr><td><b>Điền giá trị mode (yếu vị)</b></td><td><code>fillna(mode)</code></td><td>Phù hợp với biến phân loại</td></tr>
+                  <tr><td><b>Điền theo mô hình (KNN Imputer...)</b></td><td>Dự đoán giá trị thiếu dựa trên các mẫu tương tự</td><td>Chính xác hơn nhưng phức tạp và tốn thời gian tính toán</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'tuoi':   [25, np.nan, 30, 45, np.nan],
+    'luong':  [10, 15, np.nan, 40, 25],
+    'gioi_tinh': ['Nam', 'Nu', 'Nam', np.nan, 'Nu']
+})
+
+print(df.isnull().sum())              # đếm số giá trị thiếu mỗi cột
+
+# Điền số bằng trung vị (median) - ổn định hơn mean khi có outlier
+df['tuoi'] = df['tuoi'].fillna(df['tuoi'].median())
+df['luong'] = df['luong'].fillna(df['luong'].median())
+
+# Điền biến phân loại bằng mode (giá trị xuất hiện nhiều nhất)
+df['gioi_tinh'] = df['gioi_tinh'].fillna(df['gioi_tinh'].mode()[0])
+
+print(df)
+print("Còn thiếu:", df.isnull().sum().sum())   # 0</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>df.isnull().sum()</code> — đếm số ô <code>NaN</code> theo từng cột, luôn là bước đầu tiên khi kiểm tra dữ liệu mới.</li>
+                <li><code>df['tuoi'].fillna(df['tuoi'].median())</code> — dùng median thay vì mean vì median không bị kéo lệch bởi outlier.</li>
+                <li><code>df['gioi_tinh'].mode()[0]</code> — <code>mode()</code> trả về Series (có thể có nhiều mode), lấy phần tử đầu tiên làm giá trị điền phổ biến nhất.</li>
+              </ol>
+            </div>
+
+            <h3>14.2. Phát hiện &amp; xử lý Outlier</h3>
+            <p>Outlier là điểm dữ liệu "khác thường" so với phần còn lại — có thể là lỗi nhập liệu, hoặc là hiện tượng thật nhưng hiếm gặp. Hai phương pháp phổ biến để phát hiện:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Phương pháp</th><th>Quy tắc</th><th>Khi nào dùng</th></tr></thead>
+                <tbody>
+                  <tr><td><b>IQR (khoảng tứ phân vị)</b></td><td>Ngoài khoảng [Q1 - 1.5×IQR, Q3 + 1.5×IQR]</td><td>Không giả định phân phối, trực quan qua box plot</td></tr>
+                  <tr><td><b>Z-score</b></td><td>|z| = |(x - mean)/std| &gt; 3</td><td>Khi dữ liệu gần với phân phối chuẩn</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 420 140" width="360">
+                <g font-family="JetBrains Mono" font-size="10">
+                  <line x1="30" y1="70" x2="390" y2="70" stroke="var(--border)"/>
+                  <rect x="150" y="45" width="100" height="50" fill="var(--teal-dim)" stroke="var(--teal)" stroke-width="2"/>
+                  <line x1="200" y1="45" x2="200" y2="95" stroke="var(--teal)" stroke-width="2"/>
+                  <line x1="120" y1="70" x2="150" y2="70" stroke="var(--teal)"/>
+                  <line x1="250" y1="70" x2="290" y2="70" stroke="var(--teal)"/>
+                  <line x1="120" y1="55" x2="120" y2="85" stroke="var(--teal)"/>
+                  <line x1="290" y1="55" x2="290" y2="85" stroke="var(--teal)"/>
+                  <circle cx="355" cy="70" r="5" fill="var(--rose)"/>
+                  <circle cx="370" cy="70" r="5" fill="var(--rose)"/>
+                  <text x="200" y="30" text-anchor="middle" fill="var(--teal)" font-family="Space Grotesk" font-weight="700">Khoảng IQR (Q1-Q3)</text>
+                  <text x="362" y="95" text-anchor="middle" fill="var(--rose)" font-family="Space Grotesk" font-weight="700">Outliers</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">Box plot: các điểm nằm ngoài "râu" (whiskers) được coi là outlier theo quy tắc IQR.</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>luong = pd.Series([10, 12, 11, 13, 12, 95, 11, 10])  # 95 rõ ràng là outlier
+
+Q1 = luong.quantile(0.25)
+Q3 = luong.quantile(0.75)
+IQR = Q3 - Q1
+
+can_duoi = Q1 - 1.5 * IQR
+can_tren = Q3 + 1.5 * IQR
+
+outliers = luong[(luong < can_duoi) | (luong > can_tren)]
+print("Outliers phát hiện được:", outliers.tolist())   # [95]
+
+# Loại bỏ outlier
+luong_sach = luong[(luong >= can_duoi) & (luong <= can_tren)]
+print("Dữ liệu sau khi loại outlier:", luong_sach.tolist())</code></pre>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo</div>
+              Không phải outlier nào cũng nên xóa! Trong bài toán phát hiện gian lận (fraud detection), chính các outlier mới là điều mô hình cần học để nhận diện. Luôn đặt câu hỏi "outlier này là lỗi dữ liệu, hay là tín hiệu thật?" trước khi xóa.
+            </div>
+
+            <h3>14.3. Dữ liệu trùng lặp &amp; sai định dạng</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>df3 = pd.DataFrame({
+    'ten': ['An', 'Binh', 'An', 'Chi'],
+    'email': ['an@mail.com', 'binh@mail.com', 'an@mail.com', 'chi@mail.com']
+})
+
+print(df3.duplicated().sum())     # đếm số dòng trùng lặp hoàn toàn -> 1
+df3_sach = df3.drop_duplicates()  # loại bỏ dòng trùng, giữ lại dòng đầu tiên
+
+# Chuẩn hóa định dạng chữ (viết hoa/thường, khoảng trắng thừa)
+df4 = pd.DataFrame({'thanh_pho': [' Ha Noi', 'ha noi', 'HA NOI', 'Da Nang']})
+df4['thanh_pho_chuan'] = df4['thanh_pho'].str.strip().str.lower().str.title()
+print(df4)</code></pre>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Bẫy dữ liệu "trùng nhưng không giống hệt"</div>
+              <code>"Ha Noi"</code>, <code>"ha noi"</code>, <code>" HA NOI"</code> là 3 chuỗi khác nhau về mặt kỹ thuật dù cùng ý nghĩa. Nếu không chuẩn hóa (strip khoảng trắng, đồng nhất chữ hoa/thường) trước, <code>groupby</code> hay đếm số lượng theo thành phố sẽ cho kết quả sai.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Cho <code>diem = pd.Series([5, 6, 7, 6, 5, 100, 6, 7])</code>. Dùng phương pháp IQR để tìm và loại bỏ outlier.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>diem = pd.Series([5, 6, 7, 6, 5, 100, 6, 7])
+Q1, Q3 = diem.quantile(0.25), diem.quantile(0.75)
+IQR = Q3 - Q1
+can_duoi, can_tren = Q1 - 1.5*IQR, Q3 + 1.5*IQR
+diem_sach = diem[(diem >= can_duoi) & (diem <= can_tren)]
+print(diem_sach.tolist())  # [5, 6, 7, 6, 5, 6, 7]</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Tự động xóa mọi outlier mà không tìm hiểu nguyên nhân — có thể vô tình xóa mất tín hiệu quan trọng nhất của bài toán.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn kiểm tra <code>duplicated()</code> và chuẩn hóa định dạng chuỗi (strip, lower) ngay sau khi nạp dữ liệu thô.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 14</h4>
+              <ul>
+                <li>Xử lý missing values cần cân nhắc giữa xóa và điền, tùy tỉ lệ thiếu và bản chất dữ liệu.</li>
+                <li>IQR và Z-score là 2 phương pháp phổ biến để phát hiện outlier.</li>
+                <li>Luôn kiểm tra dữ liệu trùng lặp và chuẩn hóa định dạng chuỗi trước khi phân tích.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 15: EDA -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-15">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">15</div>
+            <div>
+              <h2>Exploratory Data Analysis (EDA)</h2>
+              <div class="ch-sub">Quy trình khám phá dữ liệu bài bản, đầy đủ</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>15.1. EDA là gì và vì sao luôn là bước đầu tiên?</h3>
+            <p><b>EDA (Exploratory Data Analysis)</b> là quá trình khám phá dữ liệu bằng thống kê mô tả và trực quan hóa <i>trước khi</i> xây dựng bất kỳ mô hình nào,
+            nhằm hiểu cấu trúc, phát hiện vấn đề (thiếu, outlier, lệch phân phối) và hình thành giả thuyết ban đầu về mối quan hệ giữa các biến.</p>
+
+            <h3>15.2. Ba tầng phân tích trong EDA</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tầng</th><th>Khảo sát</th><th>Công cụ</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Univariate</b><br>(1 biến)</td><td>Phân phối, giá trị trung tâm, độ phân tán của từng cột riêng lẻ</td><td>histogram, boxplot, <code>describe()</code>, <code>value_counts()</code></td></tr>
+                  <tr><td><b>Bivariate</b><br>(2 biến)</td><td>Mối quan hệ giữa 2 biến (số-số, số-phân loại, phân loại-phân loại)</td><td>scatter plot, boxplot theo nhóm, <code>groupby</code>, <code>corr()</code></td></tr>
+                  <tr><td><b>Multivariate</b><br>(nhiều biến)</td><td>Tương tác giữa nhiều biến cùng lúc</td><td>pairplot, heatmap, <code>hue</code> trong Seaborn, PCA (học sau)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>15.3. Checklist EDA tiêu chuẩn</h3>
+            <ul class="checklist">
+              <li>Kiểm tra kích thước dữ liệu: <code>df.shape</code></li>
+              <li>Xem kiểu dữ liệu từng cột: <code>df.info()</code></li>
+              <li>Thống kê mô tả cho cột số: <code>df.describe()</code></li>
+              <li>Đếm giá trị thiếu theo từng cột: <code>df.isnull().sum()</code></li>
+              <li>Đếm dòng trùng lặp: <code>df.duplicated().sum()</code></li>
+              <li>Xem phân phối từng biến số: histogram / KDE</li>
+              <li>Xem tần suất từng biến phân loại: <code>value_counts()</code></li>
+              <li>Kiểm tra outlier: box plot hoặc IQR</li>
+              <li>Khảo sát tương quan giữa các biến số: heatmap</li>
+              <li>Khảo sát mối quan hệ giữa biến đầu vào và biến mục tiêu (target)</li>
+            </ul>
+
+            <h3>15.4. Case study mini: EDA trên bộ dữ liệu nhân sự</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
+df = pd.DataFrame({
+    'tuoi':      np.random.randint(22, 55, 200),
+    'phong_ban': np.random.choice(['Sales', 'Tech', 'HR'], 200, p=[0.4, 0.45, 0.15]),
+    'luong':     np.random.normal(20, 6, 200).clip(min=8),
+    'nghi_viec': np.random.choice([0, 1], 200, p=[0.85, 0.15])  # biến mục tiêu
+})
+
+# --- Bước 1: Tổng quan ---
+print(df.shape)
+print(df.info())
+print(df.describe())
+
+# --- Bước 2: Univariate ---
+fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+sns.histplot(df['luong'], kde=True, ax=axes[0], color='#0D9488')
+axes[0].set_title('Phân phối lương')
+df['phong_ban'].value_counts().plot(kind='bar', ax=axes[1], color='#5B4EE5')
+axes[1].set_title('Số lượng theo phòng ban')
+plt.tight_layout(); plt.show()
+
+# --- Bước 3: Bivariate với biến mục tiêu "nghi_viec" ---
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(data=df, x='nghi_viec', y='luong', ax=ax, palette='Set2')
+ax.set_title('Lương theo trạng thái nghỉ việc')
+plt.show()
+
+ty_le_nghi_viec_theo_pb = df.groupby('phong_ban')['nghi_viec'].mean()
+print(ty_le_nghi_viec_theo_pb)</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>df.shape</code>, <code>df.info()</code>, <code>df.describe()</code> — bộ ba lệnh "phải chạy đầu tiên" với mọi bộ dữ liệu mới, cho cái nhìn tổng quan trong vài giây.</li>
+                <li><code>sns.histplot(..., kde=True)</code> — vẽ histogram kèm đường ước lượng mật độ, giúp thấy rõ hình dạng phân phối (lệch trái/phải, đa đỉnh...).</li>
+                <li><code>df['phong_ban'].value_counts().plot(kind='bar')</code> — cách nhanh để xem tần suất một biến phân loại mà không cần Seaborn.</li>
+                <li><code>sns.boxplot(x='nghi_viec', y='luong')</code> — so sánh phân phối lương giữa nhóm nghỉ việc và không nghỉ việc — bước bivariate quan trọng khi <code>nghi_viec</code> là biến mục tiêu cần dự đoán.</li>
+                <li><code>df.groupby('phong_ban')['nghi_viec'].mean()</code> — vì <code>nghi_viec</code> chỉ nhận giá trị 0/1, lấy trung bình chính là tỉ lệ nghỉ việc theo từng phòng ban — một insight rất trực tiếp cho bài toán kinh doanh.</li>
+              </ol>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo: luôn đặt câu hỏi kinh doanh song song với EDA kỹ thuật</div>
+              Đừng chỉ chạy hết các lệnh EDA một cách máy móc. Với mỗi biểu đồ, hãy tự hỏi: "Insight này nói lên điều gì về bài toán thực tế?" — ví dụ nếu phòng Sales có tỉ lệ nghỉ việc cao bất thường, đó có thể là gợi ý để đưa "phong_ban" thành đặc trưng quan trọng khi xây mô hình dự đoán nghỉ việc.
+            </div>
+
+            <h3>15.5. Correlation ≠ Causation — cái bẫy suy luận nguy hiểm nhất trong EDA</h3>
+            <p>Đây là sai lầm suy luận phổ biến nhất khi phân tích dữ liệu: thấy 2 biến có tương quan (correlation) cao trong EDA, rồi vội kết luận biến này <i>gây ra</i> (causation) biến kia. Ví dụ kinh điển: doanh số kem và số vụ đuối nước đều tăng vào mùa hè — tương quan rất cao, nhưng kem không "gây ra" đuối nước; cả hai đều do <b>biến gây nhiễu (confounder)</b> chung là thời tiết nóng.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>3 khả năng khi thấy tương quan cao</th><th>Ví dụ</th></tr></thead>
+                <tbody>
+                  <tr><td>A thực sự gây ra B</td><td>Hút thuốc → ung thư phổi</td></tr>
+                  <tr><td>B thực sự gây ra A (ngược chiều)</td><td>Tưởng "tập gym gây tăng cơ", nhưng thực ra "người có nhiều cơ hơn" có xu hướng tập gym nhiều hơn</td></tr>
+                  <tr><td>Biến gây nhiễu (confounder) C gây ra cả A và B</td><td>Doanh số kem &amp; đuối nước — cả hai đều do thời tiết nóng (C)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="box important">
+              <div class="box-title">🔴 Vì sao điều này đặc biệt quan trọng với ML?</div>
+              Một mô hình Machine Learning (từ Chương 19 trở đi) chỉ học <b>tương quan thống kê</b> trong dữ liệu — nó không tự biết đâu là quan hệ nhân quả thật. Nếu dùng SHAP/LIME (Chương 35) thấy đặc trưng X "quan trọng" trong việc dự đoán Y, điều đó chỉ nói lên X <i>hữu ích để dự đoán</i> Y, KHÔNG có nghĩa thay đổi X sẽ thay đổi Y trong thực tế — đặc biệt nguy hiểm khi mô hình được dùng để ra quyết định can thiệp (VD: "giảm giá X để tăng Y" dựa trên tương quan quan sát được, thay vì thử nghiệm can thiệp thật qua A/B Testing — Chương 8).
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Cách duy nhất để khẳng định nhân quả: thử nghiệm có đối chứng</div>
+              Muốn biết chắc A có thực sự gây ra B hay không, cách đáng tin cậy nhất là <b>chủ động can thiệp và so sánh</b> — chính là A/B Testing (Chương 8): chia ngẫu nhiên người dùng thành 2 nhóm, chỉ thay đổi A, giữ nguyên mọi thứ khác, rồi đo B. Phân chia ngẫu nhiên đảm bảo loại bỏ hầu hết các confounder tiềm ẩn — đây là lý do thử nghiệm ngẫu nhiên có đối chứng (randomized controlled trial) vẫn là "tiêu chuẩn vàng" để khẳng định quan hệ nhân quả, EDA/tương quan chỉ giúp <i>đặt ra giả thuyết</i> để kiểm chứng tiếp, không phải kết luận cuối cùng.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với DataFrame <code>df</code> ở mục 15.4, viết code để tìm phòng ban có <b>tuổi trung bình</b> cao nhất.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>tuoi_tb_theo_pb = df.groupby('phong_ban')['tuoi'].mean()
+print(tuoi_tb_theo_pb)
+print("Phòng ban có tuổi TB cao nhất:", tuoi_tb_theo_pb.idxmax())</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="exercise">
+              <h4>Bài 2</h4>
+              <p>Viết code vẽ <code>sns.pairplot()</code> cho các cột số của <code>df</code> (<code>tuoi</code>, <code>luong</code>), tô màu theo <code>nghi_viec</code>.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>sns.pairplot(df, vars=['tuoi', 'luong'], hue='nghi_viec', palette='Set1')
+plt.show()</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Bỏ qua EDA và nhảy thẳng vào huấn luyện mô hình — dễ bỏ lỡ lỗi dữ liệu nghiêm trọng chỉ phát hiện được qua trực quan hóa.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dành ít nhất 30-40% thời gian dự án cho EDA trước khi động đến bất kỳ thuật toán ML nào.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 15</h4>
+              <ul>
+                <li>EDA gồm 3 tầng: univariate, bivariate, multivariate.</li>
+                <li>Checklist 10 bước EDA tiêu chuẩn nên trở thành thói quen với mọi bộ dữ liệu mới.</li>
+                <li>Luôn khảo sát mối quan hệ giữa các đặc trưng và biến mục tiêu — đây chính là nguồn insight quý giá nhất cho việc xây dựng mô hình sau này.</li>
+                <li>Correlation ≠ Causation: tương quan cao trong EDA chỉ gợi ý giả thuyết, không khẳng định nhân quả — cần A/B Testing (Chương 8) để kiểm chứng.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 4</b>: Data Preprocessing, Data Cleaning và Exploratory Data Analysis (EDA).</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-3-truc-quan-hoa-du-lieu.html" class="kbd" style="text-decoration:none;">← Phần 3. Trực Quan Hóa Dữ Liệu</a>
+        <a href="phan-5-feature-engineering-pipeline.html" class="kbd" style="text-decoration:none;">Sang Phần 5 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

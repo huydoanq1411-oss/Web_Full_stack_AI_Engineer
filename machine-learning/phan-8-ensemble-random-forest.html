@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 8 · Ensemble Learning, Random Forest &amp; Gradient Boosting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 8</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
+      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html" style="opacity:.7;"><span class="num">✓</span> Phần 7 — KNN·Bayes·Tree·SVM</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html" class="active"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 8</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 8</a></li>
+      <li><a href="#chuong-26"><span class="num">26</span> Tổng quan Ensemble Learning</a></li>
+      <li><a href="#chuong-27"><span class="num">27</span> Random Forest</a></li>
+      <li><a href="#chuong-28"><span class="num">28</span> Gradient Boosting, XGBoost, LightGBM, CatBoost</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">29</span> Unsupervised Learning</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">30</span> Clustering (K-Means...)</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 8. Ensemble &amp; Random Forest</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 8 / N — "Đoàn kết là sức mạnh"</span>
+        <h1>Kết hợp nhiều mô hình yếu<br>thành một mô hình rất mạnh</h1>
+        <p class="lead">Nhớ lại nhược điểm của Decision Tree ở Chương 24: dễ overfitting, không ổn định. <b>Ensemble Learning</b> biến chính nhược điểm đó thành sức mạnh —
+        bằng cách kết hợp <i>hàng trăm</i> cây quyết định theo những cách thông minh khác nhau. Phần 8 giới thiệu <b>Random Forest</b> (kết hợp song song) và
+        họ <b>Gradient Boosting</b> — XGBoost, LightGBM, CatBoost (kết hợp tuần tự) — nhóm thuật toán thống trị hầu hết các cuộc thi Kaggle với dữ liệu dạng bảng.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-7 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 26</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Tổng quan Ensemble</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 27</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Random Forest</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 28</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Gradient Boosting</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 9 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" của Phần 8 — từ tổng quan Ensemble tới 2 họ thuật toán mạnh nhất hiện nay cho dữ liệu dạng bảng.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Vì sao Ensemble Learning lại hiệu quả đến vậy?</div>
+        Trực giác đơn giản: nếu nhiều "chuyên gia" độc lập cùng dự đoán và ta lấy đa số/trung bình, kết quả thường chính xác hơn từng chuyên gia riêng lẻ —
+        miễn là mỗi chuyên gia có sai số <i>không hoàn toàn giống nhau</i>. Đây chính là nguyên lý toán học (giảm phương sai) đứng sau mọi phương pháp trong Phần 8.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 26: TỔNG QUAN ENSEMBLE LEARNING -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-26">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">26</div>
+            <div>
+              <h2>Tổng quan Ensemble Learning</h2>
+              <div class="ch-sub">Bagging vs Boosting vs Stacking</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>26.1. Ba chiến lược kết hợp mô hình chính</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Chiến lược</th><th>Cách hoạt động</th><th>Mục tiêu chính</th><th>Ví dụ thuật toán</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Bagging</b><br>(Bootstrap Aggregating)</td><td>Huấn luyện nhiều mô hình <b>song song, độc lập</b> trên các tập con dữ liệu lấy mẫu ngẫu nhiên (có hoàn lại)</td><td>Giảm phương sai (variance) → chống overfitting</td><td>Random Forest</td></tr>
+                  <tr><td><b>Boosting</b></td><td>Huấn luyện nhiều mô hình <b>tuần tự</b>, mô hình sau tập trung sửa lỗi của mô hình trước</td><td>Giảm độ chệch (bias) → tăng độ chính xác</td><td>XGBoost, LightGBM, CatBoost</td></tr>
+                  <tr><td><b>Stacking</b></td><td>Dùng một mô hình "meta" học cách kết hợp tối ưu dự đoán từ nhiều mô hình gốc khác nhau</td><td>Tận dụng điểm mạnh của nhiều loại mô hình khác nhau</td><td>Stacking Classifier/Regressor</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 700 200" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <text x="120" y="20" text-anchor="middle" fill="var(--teal)" font-weight="700">Bagging (song song)</text>
+                  <rect x="30" y="35" width="60" height="30" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="60" y="55" text-anchor="middle" font-size="10">Cây 1</text>
+                  <rect x="100" y="35" width="60" height="30" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="130" y="55" text-anchor="middle" font-size="10">Cây 2</text>
+                  <rect x="170" y="35" width="60" height="30" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="200" y="55" text-anchor="middle" font-size="10">Cây 3</text>
+                  <rect x="90" y="90" width="90" height="34" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/><text x="135" y="111" text-anchor="middle" font-size="10" font-weight="700">Vote/Avg</text>
+                  <path d="M60,65 L135,90 M130,65 L135,90 M200,65 L135,90" stroke="var(--muted)" fill="none"/>
+
+                  <text x="470" y="20" text-anchor="middle" fill="var(--violet)" font-weight="700">Boosting (tuần tự)</text>
+                  <rect x="350" y="40" width="70" height="30" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="385" y="60" text-anchor="middle" font-size="10">Model 1</text>
+                  <rect x="440" y="40" width="70" height="30" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="475" y="60" text-anchor="middle" font-size="10">Model 2</text>
+                  <rect x="530" y="40" width="70" height="30" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="565" y="60" text-anchor="middle" font-size="10">Model 3</text>
+                  <path d="M420,55 H440 M510,55 H530" stroke="var(--muted)" marker-end="url(#arrb)"/>
+                  <text x="475" y="90" text-anchor="middle" font-size="9.5" fill="var(--muted)">Mỗi model học để sửa lỗi của model trước</text>
+                </g>
+                <defs><marker id="arrb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"/></marker></defs>
+              </svg>
+              <div class="diagram-caption">Bagging huấn luyện song song rồi bỏ phiếu; Boosting huấn luyện tuần tự, mỗi bước sửa lỗi bước trước.</div>
+            </div>
+
+            <h3>26.2. Vì sao kết hợp nhiều mô hình lại tốt hơn 1 mô hình?</h3>
+            <p>Về mặt toán học, sai số của một mô hình có thể phân tách thành: <b>Bias</b> (sai lệch hệ thống — mô hình quá đơn giản) và <b>Variance</b> (độ nhạy với dữ liệu train cụ thể — mô hình quá phức tạp).</p>
+            <ul>
+              <li><b>Bagging giảm Variance:</b> vì các cây được huấn luyện trên các tập dữ liệu con khác nhau, sai số ngẫu nhiên của từng cây có xu hướng "triệt tiêu lẫn nhau" khi lấy trung bình/đa số.</li>
+              <li><b>Boosting giảm Bias:</b> vì mỗi mô hình mới được thiết kế chuyên biệt để sửa đúng những lỗi mà các mô hình trước chưa giải quyết được.</li>
+            </ul>
+
+            <div class="box tip">
+              <div class="box-title">💡 Liên hệ với Chương 24</div>
+              Decision Tree đơn lẻ có Variance cao (không ổn định) nhưng Bias thấp (có thể fit rất sát dữ liệu train nếu để đủ sâu) — đặc điểm này khiến nó trở thành "base learner" lý tưởng cho cả Bagging lẫn Boosting.
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 26</h4>
+              <ul>
+                <li>3 chiến lược Ensemble: Bagging (song song, giảm variance), Boosting (tuần tự, giảm bias), Stacking (kết hợp qua meta-model).</li>
+                <li>Decision Tree là "base learner" phổ biến nhất vì có variance cao, bias thấp — phù hợp để kết hợp.</li>
+              </ul>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — Ý tưởng Ensemble sống lại trong kiến trúc LLM hiện đại: Mixture of Experts (MoE)</div>
+              Nhiều LLM hàng đầu hiện nay (khóa AI Engineer) dùng kiến trúc <b>Mixture of Experts (MoE)</b> — về tinh thần rất giống ý tưởng Ensemble bạn vừa học, dù cơ chế hoạt động khác nhau:
+              <ul>
+                <li>Thay vì một mạng nơ-ron khổng lồ xử lý mọi input, mô hình MoE gồm <b>nhiều "expert"</b> (mỗi expert là một mạng con nhỏ hơn) cùng một "gate" (bộ định tuyến) quyết định nên dùng expert nào cho từng token đầu vào.</li>
+                <li>Điểm khác với Ensemble cổ điển: Ensemble (Bagging/Boosting) luôn <b>dùng tất cả</b> các mô hình con rồi tổng hợp kết quả; MoE chỉ <b>kích hoạt một vài expert phù hợp nhất</b> cho mỗi input (gọi là "sparse activation") — giúp mô hình có tổng số tham số cực lớn nhưng chi phí tính toán mỗi lần dự đoán lại thấp hơn nhiều so với việc dùng toàn bộ tham số.</li>
+                <li>Điểm giống nhau về triết lý: cả hai đều dựa trên ý tưởng <b>"nhiều mô hình chuyên biệt kết hợp lại thường tốt hơn một mô hình khổng lồ làm mọi việc"</b> — chính là bài học cốt lõi của Chương 26 này.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 27: RANDOM FOREST -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-27">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">27</div>
+            <div>
+              <h2>Random Forest</h2>
+              <div class="ch-sub">Rừng của hàng trăm cây quyết định, mỗi cây "nhìn" dữ liệu hơi khác nhau</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>27.1. Hai nguồn "ngẫu nhiên" tạo nên sự đa dạng của rừng</h3>
+            <p>Random Forest = Bagging áp dụng cho Decision Tree, cộng thêm một lớp ngẫu nhiên hóa nữa:</p>
+            <ol>
+              <li><b>Bootstrap sampling:</b> mỗi cây được huấn luyện trên một tập dữ liệu lấy mẫu ngẫu nhiên <i>có hoàn lại</i> từ tập train gốc (cùng kích thước, nhưng có thể trùng lặp mẫu).</li>
+              <li><b>Random feature selection:</b> tại mỗi node, cây chỉ được xem xét một <b>tập con ngẫu nhiên</b> các đặc trưng (thường là √n đặc trưng) thay vì toàn bộ — buộc các cây phải "đa dạng hóa" cách ra quyết định.</li>
+            </ol>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 600 170" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <rect x="20" y="20" width="130" height="40" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
+                  <text x="85" y="45" text-anchor="middle" font-weight="700">Dữ liệu gốc</text>
+
+                  <rect x="200" y="10" width="90" height="34" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="245" y="31" text-anchor="middle" font-size="10">Mẫu con 1</text>
+                  <rect x="200" y="55" width="90" height="34" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="245" y="76" text-anchor="middle" font-size="10">Mẫu con 2</text>
+                  <rect x="200" y="100" width="90" height="34" rx="6" fill="var(--teal-dim)" stroke="var(--teal)"/><text x="245" y="121" text-anchor="middle" font-size="10">Mẫu con 3</text>
+
+                  <rect x="340" y="10" width="80" height="34" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="380" y="31" text-anchor="middle" font-size="10">Cây 1</text>
+                  <rect x="340" y="55" width="80" height="34" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="380" y="76" text-anchor="middle" font-size="10">Cây 2</text>
+                  <rect x="340" y="100" width="80" height="34" rx="6" fill="var(--violet-dim)" stroke="var(--violet)"/><text x="380" y="121" text-anchor="middle" font-size="10">Cây 3</text>
+
+                  <rect x="470" y="55" width="110" height="34" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/><text x="525" y="76" text-anchor="middle" font-weight="700" font-size="10">Vote/Trung bình</text>
+                </g>
+                <g stroke="var(--muted)" fill="none">
+                  <path d="M150,40 L200,27 M150,40 L200,72 M150,40 L200,117"/>
+                  <path d="M290,27 H340 M290,72 H340 M290,117 H340"/>
+                  <path d="M420,27 L470,72 M420,72 H470 M420,117 L470,72"/>
+                </g>
+              </svg>
+              <div class="diagram-caption">Random Forest: mỗi cây huấn luyện trên mẫu dữ liệu khác nhau + tập đặc trưng ngẫu nhiên khác nhau ở mỗi node.</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier
+
+X, y = make_classification(n_samples=500, n_features=10, n_informative=6, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# So sánh 1 cây đơn lẻ vs rừng 200 cây
+cay_don = DecisionTreeClassifier(max_depth=None, random_state=42)
+cay_don.fit(X_train, y_train)
+
+rung = RandomForestClassifier(
+    n_estimators=200,      # số lượng cây trong rừng
+    max_depth=None,
+    max_features='sqrt',   # số đặc trưng xét ở mỗi node = căn(tổng số đặc trưng)
+    random_state=42
+)
+rung.fit(X_train, y_train)
+
+print("Cây đơn - Accuracy:", accuracy_score(y_test, cay_don.predict(X_test)))
+print("Random Forest - Accuracy:", accuracy_score(y_test, rung.predict(X_test)))
+
+# Feature Importance - liên hệ Chương 17
+importance = rung.feature_importances_
+print("Feature importance:", importance.round(3))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>n_estimators=200</code> — số lượng cây trong rừng; nhiều hơn thường cho kết quả ổn định hơn (nhưng tốn thời gian huấn luyện hơn), và ít khi gây overfitting thêm (khác với tăng độ sâu của 1 cây).</li>
+                <li><code>max_features='sqrt'</code> — chính là nguồn ngẫu nhiên hóa đặc trưng đã nói ở mục 27.1, giúp các cây trong rừng "đa dạng" hơn.</li>
+                <li>So sánh trực tiếp accuracy giữa 1 cây đơn và cả rừng thường cho thấy rừng ổn định và chính xác hơn rõ rệt, đặc biệt trên dữ liệu nhiễu.</li>
+                <li><code>rung.feature_importances_</code> — Random Forest cung cấp điểm quan trọng cho từng đặc trưng dựa trên mức độ nó giúp giảm impurity trung bình qua tất cả các cây — công cụ Feature Selection mạnh đã nhắc ở Chương 17.</li>
+              </ol>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Out-of-Bag (OOB) Score — đánh giá "miễn phí"</div>
+              Vì mỗi cây chỉ dùng khoảng 63% dữ liệu (do lấy mẫu có hoàn lại), 37% còn lại ("out-of-bag") có thể dùng để đánh giá cây đó mà không cần tách riêng tập validation.
+              Bật bằng <code>RandomForestClassifier(oob_score=True)</code> rồi xem <code>model.oob_score_</code> — một cách ước lượng hiệu năng nhanh, tận dụng tối đa dữ liệu.
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Cẩn trọng: Feature Importance mặc định (MDI) có thể gây hiểu lầm</div>
+              <code>feature_importances_</code> mặc định tính theo <b>Mean Decrease in Impurity (MDI)</b> — điểm này có một thiên lệch (bias) đã được biết rõ: nó có xu hướng đánh giá <i>quá cao</i> tầm quan trọng của các đặc trưng dạng số liên tục hoặc có nhiều giá trị khác nhau (high-cardinality), chỉ vì cây có nhiều điểm chia khả dĩ hơn để chọn — không nhất thiết vì đặc trưng đó thực sự quan trọng hơn về mặt ý nghĩa. Cách khắc phục đáng tin cậy hơn: dùng <b>Permutation Importance</b> — đo mức accuracy giảm bao nhiêu khi xáo trộn ngẫu nhiên giá trị của một cột (phá vỡ mối liên hệ của nó với target), rồi đo lại hiệu năng mô hình.
+              <div class="code-block" style="margin-top:10px;">
+                <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                <pre class="code"><code>from sklearn.inspection import permutation_importance
+
+ket_qua = permutation_importance(rung, X_test, y_test, n_repeats=10, random_state=42)
+print("Permutation importance:", ket_qua.importances_mean.round(3))
+# Đáng tin cậy hơn feature_importances_ vì đo trực tiếp trên tập test,
+# không bị thiên lệch bởi số điểm chia của từng loại đặc trưng</code></pre>
+              </div>
+              Đây cũng chính là bước đệm tự nhiên trước khi học các công cụ giải thích mô hình sâu hơn ở Chương 35 (SHAP/LIME).
+            </div>
+
+            <h3>27.2. Ưu điểm &amp; nhược điểm so với 1 Decision Tree</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Ưu điểm</th><th>Nhược điểm</th></tr></thead>
+                <tbody>
+                  <tr><td>Ổn định và chính xác hơn nhiều so với 1 cây đơn lẻ</td><td>Khó diễn giải hơn (không còn là 1 cây đơn giản để đọc)</td></tr>
+                  <tr><td>Ít nhạy cảm với overfitting hơn khi tăng số lượng cây</td><td>Chậm hơn và tốn bộ nhớ hơn khi dự đoán (phải chạy qua hàng trăm cây)</td></tr>
+                  <tr><td>Tự động cho ra Feature Importance hữu ích</td><td>Vẫn có thể overfitting nếu mỗi cây quá sâu và dữ liệu ít</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>27.3. Isolation Forest — họ hàng của Random Forest, chuyên phát hiện bất thường</h3>
+            <p>Tất cả thuật toán từ đầu giáo trình tới giờ đều giả định "có nhãn để học" (Supervised) hoặc "tìm cụm" (Unsupervised). <b>Anomaly Detection</b> (phát hiện bất thường) là bài toán thứ ba: tìm ra những điểm dữ liệu "khác thường" so với phần còn lại — gian lận thẻ tín dụng, lỗi cảm biến máy móc, giao dịch đáng ngờ — thường KHÔNG có đủ nhãn để huấn luyện Classification thông thường vì bất thường quá hiếm.</p>
+            <p><b>Isolation Forest</b> tận dụng ý tưởng ngẫu nhiên hóa giống hệt Random Forest (27.1), nhưng đảo ngược mục tiêu: thay vì hỏi "cây phân loại điểm này ra sao", nó hỏi <b>"cần bao nhiêu lần chia ngẫu nhiên để cô lập điểm này khỏi phần còn lại?"</b></p>
+            <div class="box tip">
+              <div class="box-title">💡 Trực giác cốt lõi</div>
+              Điểm dữ liệu <b>bình thường</b> nằm giữa đám đông — cần rất nhiều lần chia ngẫu nhiên mới tách được nó ra một mình. Điểm <b>bất thường</b> nằm tách biệt — chỉ cần vài lần chia ngẫu nhiên là đã "cô lập" được nó rồi. Số lần chia trung bình (qua hàng trăm cây ngẫu nhiên, giống Random Forest) chính là điểm số bất thường: <b>càng ít lần chia cần thiết → càng bất thường</b>.
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.ensemble import IsolationForest
+
+# contamination: tỉ lệ ước tính bất thường trong dữ liệu (VD: 1% giao dịch là gian lận)
+mo_hinh = IsolationForest(contamination=0.01, random_state=42)
+mo_hinh.fit(X_giao_dich)
+
+nhan_du_doan = mo_hinh.predict(X_giao_dich)   # trả về 1 (bình thường) hoặc -1 (bất thường)
+diem_bat_thuong = mo_hinh.decision_function(X_giao_dich)   # điểm số càng thấp càng bất thường
+
+so_luong_phat_hien = (nhan_du_doan == -1).sum()
+print(f"Phát hiện {so_luong_phat_hien} giao dịch bất thường")</code></pre>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Vì sao đây là "Unsupervised" dù nghe giống Classification?</div>
+              Isolation Forest học hoàn toàn <b>không cần nhãn</b> "bất thường/bình thường" — nó chỉ cần biết hình dạng phân phối của dữ liệu <i>bình thường</i>, rồi tự suy ra điều gì lệch khỏi đó. Đây là lý do Anomaly Detection thường xếp cùng nhóm Unsupervised Learning (Chương 29), dù kết quả cuối cùng "nhìn giống" một bài toán phân loại nhị phân.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Thử thay đổi <code>n_estimators</code> từ 10 lên 300 (các giá trị 10, 50, 100, 300), vẽ hoặc in ra accuracy trên tập test tương ứng. Nhận xét xu hướng.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>for n in [10, 50, 100, 300]:
+    rf = RandomForestClassifier(n_estimators=n, random_state=42)
+    rf.fit(X_train, y_train)
+    acc = accuracy_score(y_test, rf.predict(X_test))
+    print(f"n_estimators={n}: accuracy={acc:.3f}")
+# Thường thấy: accuracy tăng nhanh lúc đầu rồi "bão hòa" (plateau) sau một ngưỡng nào đó,
+# không tiếp tục cải thiện đáng kể dù tăng thêm nhiều cây</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nghĩ rằng Random Forest không thể overfitting — thực tế vẫn có thể xảy ra nếu mỗi cây quá sâu và dữ liệu quá ít/nhiễu quá nhiều.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Tận dụng <code>oob_score=True</code> để đánh giá nhanh mà không cần tách thêm tập validation riêng.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 27</h4>
+              <ul>
+                <li>Random Forest = Bagging + Decision Tree + ngẫu nhiên hóa đặc trưng ở mỗi node.</li>
+                <li>Ổn định và chính xác hơn 1 cây đơn lẻ, cung cấp Feature Importance hữu ích.</li>
+                <li>OOB score cho phép đánh giá mô hình mà không cần tách riêng tập validation.</li>
+                <li>Feature Importance mặc định (MDI) thiên lệch về đặc trưng nhiều giá trị — Permutation Importance đáng tin cậy hơn.</li>
+                <li>Isolation Forest dùng ý tưởng ngẫu nhiên hóa tương tự để phát hiện bất thường: điểm càng dễ "cô lập" bằng ít lần chia càng bất thường.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 28: GRADIENT BOOSTING FAMILY -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-28">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">28</div>
+            <div>
+              <h2>Gradient Boosting, XGBoost, LightGBM &amp; CatBoost</h2>
+              <div class="ch-sub">Họ thuật toán mạnh nhất cho dữ liệu dạng bảng, thống trị các cuộc thi Kaggle</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>28.1. Gradient Boosting: dùng chính Gradient Descent để "boost"</h3>
+            <p>Nhớ lại Gradient Descent ở Chương 9: đi ngược hướng gradient để giảm hàm mất mát. <b>Gradient Boosting</b> áp dụng ý tưởng tương tự nhưng ở mức "hàm số" thay vì "tham số":
+            mỗi cây mới được huấn luyện để dự đoán chính <b>phần dư (residual)</b> — tức là lỗi mà các cây trước đó chưa giải thích được — thay vì dự đoán trực tiếp <code>y</code>.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 620 130" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <rect x="10" y="30" width="110" height="60" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="65" y="55" text-anchor="middle" font-weight="700">Cây 1</text>
+                  <text x="65" y="72" text-anchor="middle" font-size="9" fill="var(--muted)">dự đoán y</text>
+
+                  <rect x="180" y="30" width="130" height="60" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
+                  <text x="245" y="55" text-anchor="middle" font-weight="700">Cây 2</text>
+                  <text x="245" y="72" text-anchor="middle" font-size="9" fill="var(--muted)">dự đoán lỗi của Cây 1</text>
+
+                  <rect x="370" y="30" width="130" height="60" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
+                  <text x="435" y="55" text-anchor="middle" font-weight="700">Cây 3</text>
+                  <text x="435" y="72" text-anchor="middle" font-size="9" fill="var(--muted)">dự đoán lỗi còn lại</text>
+
+                  <text x="560" y="60" text-anchor="middle" font-size="20">= 🎯</text>
+                </g>
+                <g stroke="var(--muted)" fill="none"><path d="M120,60 H180 M310,60 H370 M500,60 H540"/></g>
+              </svg>
+              <div class="diagram-caption">Mỗi cây mới tập trung "vá" đúng phần lỗi mà các cây trước chưa giải quyết được — tổng dự đoán của tất cả các cây cộng lại cho kết quả cuối.</div>
+            </div>
+
+            <h3>28.2. Ba thư viện Gradient Boosting phổ biến nhất</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Thư viện</th><th>Điểm nổi bật</th><th>Khi nào ưu tiên chọn</th></tr></thead>
+                <tbody>
+                  <tr><td><b>XGBoost</b></td><td>Regularization tích hợp sẵn, xử lý missing values tự động, rất phổ biến trong các cuộc thi</td><td>Lựa chọn "an toàn", ổn định, tài liệu phong phú</td></tr>
+                  <tr><td><b>LightGBM</b></td><td>Tốc độ huấn luyện rất nhanh nhờ kỹ thuật chia cây theo "lá" (leaf-wise) thay vì theo tầng</td><td>Dữ liệu lớn, cần huấn luyện nhanh</td></tr>
+                  <tr><td><b>CatBoost</b></td><td>Xử lý trực tiếp biến phân loại (categorical) mà không cần One-Hot Encoding thủ công (Chương 13)</td><td>Dữ liệu có nhiều cột phân loại</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_classification
+
+X, y = make_classification(n_samples=500, n_features=10, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1)
+
+gb = GradientBoostingClassifier(
+    n_estimators=150,      # số lượng cây tuần tự
+    learning_rate=0.1,     # mỗi cây đóng góp bao nhiêu vào tổng dự đoán (Chương 9)
+    max_depth=3,           # mỗi cây trong Boosting thường NÔNG hơn nhiều so với Random Forest
+    random_state=1
+)
+gb.fit(X_train, y_train)
+print("Gradient Boosting - Accuracy:", accuracy_score(y_test, gb.predict(X_test)))
+
+# --- Nếu đã cài xgboost: pip install xgboost ---
+# from xgboost import XGBClassifier
+# xgb = XGBClassifier(n_estimators=150, learning_rate=0.1, max_depth=3, random_state=1)
+# xgb.fit(X_train, y_train)
+# print("XGBoost - Accuracy:", accuracy_score(y_test, xgb.predict(X_test)))</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>n_estimators=150</code> — số lượng cây được huấn luyện tuần tự; nhiều hơn Random Forest thường KHÔNG cải thiện thêm vì mỗi cây bổ sung ít giá trị mới, còn với Boosting, quá nhiều cây có thể dẫn tới overfitting (khác Random Forest!).</li>
+                <li><code>learning_rate=0.1</code> — kiểm soát mức độ đóng góp của mỗi cây vào tổng dự đoán; learning rate nhỏ + nhiều cây thường cho kết quả tốt và ổn định hơn learning rate lớn + ít cây.</li>
+                <li><code>max_depth=3</code> — các cây trong Gradient Boosting thường được giữ <b>nông</b> (shallow, thường 3-8) vì mỗi cây chỉ cần sửa một phần nhỏ lỗi, khác hẳn triết lý của Random Forest (thường để cây sâu, thậm chí không giới hạn).</li>
+              </ol>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Khác biệt cốt lõi: Random Forest vs Gradient Boosting</div>
+              <b>Random Forest:</b> cây sâu, độc lập, song song, dùng đa số phiếu/trung bình — mạnh vì giảm variance. <b>Gradient Boosting:</b> cây nông, phụ thuộc lẫn nhau, tuần tự, cộng dồn dự đoán — mạnh vì giảm bias.
+              Đây là 2 triết lý ngược nhau dù cùng dùng Decision Tree làm "viên gạch" cơ bản.
+            </div>
+
+            <h3>28.3. Siêu tham số quan trọng cần tinh chỉnh</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Siêu tham số</th><th>Ảnh hưởng</th></tr></thead>
+                <tbody>
+                  <tr><td><code>n_estimators</code></td><td>Số cây; quá nhiều dễ overfitting trong Boosting (khác Random Forest)</td></tr>
+                  <tr><td><code>learning_rate</code></td><td>Nhỏ hơn → cần nhiều cây hơn nhưng thường tổng quát tốt hơn</td></tr>
+                  <tr><td><code>max_depth</code></td><td>Độ sâu mỗi cây; Boosting thường dùng cây nông hơn Random Forest</td></tr>
+                  <tr><td><code>subsample</code></td><td>Tỉ lệ dữ liệu dùng cho mỗi cây (&lt;1.0) — thêm ngẫu nhiên hóa, giảm overfitting</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo: Early Stopping</div>
+              Hầu hết thư viện Boosting hỗ trợ <b>early stopping</b> — theo dõi hiệu năng trên tập validation qua từng vòng lặp thêm cây, và tự động dừng khi hiệu năng không còn cải thiện — cách hiệu quả để chọn <code>n_estimators</code> tối ưu mà không cần thử thủ công.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với dữ liệu ở mục 28.2, thử 2 cấu hình: (A) <code>learning_rate=0.5, n_estimators=30</code> và (B) <code>learning_rate=0.05, n_estimators=300</code>. So sánh accuracy trên tập test.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>cau_hinh = [
+    {'learning_rate': 0.5, 'n_estimators': 30},
+    {'learning_rate': 0.05, 'n_estimators': 300},
+]
+for cfg in cau_hinh:
+    gb_cfg = GradientBoostingClassifier(max_depth=3, random_state=1, **cfg)
+    gb_cfg.fit(X_train, y_train)
+    acc = accuracy_score(y_test, gb_cfg.predict(X_test))
+    print(cfg, "-> accuracy:", round(acc, 3))
+# Cấu hình (B) - learning rate nhỏ, nhiều cây - thường ổn định và tổng quát tốt hơn</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Đặt <code>n_estimators</code> quá lớn cùng <code>learning_rate</code> cũng lớn, khiến mô hình Boosting overfitting nghiêm trọng — khác với Random Forest, thêm cây trong Boosting KHÔNG luôn luôn an toàn.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng early stopping dựa trên tập validation để chọn số lượng cây phù hợp thay vì đặt cố định một con số tùy ý.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 28</h4>
+              <ul>
+                <li>Gradient Boosting huấn luyện cây tuần tự, mỗi cây sửa lỗi (residual) của các cây trước — dựa trên ý tưởng Gradient Descent ở Chương 9.</li>
+                <li>3 thư viện phổ biến: XGBoost (ổn định, phổ biến), LightGBM (nhanh), CatBoost (xử lý tốt biến phân loại).</li>
+                <li>Cây trong Boosting nên nông, cần tinh chỉnh <code>learning_rate</code> và <code>n_estimators</code> cẩn thận để tránh overfitting.</li>
+              </ul>
+              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã hoàn thành toàn bộ khối Supervised Learning + Ensemble! Phần 9 sẽ chuyển sang Unsupervised Learning, bắt đầu với các thuật toán Clustering như K-Means.</b></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 8</b>: Tổng quan Ensemble Learning, Random Forest, và họ Gradient Boosting (XGBoost/LightGBM/CatBoost).</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-7-knn-bayes-tree-svm.html" class="kbd" style="text-decoration:none;">← Phần 7. KNN, Bayes, Tree, SVM</a>
+        <a href="phan-9-unsupervised-clustering-pca.html" class="kbd" style="text-decoration:none;">Sang Phần 9 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>

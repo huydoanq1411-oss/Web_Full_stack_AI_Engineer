@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('algo-mastery-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c10; --bg-soft:#12151d; --bg-card:#171b26; --border:#262c3b;
+  --text:#eef0f5; --text-dim:#8b93a7; --accent:#22d3ee; --accent2:#818cf8;
+  --code-bg:#0d0f16; --kw:#7dd0e0; --str:#c3e88d; --num:#f2a65a; --com:#6b7280; --fn:#82aaff;
+  --ok:#6bd68b; --warn:#f2c14e; --danger:#f47174; --info:#5ec8b8;
+  --radius:12px; --mono:'JetBrains Mono',Consolas,monospace; --sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.18); --shadow-md:0 8px 24px rgba(0,0,0,.28);
+  --grad-accent:linear-gradient(135deg,var(--accent),var(--accent2));
+}
+[data-theme="light"]{
+  --bg:#f7f8fb; --bg-soft:#ffffff; --bg-card:#ffffff; --border:#e5e8ef;
+  --text:#181c25; --text-dim:#5c6373; --code-bg:#f1f3f8;
+  --shadow-sm:0 2px 8px rgba(20,20,40,.06); --shadow-md:0 8px 24px rgba(20,20,40,.1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--sans); background:var(--bg); color:var(--text);
+  line-height:1.7; transition:background .3s,color .3s; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none;}
+::selection{background:var(--accent); color:#0f1115;}
+
+/* Progress bar */
+#progress-bar{position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; z-index:999; transition:width .1s;}
+
+/* Top bar (mobile) */
+#topbar{
+  display:flex; position:sticky; top:0; z-index:60; background:var(--bg-soft);
+  border-bottom:1px solid var(--border); padding:12px 16px; align-items:center; justify-content:space-between;
+}
+#topbar .brand{font-weight:700; color:var(--accent);}
+#topbar .topbar-right{display:flex;align-items:center;gap:10px;}
+#topbar a.home-btn{display:flex;align-items:center;gap:6px;color:var(--text);text-decoration:none;font-family:var(--mono);font-size:13px;background:var(--bg-card);border:1px solid var(--border);padding:7px 14px;border-radius:100px;transition:border-color .2s ease,color .2s ease;}
+#topbar a.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+#menu-toggle{background:none; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:6px 10px; cursor:pointer;}
+
+/* Layout */
+.layout{display:flex; min-height:100vh;}
+.main-col{flex:1; min-width:0;}
+#sidebar{
+  width:290px; flex-shrink:0; background:var(--bg-soft); border-right:1px solid var(--border);
+  height:100vh; position:sticky; top:0; overflow-y:auto; padding:20px 14px 60px;
+}
+#sidebar .brand{font-size:1.15rem; font-weight:800; color:var(--accent); padding:8px 10px 4px;}
+#sidebar .sub{color:var(--text-dim); font-size:.78rem; padding:0 10px 14px;}
+#search-box{
+  width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border);
+  background:var(--bg-card); color:var(--text); margin-bottom:14px; font-size:.85rem;
+}
+#search-box:focus{outline:none; border-color:var(--accent);}
+.nav-group-title{font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); padding:14px 10px 6px; font-weight:700;}
+.nav-link{
+  display:flex; align-items:center; gap:7px; padding:7px 10px; border-radius:8px; font-size:.87rem; color:var(--text-dim);
+  cursor:pointer; margin-bottom:2px; transition:background .15s,color .15s,transform .15s;
+}
+.nav-link:hover{background:var(--bg-card); color:var(--text); transform:translateX(2px);}
+.nav-link.active{background:rgba(34,211,238,.14); color:var(--accent); font-weight:700; box-shadow:var(--shadow-sm);}
+.nav-link.locked{opacity:.4; cursor:not-allowed;}
+.nav-link.locked:hover{background:none; color:var(--text-dim); transform:none;}
+.nav-link.visited:not(.active):before{content:'✓'; color:var(--ok); font-size:.72rem; font-weight:700;}
+
+.lang-switch{display:flex; flex-wrap:wrap; gap:6px; padding:0 10px 16px;}
+.lang-switch a{
+  font-size:.72rem; font-weight:700; padding:5px 10px; border-radius:7px;
+  border:1px solid var(--border); background:var(--bg-card); color:var(--text-dim);
+  transition:all .15s;
+}
+.lang-switch a:hover{color:var(--text); border-color:var(--accent);}
+.lang-switch a.current{background:var(--accent); color:#0a0c10; border-color:var(--accent);}
+
+#theme-toggle{
+  display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px;
+  border:1px solid var(--border); background:var(--bg-card); color:var(--text); cursor:pointer; margin-top:16px; font-size:.85rem;
+}
+
+main{flex:1; min-width:0; padding:40px 48px 120px; max-width:920px;}
+.hero{margin-bottom:36px; animation:fadeInUp .6s ease both;}
+.hero h1{
+  font-size:2.3rem; font-weight:800; margin-bottom:10px; letter-spacing:-.02em;
+  background:var(--grad-accent); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p{color:var(--text-dim); font-size:1.02rem;}
+.hero .badge{
+  display:inline-block; background:rgba(34,211,238,.14); color:var(--accent); font-size:.72rem;
+  padding:4px 12px; border-radius:20px; margin-bottom:14px; letter-spacing:.04em; font-weight:600;
+  border:1px solid rgba(34,211,238,.25);
+}
+
+@keyframes fadeInUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+.chapter{
+  padding-top:60px; margin-top:-20px; border-top:1px dashed var(--border);
+  opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease;
+}
+.chapter.visible{opacity:1; transform:translateY(0);}
+.chapter:first-of-type{border-top:none;}
+.chapter h2{font-size:1.55rem; margin-bottom:6px; display:flex; align-items:center; gap:14px; font-weight:700; letter-spacing:-.01em;}
+.chapter h2 .num{
+  color:#0a0c10; font-family:var(--mono); font-size:.95rem; font-weight:700;
+  background:var(--grad-accent); width:38px; height:38px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:var(--shadow-sm);
+}
+.chapter .lead{color:var(--text-dim); margin-bottom:22px; font-size:.96rem;}
+.chapter h3{font-size:1.14rem; margin:28px 0 10px; color:var(--text); font-weight:700;}
+
+p{margin-bottom:12px; font-size:.95rem;}
+ul,ol{margin:0 0 14px 22px; font-size:.95rem;}
+li{margin-bottom:5px;}
+
+/* Callout boxes */
+.box{border-radius:var(--radius); padding:14px 16px; margin:16px 0; border-left:4px solid; font-size:.9rem; box-shadow:var(--shadow-sm); transition:transform .15s;}
+.box:hover{transform:translateX(2px);}
+.box-title{font-weight:700; margin-bottom:4px; font-size:.82rem; text-transform:uppercase; letter-spacing:.04em;}
+.box.note{background:rgba(34,211,238,.08); border-color:var(--info);}
+.box.note .box-title{color:var(--info);}
+.box.tip{background:rgba(107,214,139,.08); border-color:var(--ok);}
+.box.tip .box-title{color:var(--ok);}
+.box.warning{background:rgba(242,193,78,.08); border-color:var(--warn);}
+.box.warning .box-title{color:var(--warn);}
+.box.important{background:rgba(244,113,116,.08); border-color:var(--danger);}
+.box.important .box-title{color:var(--danger);}
+
+/* Code blocks */
+.code-wrap{position:relative; margin:14px 0 20px; transition:transform .15s;}
+.code-label{position:absolute; top:0; left:14px; transform:translateY(-50%); background:var(--bg); color:var(--text-dim); font-size:.68rem; padding:1px 8px; border:1px solid var(--border); border-radius:6px; font-family:var(--mono);}
+pre{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 16px 14px; overflow-x:auto; font-family:var(--mono); font-size:.83rem; line-height:1.65;
+  box-shadow:var(--shadow-sm);
+}
+code{font-family:var(--mono);}
+.copy-btn{
+  position:absolute; top:8px; right:8px; background:var(--bg-soft); border:1px solid var(--border);
+  color:var(--text-dim); font-size:.7rem; padding:4px 9px; border-radius:6px; cursor:pointer; transition:all .15s;
+}
+.copy-btn:hover{color:var(--accent); border-color:var(--accent); box-shadow:var(--shadow-sm);}
+.tok-kw{color:var(--kw);} .tok-str{color:var(--str);} .tok-num{color:var(--num);}
+.tok-com{color:var(--com); font-style:italic;} .tok-fn{color:var(--fn);}
+
+/* Table */
+table{width:100%; border-collapse:collapse; margin:16px 0; font-size:.87rem; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm);}
+th,td{border:1px solid var(--border); padding:9px 12px; text-align:left;}
+th{background:var(--bg-card); color:var(--accent); font-weight:700;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+tr td{transition:background .15s;}
+tbody tr:hover td{background:rgba(34,211,238,.05);}
+
+/* Accordion */
+.accordion{border:1px solid var(--border); border-radius:var(--radius); margin:14px 0; overflow:hidden; box-shadow:var(--shadow-sm);}
+.accordion-head{
+  padding:13px 16px; background:var(--bg-card); cursor:pointer; display:flex; justify-content:space-between;
+  align-items:center; font-weight:700; font-size:.9rem; transition:background .15s;
+}
+.accordion-head:hover{background:rgba(34,211,238,.06);}
+.accordion-head:after{content:'+'; color:var(--accent); font-size:1.1rem; transition:transform .2s;}
+.accordion.open .accordion-head:after{content:'−';}
+.accordion-body{max-height:0; overflow:hidden; transition:max-height .35s ease; background:var(--bg-soft);}
+.accordion.open .accordion-body{max-height:2000px;}
+.accordion-body-inner{padding:14px 16px;}
+
+/* Quiz */
+.quiz{border:1px solid var(--border); border-radius:var(--radius); padding:18px 18px 14px; margin:22px 0; background:var(--bg-card); box-shadow:var(--shadow-sm);}
+.quiz h4{font-size:.95rem; margin-bottom:14px; color:var(--accent2); font-weight:700;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q p{font-weight:600; margin-bottom:8px;}
+.quiz-opt{
+  display:block; padding:9px 13px; border:1px solid var(--border); border-radius:9px; margin-bottom:6px;
+  cursor:pointer; font-size:.88rem; transition:border-color .15s, transform .1s, background .15s;
+}
+.quiz-opt:hover{border-color:var(--accent); transform:translateX(2px);}
+.quiz-opt.correct{border-color:var(--ok); background:rgba(107,214,139,.12);}
+.quiz-opt.wrong{border-color:var(--danger); background:rgba(244,113,116,.12);}
+.quiz-btn{background:var(--grad-accent); color:#0a0c10; border:none; padding:9px 20px; border-radius:9px; font-weight:700; cursor:pointer; font-size:.85rem; transition:transform .15s, box-shadow .15s;}
+.quiz-btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-md);}
+.quiz-result{margin-top:10px; font-weight:700; font-size:.9rem;}
+
+/* Summary */
+.summary-box{background:linear-gradient(135deg,rgba(34,211,238,.1),rgba(129,140,248,.06)); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin:26px 0; box-shadow:var(--shadow-sm);}
+.summary-box h4{color:var(--accent); margin-bottom:8px; font-size:.95rem; font-weight:700;}
+
+#back-to-top{
+  position:fixed; bottom:26px; right:26px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#0f1115; border:none; font-size:1.1rem; cursor:pointer; display:none;
+  align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.3); z-index:80;
+}
+#back-to-top.show{display:flex;}
+
+.next-hint{margin-top:60px; padding:20px; border:1px dashed var(--border); border-radius:var(--radius); color:var(--text-dim); font-size:.88rem;}
+.options-roadmap{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:16px 0;}
+.options-roadmap .box{margin:0;}
+@media(max-width:700px){.options-roadmap{grid-template-columns:1fr;}}
+
+@media(max-width:900px){
+  #topbar{display:flex;}
+  #sidebar{position:fixed; left:-320px; top:0; z-index:70; box-shadow:0 0 30px rgba(0,0,0,.4); transition:left .25s;}
+  #sidebar.open{left:0;}
+  main{padding:24px 18px 100px;}
+}
+</style>
+
+<style>
+.crumb{font-size:.82rem;color:var(--text-dim);margin-bottom:22px;}
+.crumb a{color:var(--text-dim);}
+.crumb a:hover{color:var(--accent);}
+.chpage{max-width:900px;margin:0 auto;padding:36px 24px 90px;}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-size:.85rem;text-decoration:none;transition:transform .15s,box-shadow .15s;}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.nav-btn.disabled{opacity:.35;cursor:not-allowed;}
+.chnav{display:flex;justify-content:space-between;gap:14px;margin-top:44px;padding-top:22px;border-top:1px dashed var(--border);flex-wrap:wrap;}
+.chapter{padding-top:0!important;margin-top:0!important;border-top:none!important;opacity:1!important;transform:none!important;}
+</style>
+<title>7. Input / Output — Giáo Trình Python</title>
+</head>
+<body>
+<div id="progress-bar"></div>
+<div id="topbar">
+  <span class="brand">🐍 Python</span>
+  <div class="topbar-right">
+    <a class="home-btn" href="../index.html">🏠 Trang chủ</a>
+    <button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Mở danh sách chương">☰</button>
+  </div>
+</div>
+<div class="layout">
+  <aside id="sidebar">
+    <div class="brand">🐍 Python</div>
+    <div class="sub">108 chương</div>
+    <input type="text" id="search-box" placeholder="Tìm chương…" oninput="filterNav(this.value)">
+    <div class="nav-group-title">Danh sách chương</div>
+    <a class="nav-link" href="chapter001.html">01. Giới thiệu Python</a>
+    <a class="nav-link" href="chapter002.html">02. Cài đặt Python và VS Code / PyCharm</a>
+    <a class="nav-link" href="chapter003.html">03. Chạy chương trình đầu tiên</a>
+    <a class="nav-link" href="chapter004.html">04. Biến (Variables)</a>
+    <a class="nav-link" href="chapter005.html">05. Kiểu dữ liệu</a>
+    <a class="nav-link" href="chapter006.html">06. Toán tử (Operators)</a>
+    <a class="nav-link active" href="chapter007.html">07. Input / Output</a>
+    <a class="nav-link" href="chapter008.html">08. Comment</a>
+    <a class="nav-link" href="chapter009.html">09. Ép kiểu dữ liệu (Type Casting)</a>
+    <a class="nav-link" href="chapter010.html">10. String (Chuỗi)</a>
+    <a class="nav-link" href="chapter011.html">11. Number (Số)</a>
+    <a class="nav-link" href="chapter012.html">12. Boolean</a>
+    <a class="nav-link" href="chapter013.html">13. if, elif, else</a>
+    <a class="nav-link" href="chapter014.html">14. match-case</a>
+    <a class="nav-link" href="chapter015.html">15. Vòng lặp for</a>
+    <a class="nav-link" href="chapter016.html">16. Vòng lặp while</a>
+    <a class="nav-link" href="chapter017.html">17. break</a>
+    <a class="nav-link" href="chapter018.html">18. continue</a>
+    <a class="nav-link" href="chapter019.html">19. pass</a>
+    <a class="nav-link" href="chapter020.html">20. Function cơ bản</a>
+    <a class="nav-link" href="chapter021.html">21. Tham số hàm (Parameters)</a>
+    <a class="nav-link" href="chapter022.html">22. Giá trị trả về (Return)</a>
+    <a class="nav-link" href="chapter023.html">23. Lambda</a>
+    <a class="nav-link" href="chapter024.html">24. Recursion (Đệ quy)</a>
+    <a class="nav-link" href="chapter025.html">25. Scope (Phạm vi biến)</a>
+    <a class="nav-link" href="chapter026.html">26. Decorator</a>
+    <a class="nav-link" href="chapter027.html">27. List</a>
+    <a class="nav-link" href="chapter028.html">28. Tuple</a>
+    <a class="nav-link" href="chapter029.html">29. Set</a>
+    <a class="nav-link" href="chapter030.html">30. Dictionary</a>
+    <a class="nav-link" href="chapter031.html">31. Stack &amp; Queue</a>
+    <a class="nav-link" href="chapter032.html">32. Collections</a>
+    <a class="nav-link" href="chapter033.html">33. Class &amp; Object</a>
+    <a class="nav-link" href="chapter034.html">34. Constructor (__init__)</a>
+    <a class="nav-link" href="chapter035.html">35. Encapsulation (Đóng gói)</a>
+    <a class="nav-link" href="chapter036.html">36. Inheritance (Kế thừa)</a>
+    <a class="nav-link" href="chapter037.html">37. Polymorphism (Đa hình)</a>
+    <a class="nav-link" href="chapter038.html">38. Abstraction (Trừu tượng)</a>
+    <a class="nav-link" href="chapter039.html">39. Magic Methods</a>
+    <a class="nav-link" href="chapter040.html">40. Dataclass</a>
+    <a class="nav-link" href="chapter041.html">41. Module &amp; Package</a>
+    <a class="nav-link" href="chapter042.html">42. pip &amp; Virtual Environment</a>
+    <a class="nav-link" href="chapter043.html">43. Try / Except / Finally</a>
+    <a class="nav-link" href="chapter044.html">44. Raise &amp; Custom Exception</a>
+    <a class="nav-link" href="chapter045.html">45. File TXT</a>
+    <a class="nav-link" href="chapter046.html">46. File CSV &amp; JSON</a>
+    <a class="nav-link" href="chapter047.html">47. File XML &amp; Pickle</a>
+    <a class="nav-link" href="chapter048.html">48. os &amp; sys</a>
+    <a class="nav-link" href="chapter049.html">49. math &amp; random</a>
+    <a class="nav-link" href="chapter050.html">50. datetime &amp; pathlib</a>
+    <a class="nav-link" href="chapter051.html">51. shutil &amp; logging</a>
+    <a class="nav-link" href="chapter052.html">52. threading &amp; multiprocessing</a>
+    <a class="nav-link" href="chapter053.html">53. asyncio</a>
+    <a class="nav-link" href="chapter054.html">54. Big O Notation</a>
+    <a class="nav-link" href="chapter055.html">55. Sorting (Thuật toán sắp xếp)</a>
+    <a class="nav-link" href="chapter056.html">56. Searching &amp; Hashing</a>
+    <a class="nav-link" href="chapter057.html">57. Greedy &amp; Divide and Conquer</a>
+    <a class="nav-link" href="chapter058.html">58. Dynamic Programming (Quy hoạch động)</a>
+    <a class="nav-link" href="chapter059.html">59. Backtracking (Quay lui)</a>
+    <a class="nav-link" href="chapter060.html">60. Linked List</a>
+    <a class="nav-link" href="chapter061.html">61. Tree, Binary Tree &amp; BST</a>
+    <a class="nav-link" href="chapter062.html">62. Heap</a>
+    <a class="nav-link" href="chapter063.html">63. Graph (Đồ thị)</a>
+    <a class="nav-link" href="chapter064.html">64. Trie &amp; Union Find</a>
+    <a class="nav-link" href="chapter065.html">65. Generator &amp; Iterator</a>
+    <a class="nav-link" href="chapter066.html">66. Context Manager</a>
+    <a class="nav-link" href="chapter067.html">67. Closure</a>
+    <a class="nav-link" href="chapter068.html">68. Metaclass &amp; Reflection</a>
+    <a class="nav-link" href="chapter069.html">69. Typing (Type Hints)</a>
+    <a class="nav-link" href="chapter070.html">70. SQLite</a>
+    <a class="nav-link" href="chapter071.html">71. MySQL &amp; PostgreSQL</a>
+    <a class="nav-link" href="chapter072.html">72. SQLAlchemy (ORM)</a>
+    <a class="nav-link" href="chapter073.html">73. Flask</a>
+    <a class="nav-link" href="chapter074.html">74. Django (Tổng quan)</a>
+    <a class="nav-link" href="chapter075.html">75. FastAPI</a>
+    <a class="nav-link" href="chapter076.html">76. REST API</a>
+    <a class="nav-link" href="chapter077.html">77. Authentication &amp; JWT</a>
+    <a class="nav-link" href="chapter078.html">78. NumPy</a>
+    <a class="nav-link" href="chapter079.html">79. Pandas</a>
+    <a class="nav-link" href="chapter080.html">80. Matplotlib, Seaborn &amp; Plotly</a>
+    <a class="nav-link" href="chapter081.html">81. Scikit-learn</a>
+    <a class="nav-link" href="chapter082.html">82. TensorFlow &amp; PyTorch</a>
+    <a class="nav-link" href="chapter083.html">83. OpenCV</a>
+    <a class="nav-link" href="chapter084.html">84. BeautifulSoup &amp; Requests</a>
+    <a class="nav-link" href="chapter085.html">85. Selenium</a>
+    <a class="nav-link" href="chapter086.html">86. PyAutoGUI &amp; Schedule</a>
+    <a class="nav-link" href="chapter087.html">87. unittest &amp; pytest</a>
+    <a class="nav-link" href="chapter088.html">88. Mock</a>
+    <a class="nav-link" href="chapter089.html">89. Git &amp; GitHub</a>
+    <a class="nav-link" href="chapter090.html">90. Docker</a>
+    <a class="nav-link" href="chapter091.html">91. CI/CD</a>
+    <a class="nav-link" href="chapter092.html">92. Profiling &amp; Memory Optimization</a>
+    <a class="nav-link" href="chapter093.html">93. Clean Code</a>
+    <a class="nav-link" href="chapter094.html">94. SOLID</a>
+    <a class="nav-link" href="chapter095.html">95. Design Patterns</a>
+    <a class="nav-link" href="chapter096.html">96. Refactoring</a>
+    <a class="nav-link" href="chapter097.html">97. Dự án: Máy tính &amp; Quản lý sinh viên</a>
+    <a class="nav-link" href="chapter098.html">98. Dự án: Quản lý thư viện &amp; Bán hàng</a>
+    <a class="nav-link" href="chapter099.html">99. Dự án: Web API, Web Scraper &amp; AI Chatbot</a>
+    <a class="nav-link" href="chapter100.html">100. Phỏng vấn Python</a>
+    <a class="nav-link" href="chapter101.html">101. Phụ lục: Cheat Sheet, Lỗi thường gặp &amp; Roadmap</a>
+    <a class="nav-link" href="chapter102.html">102. Bài tập Cơ bản (Dễ)</a>
+    <a class="nav-link" href="chapter103.html">103. Bài tập Trung bình</a>
+    <a class="nav-link" href="chapter104.html">104. Bài tập Khó &amp; Thuật toán</a>
+    <a class="nav-link" href="chapter105.html">105. Regular Expressions (re)</a>
+    <a class="nav-link" href="chapter106.html">106. itertools &amp; functools</a>
+    <a class="nav-link" href="chapter107.html">107. GUI với Tkinter</a>
+    <a class="nav-link" href="chapter108.html">108. Đóng gói &amp; Phát hành Package</a>
+    <button id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Chế độ tối</span></button>
+  </aside>
+  <div class="main-col">
+<div class="chpage">
+  <div class="crumb">
+    <a href="../index.html">🏠 Trang chủ</a> ·
+    <a href="index.html">🐍 Python</a> ·
+    <span>7. Input / Output</span>
+  </div>
+  <main style="padding:0;max-width:none;">
+<section class="chapter" id="s7">
+      <h2><span class="num">07</span> Input / Output</h2>
+      <p class="lead">Nhận dữ liệu từ người dùng và xuất dữ liệu ra màn hình.</p>
+
+      <h3>Output với print()</h3>
+      <div class="code-wrap">
+        <span class="code-label">output.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code>ten = "Huy"
+tuoi = 20
+
+# Cách 1: nối chuỗi
+print("Tên: " + ten)
+
+# Cách 2: dùng dấu phẩy (tự thêm khoảng trắng)
+print("Tên:", ten, "- Tuổi:", tuoi)
+
+# Cách 3: f-string (khuyến nghị, Python 3.6+)
+print(f"Tên: {ten} - Tuổi: {tuoi}")</code></pre>
+      </div>
+
+      <h3>Input với input()</h3>
+      <p>Hàm <code>input()</code> luôn trả về kiểu <strong>chuỗi (str)</strong>, kể cả khi người dùng nhập số.</p>
+
+      <div class="code-wrap">
+        <span class="code-label">input.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code>ten = input("Nhập tên của bạn: ")
+tuoi = input("Nhập tuổi của bạn: ")
+
+print(f"Xin chào {ten}, bạn {tuoi} tuổi.")
+print(type(tuoi))  # &lt;class 'str'&gt; - vẫn là chuỗi!</code></pre>
+      </div>
+
+      <div class="box important">
+        <div class="box-title">Quan trọng</div>
+        Nếu muốn dùng giá trị nhập vào để tính toán, phải ép kiểu: <code>tuoi = int(input("Nhập tuổi: "))</code>. Nếu không, <code>"20" + 5</code> sẽ gây lỗi <code>TypeError</code>.
+      </div>
+
+      <h3>Định dạng output nâng cao</h3>
+      <div class="code-wrap">
+        <span class="code-label">format.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code>pi = 3.14159265
+print(f"Pi làm tròn 2 chữ số: {pi:.2f}")   # 3.14
+print(f"{100:,}")                          # 100 (không có dấu phẩy vì < 1000)
+print(f"{1000000:,}")                      # 1,000,000</code></pre>
+      </div>
+
+      <div class="summary-box">
+        <h4>📌 Tổng kết chương 7</h4>
+        <p><code>print()</code> để xuất dữ liệu, <code>input()</code> để nhận dữ liệu (luôn trả về str). f-string là cách hiện đại và dễ đọc nhất để định dạng chuỗi.</p>
+      </div>
+    </section>
+
+    <!-- ================= CHƯƠNG 8 ================= -->
+  </main>
+  <div class="chnav">
+    <a class="nav-btn prev" href="chapter006.html">← Toán tử</a>
+    <a class="nav-btn next" href="chapter008.html">Comment →</a>
+  </div>
+</div>
+</div>
+</div>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+// ---------- Theme toggle ----------
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  try{ localStorage.setItem('algo-mastery-theme', newTheme); }catch(e){}
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if(label) label.textContent = newTheme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+(function(){
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  if(label) label.textContent = current === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = current === 'dark' ? '🌙' : '☀️';
+})();
+
+// ---------- Sidebar nav ----------
+const links = document.querySelectorAll('.nav-link[data-target]');
+links.forEach(link=>{
+  link.addEventListener('click', ()=>{
+    const target = document.getElementById(link.dataset.target);
+    if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
+
+const sections = document.querySelectorAll('.chapter');
+function updateActiveNav(){
+  let current = sections[0]?.id;
+  sections.forEach(sec=>{
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) current = sec.id;
+  });
+  links.forEach(l=>l.classList.toggle('active', l.dataset.target===current));
+}
+
+// ---------- Progress bar + back to top + active nav on scroll ----------
+window.addEventListener('scroll', ()=>{
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight>0 ? (scrollTop/docHeight)*100 : 0;
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('back-to-top').classList.toggle('show', scrollTop>500);
+  updateActiveNav();
+});
+
+// ---------- Search filter ----------
+function filterNav(query){
+  const q = query.trim().toLowerCase();
+  links.forEach(link=>{
+    const text = link.textContent.toLowerCase();
+    link.style.display = (q==='' || text.includes(q)) ? 'block' : 'none';
+  });
+}
+
+// ---------- Copy code buttons ----------
+function copyCode(btn){
+  const pre = btn.parentElement.querySelector('pre code') || btn.parentElement.querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = '✓ Đã copy';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  });
+}
+
+// ---------- Simple Python syntax highlighter ----------
+function highlightPython(code){
+  const keywords = /\b(def|return|if|elif|else|for|while|in|import|from|as|class|try|except|finally|raise|with|pass|break|continue|lambda|True|False|None|and|or|not|is|global|yield|async|await)\b/g;
+  let html = code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/(#.*)$/gm, '<span class="tok-com">$1</span>');
+  html = html.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, '<span class="tok-str">$1</span>');
+  html = html.replace(/(&quot;.*?&quot;|'.*?')/g, '<span class="tok-str">$1</span>');
+  html = html.replace(keywords, '<span class="tok-kw">$1</span>');
+  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
+  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, '<span class="tok-fn">$1</span>');
+  return html;
+}
+document.querySelectorAll('pre code').forEach(block=>{
+  block.innerHTML = highlightPython(block.textContent);
+});
+document.querySelectorAll('pre').forEach(pre=>{
+  if(!pre.querySelector('code')){
+    pre.innerHTML = highlightPython(pre.textContent);
+  }
+});
+
+// ---------- Accordion (already toggled via onclick, nothing extra needed) ----------
+
+// ---------- Quiz grading ----------
+function gradeQuiz(quizId){
+  const quiz = document.querySelector(`[data-quiz="${quizId}"]`);
+  const questions = quiz.querySelectorAll('.quiz-q');
+  let correct = 0;
+  questions.forEach(q=>{
+    const answer = q.dataset.answer;
+    const opts = q.querySelectorAll('.quiz-opt');
+    opts.forEach(opt=>{
+      opt.classList.remove('correct','wrong');
+      opt.style.pointerEvents = 'none';
+      if(opt.dataset.idx === answer){ opt.classList.add('correct'); }
+    });
+    const selected = q.dataset.selected;
+    if(selected === answer){ correct++; }
+    else if(selected !== undefined){
+      const wrongOpt = q.querySelector(`.quiz-opt[data-idx="${selected}"]`);
+      if(wrongOpt) wrongOpt.classList.add('wrong');
+    }
+  });
+  const resultEl = document.getElementById('result-'+quizId);
+  resultEl.textContent = `Kết quả: ${correct}/${questions.length} câu đúng`;
+  resultEl.style.color = correct===questions.length ? 'var(--ok)' : 'var(--warn)';
+}
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  q.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      q.dataset.selected = opt.dataset.idx;
+      q.querySelectorAll('.quiz-opt').forEach(o=>o.style.borderColor='var(--border)');
+      opt.style.borderColor = 'var(--accent)';
+    });
+  });
+});
+
+updateActiveNav();
+
+// ---------- Fade-in animation + đánh dấu đã đọc ----------
+const chapterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      const link = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+      if(link) link.classList.add('visited');
+    }
+  });
+}, {threshold:0.08, rootMargin:'0px 0px -10% 0px'});
+document.querySelectorAll('.chapter').forEach(sec=>chapterObserver.observe(sec));
+</script>
+
+</body>
+</html>

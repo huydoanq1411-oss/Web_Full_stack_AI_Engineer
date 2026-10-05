@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 12 · SQL cho ML, MLOps, MLflow, DVC &amp; Kubernetes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 12</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
+      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html" style="opacity:.7;"><span class="num">✓</span> Phần 7 — KNN·Bayes·Tree·SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html" style="opacity:.7;"><span class="num">✓</span> Phần 8 — Ensemble &amp; Boosting</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html" style="opacity:.7;"><span class="num">✓</span> Phần 9 — Clustering &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html" style="opacity:.7;"><span class="num">✓</span> Phần 10 — Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html" style="opacity:.7;"><span class="num">✓</span> Phần 11 — XAI &amp; Deployment</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html" class="active"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 12</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 12</a></li>
+      <li><a href="#chuong-38"><span class="num">38</span> SQL cho Machine Learning</a></li>
+      <li><a href="#chuong-39"><span class="num">39</span> MLOps &amp; MLflow</a></li>
+      <li><a href="#chuong-40"><span class="num">40</span> DVC &amp; Kubernetes (giới thiệu)</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">41</span> Cloud cho AI (AWS/GCP/Azure)</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">42</span> Hugging Face</a></li>
+    </ul>
+
+    <div class="nav-title">✨ Mới</div>
+    <div style="background:var(--teal-dim);border:1px solid var(--teal);border-radius:12px;padding:12px;font-size:12px;color:var(--ink);">
+      💬 Trợ lý AI đã có mặt ở góc dưới bên trái! Hỏi bất cứ điều gì về Machine Learning ngay trong trang.
+    </div>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 12. SQL &amp; MLOps</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 12 / N — Hạ tầng dữ liệu &amp; vận hành ML</span>
+        <h1>SQL, MLOps và cách vận hành<br>hệ thống ML trong thực tế</h1>
+        <p class="lead">Trước khi dữ liệu tới được Pandas DataFrame (Chương 5), nó thường nằm trong <b>cơ sở dữ liệu SQL</b>. Và sau khi mô hình được deploy (Chương 36),
+        cần một quy trình <b>MLOps</b> bài bản để theo dõi thí nghiệm, quản lý phiên bản dữ liệu/mô hình, và vận hành ổn định lâu dài. Phần 12 trang bị đủ 3 mảnh ghép đó:
+        SQL, MLflow (tracking thí nghiệm), và DVC + Kubernetes (giới thiệu quản lý dữ liệu và mở rộng hệ thống).</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-11 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 38</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">SQL cho ML</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 39</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">MLOps &amp; MLflow</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 40</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">DVC · Kubernetes</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 15 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" của Phần 12 — hạ tầng dữ liệu và vận hành, khép lại khối kiến thức MLOps cốt lõi.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box tip">
+        <div class="box-title">💬 Tính năng mới: Trợ lý AI ngay trong trang</div>
+        Từ Phần 12, mỗi trang giáo trình sẽ tích hợp một <b>trợ lý AI</b> (góc dưới bên trái) để bạn hỏi đáp trực tiếp về bất kỳ khái niệm nào trong toàn bộ giáo trình —
+        không cần rời trang để tra cứu. Trợ lý dùng chính Claude để trả lời, có ngữ cảnh về nội dung khóa học. Thử bấm vào nút <b>💬 Hỏi AI</b> ở góc trái màn hình!
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 38: SQL CHO ML -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-38">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">38</div>
+            <div>
+              <h2>SQL cho Machine Learning</h2>
+              <div class="ch-sub">Truy vấn dữ liệu huấn luyện trực tiếp từ cơ sở dữ liệu</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>38.1. Vì sao Data Scientist/ML Engineer cần SQL?</h3>
+            <p>Dữ liệu doanh nghiệp hiếm khi nằm sẵn trong file CSV gọn gàng — nó thường nằm rải rác trong các <b>cơ sở dữ liệu quan hệ</b> (MySQL, PostgreSQL, SQL Server...),
+            với hàng chục bảng liên kết với nhau. SQL (Structured Query Language) là ngôn ngữ chuẩn để truy vấn, lọc, và tổng hợp dữ liệu trực tiếp từ những cơ sở dữ liệu này trước khi đưa vào Pandas (Chương 5).</p>
+
+            <h3>38.2. Các câu lệnh SQL cốt lõi</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">sql</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>-- Lấy các cột cần thiết, lọc điều kiện
+SELECT ten_khach_hang, tuoi, tong_chi_tieu
+FROM khach_hang
+WHERE tuoi >= 18 AND tong_chi_tieu > 1000000;
+
+-- Nhóm và tổng hợp - giống groupby() của Pandas (Chương 5)
+SELECT thanh_pho, AVG(tong_chi_tieu) AS chi_tieu_trung_binh, COUNT(*) AS so_khach_hang
+FROM khach_hang
+GROUP BY thanh_pho
+ORDER BY chi_tieu_trung_binh DESC;
+
+-- JOIN: kết hợp dữ liệu từ nhiều bảng - bước rất phổ biến khi chuẩn bị dữ liệu ML
+SELECT k.ten_khach_hang, k.tuoi, d.san_pham, d.ngay_mua
+FROM khach_hang k
+JOIN don_hang d ON k.id = d.khach_hang_id
+WHERE d.ngay_mua >= '2025-01-01';</code></pre>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Câu lệnh SQL</th><th>Tương đương trong Pandas (Chương 5)</th></tr></thead>
+                <tbody>
+                  <tr><td><code>SELECT cot1, cot2</code></td><td><code>df[['cot1', 'cot2']]</code></td></tr>
+                  <tr><td><code>WHERE dieu_kien</code></td><td><code>df[df['cot'] > gia_tri]</code></td></tr>
+                  <tr><td><code>GROUP BY ... AVG(...)</code></td><td><code>df.groupby('cot')['gia_tri'].mean()</code></td></tr>
+                  <tr><td><code>JOIN</code></td><td><code>pd.merge(df1, df2, on='khoa_chung')</code></td></tr>
+                  <tr><td><code>ORDER BY</code></td><td><code>df.sort_values('cot')</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo ghi nhớ</div>
+              Nếu đã thành thạo Pandas (Chương 5), học SQL sẽ nhanh hơn nhiều — hầu hết thao tác đều có "bản dịch" tương ứng. Sự khác biệt lớn nhất: SQL thao tác trực tiếp trên dữ liệu <i>nằm trong database</i> (có thể hàng tỷ dòng), trong khi Pandas thao tác trên dữ liệu đã <i>nạp vào bộ nhớ RAM</i>.
+            </div>
+
+            <h3>38.2b. Window Functions — tính toán theo nhóm mà không "gộp mất" từng dòng</h3>
+            <p><code>GROUP BY</code> ở trên có một hạn chế: kết quả bị "gộp" thành 1 dòng cho mỗi nhóm, mất đi thông tin từng dòng gốc. <b>Window Function</b> giải quyết vấn đề này: tính toán tổng hợp theo nhóm (<code>OVER (PARTITION BY ...)</code>) nhưng vẫn <i>giữ nguyên</i> từng dòng dữ liệu gốc — cực kỳ hữu ích khi chuẩn bị đặc trưng (feature engineering — Chương 16) cho ML.</p>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">sql</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>-- Xếp hạng chi tiêu của từng khách hàng NGAY TRONG thành phố của họ
+-- (khác GROUP BY: vẫn giữ nguyên từng dòng khách hàng, không gộp mất)
+SELECT
+    ten_khach_hang,
+    thanh_pho,
+    tong_chi_tieu,
+    RANK() OVER (PARTITION BY thanh_pho ORDER BY tong_chi_tieu DESC) AS xep_hang_trong_thanh_pho,
+    AVG(tong_chi_tieu) OVER (PARTITION BY thanh_pho) AS chi_tieu_tb_thanh_pho,
+    tong_chi_tieu - AVG(tong_chi_tieu) OVER (PARTITION BY thanh_pho) AS chenh_lech_so_voi_tb
+FROM khach_hang;</code></pre>
+            </div>
+            <div class="box note">
+              <div class="box-title">📌 Ứng dụng thực tế cho Feature Engineering (Chương 16)</div>
+              Cột <code>chenh_lech_so_voi_tb</code> ở trên — "khách hàng này chi tiêu nhiều/ít hơn trung bình thành phố bao nhiêu" — chính xác là dạng đặc trưng "tổng hợp theo nhóm" đã học ở Chương 16, nhưng giờ được tính ngay trong SQL trước khi dữ liệu được đưa vào Python — giúp giảm tải xử lý phía Pandas khi làm việc với dữ liệu lớn nằm trong database.
+            </div>
+
+            <h3>38.3. Kết nối SQL với Python</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import sqlite3
+import pandas as pd
+
+# Kết nối tới cơ sở dữ liệu SQLite (file nhẹ, phù hợp để học/thử nghiệm)
+ket_noi = sqlite3.connect('du_lieu_ban_hang.db')
+
+# Chạy trực tiếp câu truy vấn SQL và nhận kết quả dưới dạng DataFrame
+truy_van = """
+    SELECT thanh_pho, AVG(tong_chi_tieu) AS chi_tieu_tb
+    FROM khach_hang
+    GROUP BY thanh_pho
+"""
+df = pd.read_sql(truy_van, ket_noi)
+print(df.head())
+
+ket_noi.close()</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>sqlite3.connect(...)</code> — mở kết nối tới cơ sở dữ liệu; với các hệ quản trị khác (PostgreSQL, MySQL) thường dùng thư viện <code>sqlalchemy</code> để kết nối tương tự.</li>
+                <li><code>pd.read_sql(truy_van, ket_noi)</code> — hàm cực kỳ hữu ích: chạy câu SQL và trả kết quả thẳng thành DataFrame, sẵn sàng cho các bước tiền xử lý ở Chương 4-5, 13-17.</li>
+                <li><code>ket_noi.close()</code> — luôn đóng kết nối sau khi dùng xong để giải phóng tài nguyên.</li>
+              </ol>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Lưu ý hiệu năng</div>
+              Với dữ liệu lớn, nên lọc/tổng hợp <b>càng nhiều càng tốt ngay trong câu SQL</b> (dùng <code>WHERE</code>, <code>GROUP BY</code>) thay vì kéo toàn bộ bảng thô về rồi mới lọc bằng Pandas — giảm tải cho cả mạng lẫn bộ nhớ RAM của máy chạy Python.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Viết câu SQL lấy ra top 5 sản phẩm bán chạy nhất (theo số lượng đơn hàng) từ bảng <code>don_hang</code> có cột <code>san_pham</code>.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">sql</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>SELECT san_pham, COUNT(*) AS so_don_hang
+FROM don_hang
+GROUP BY san_pham
+ORDER BY so_don_hang DESC
+LIMIT 5;</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Kéo toàn bộ bảng hàng triệu dòng về Python rồi mới lọc, gây tràn bộ nhớ hoặc chậm không cần thiết.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn tối ưu câu SQL để trả về đúng dữ liệu cần thiết, tận dụng sức mạnh xử lý của database engine.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 38</h4>
+              <ul>
+                <li>SQL là ngôn ngữ chuẩn để truy vấn dữ liệu từ cơ sở dữ liệu quan hệ trước khi đưa vào Pandas.</li>
+                <li>Các thao tác SQL cốt lõi (SELECT, WHERE, GROUP BY, JOIN) đều có "bản dịch" tương ứng trong Pandas.</li>
+                <li>Window Function (<code>OVER PARTITION BY</code>) tính toán theo nhóm mà vẫn giữ nguyên từng dòng — hữu ích cho feature engineering ngay trong SQL.</li>
+                <li><code>pd.read_sql()</code> là cầu nối tiện lợi nhất giữa SQL và hệ sinh thái Python.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 39: MLOPS & MLFLOW -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-39">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">39</div>
+            <div>
+              <h2>MLOps &amp; MLflow</h2>
+              <div class="ch-sub">Theo dõi thí nghiệm và quản lý vòng đời mô hình một cách bài bản</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>39.1. MLOps là gì?</h3>
+            <p><b>MLOps (Machine Learning Operations)</b> là tập hợp thực hành kết hợp ML, DevOps và Data Engineering để xây dựng, triển khai và vận hành mô hình ML một cách
+            đáng tin cậy và có thể lặp lại — mở rộng những gì đã học ở Chương 36-37 (deploy, Docker, Git) thành một quy trình toàn diện hơn.</p>
+
+            <div class="box important">
+              <div class="box-title">🔴 Vấn đề MLOps giải quyết</div>
+              Sau vài chục lần thử nghiệm với các thuật toán khác nhau (Phần 6-9) và các bộ siêu tham số khác nhau (Chương 34), rất dễ <b>quên mất</b> cấu hình nào cho kết quả tốt nhất,
+              hoặc không thể tái lập chính xác một kết quả cũ. MLOps — cụ thể là <b>experiment tracking</b> — giải quyết đúng vấn đề này.
+            </div>
+
+            <h3>39.2. MLflow Tracking — ghi lại mọi thí nghiệm tự động</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code># pip install mlflow
+import mlflow
+import mlflow.sklearn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score
+from sklearn.datasets import make_classification
+
+X, y = make_classification(n_samples=500, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1)
+
+mlflow.set_experiment("du_doan_khach_hang_roi_bo")
+
+# Thử nghiệm nhiều cấu hình, mỗi lần chạy được ghi lại tự động
+for n_est in [50, 100, 200]:
+    with mlflow.start_run():
+        model = RandomForestClassifier(n_estimators=n_est, random_state=1)
+        model.fit(X_train, y_train)
+        f1 = f1_score(y_test, model.predict(X_test))
+
+        # Ghi lại siêu tham số, metric, và chính mô hình
+        mlflow.log_param("n_estimators", n_est)
+        mlflow.log_metric("f1_score", f1)
+        mlflow.sklearn.log_model(model, "model")
+
+        print(f"n_estimators={n_est}: F1={f1:.3f} (đã ghi vào MLflow)")
+
+# Mở giao diện web để xem lại toàn bộ lịch sử thí nghiệm:
+# mlflow ui</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>mlflow.set_experiment(...)</code> — đặt tên cho nhóm thí nghiệm, giúp tổ chức nhiều lần chạy liên quan tới cùng 1 bài toán.</li>
+                <li><code>with mlflow.start_run():</code> — mỗi khối lệnh bên trong tương ứng với "1 lần chạy" (run) được ghi lại đầy đủ và độc lập.</li>
+                <li><code>mlflow.log_param(...)</code> / <code>log_metric(...)</code> — ghi lại siêu tham số đầu vào và kết quả đánh giá tương ứng, cho phép so sánh giữa các lần chạy sau này.</li>
+                <li><code>mlflow.sklearn.log_model(model, "model")</code> — lưu lại chính mô hình đã huấn luyện, kèm theo mọi thông tin cấu hình — thay thế cách lưu thủ công bằng <code>joblib</code> ở Chương 36, nhưng có thêm khả năng truy vết lịch sử.</li>
+                <li><code>mlflow ui</code> — lệnh terminal mở giao diện web trực quan, cho phép so sánh mọi lần chạy qua bảng và biểu đồ mà không cần tự viết code so sánh thủ công.</li>
+              </ol>
+            </div>
+
+            <h3>39.3. Model Registry — quản lý vòng đời mô hình</h3>
+            <p>Ngoài Tracking, MLflow còn có <b>Model Registry</b> — nơi quản lý các phiên bản mô hình theo trạng thái (ví dụ: <code>Staging</code>, <code>Production</code>, <code>Archived</code>),
+            giúp team biết chính xác phiên bản nào đang chạy thật trong sản phẩm, tránh nhầm lẫn khi có nhiều mô hình được thử nghiệm song song.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 600 110" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <rect x="10" y="25" width="140" height="55" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
+                  <text x="80" y="57" text-anchor="middle" font-weight="700">None</text>
+
+                  <rect x="190" y="25" width="140" height="55" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
+                  <text x="260" y="57" text-anchor="middle" font-weight="700">Staging</text>
+
+                  <rect x="370" y="25" width="140" height="55" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="440" y="57" text-anchor="middle" font-weight="700">Production</text>
+                </g>
+                <g stroke="var(--muted)" fill="none" marker-end="url(#arrm)">
+                  <path d="M150,52 H190"/><path d="M330,52 H370"/>
+                </g>
+                <defs><marker id="arrm" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"/></marker></defs>
+              </svg>
+              <div class="diagram-caption">Vòng đời một phiên bản mô hình trong Model Registry: từ thử nghiệm tới chính thức phục vụ người dùng thật.</div>
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Sửa vòng lặp ở mục 39.2 để thêm log thêm siêu tham số <code>max_depth</code> với các giá trị <code>[5, 10, None]</code>, kết hợp với các giá trị <code>n_estimators</code> hiện có.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>for n_est in [50, 100, 200]:
+    for depth in [5, 10, None]:
+        with mlflow.start_run():
+            model = RandomForestClassifier(n_estimators=n_est, max_depth=depth, random_state=1)
+            model.fit(X_train, y_train)
+            f1 = f1_score(y_test, model.predict(X_test))
+            mlflow.log_param("n_estimators", n_est)
+            mlflow.log_param("max_depth", depth)
+            mlflow.log_metric("f1_score", f1)</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chỉ ghi chú kết quả thí nghiệm thủ công trong Excel/notebook, dễ nhầm lẫn hoặc mất mát khi số lượng thử nghiệm tăng lên.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Tích hợp <code>mlflow.start_run()</code> ngay từ những thử nghiệm đầu tiên của dự án, không đợi tới khi có quá nhiều kết quả mới bắt đầu theo dõi.</div>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — MLOps mở rộng thành LLMOps cho ứng dụng GenAI</div>
+              Khi hệ thống dùng LLM (khóa AI Engineer) thay vì tự huấn luyện mô hình, các nguyên lý MLOps ở trên vẫn áp dụng, nhưng có thêm vài "đối tượng" mới cần theo dõi và quản lý phiên bản:
+              <ul>
+                <li><b>Prompt versioning:</b> prompt/system prompt cũng cần theo dõi phiên bản như code — đổi một câu trong prompt có thể thay đổi hành vi cả hệ thống, tương tự đổi một siêu tham số (hyperparameter).</li>
+                <li><b>Đánh giá chất lượng (eval):</b> thay vì chỉ đo accuracy/F1 (Chương 32) trên tập test cố định, ứng dụng LLM thường cần bộ câu hỏi/kịch bản mẫu (eval set) và có thể dùng chính một LLM khác để chấm điểm (LLM-as-judge).</li>
+                <li><b>Theo dõi chi phí &amp; độ trễ theo token:</b> tương tự theo dõi metric mô hình trong MLflow, nhưng chỉ số giờ là số token, chi phí API, và thời gian phản hồi theo từng phiên bản prompt/model.</li>
+                <li><b>Registry cho RAG:</b> nếu dùng RAG (Chương 45), nguồn dữ liệu/vector database cũng cần versioning giống Model Registry — biết chính xác phiên bản dữ liệu nào đang được dùng để trả lời.</li>
+              </ul>
+              Tư duy cốt lõi không đổi: <b>mọi thứ ảnh hưởng tới kết quả đầu ra (data, model, code, giờ thêm cả prompt) đều cần được theo dõi phiên bản và có thể tái lập lại được.</b>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 39</h4>
+              <ul>
+                <li>MLOps mở rộng thực hành DevOps cho vòng đời mô hình ML, từ thử nghiệm tới vận hành.</li>
+                <li>MLflow Tracking ghi lại tự động tham số, metric và mô hình của mỗi lần chạy, dễ dàng so sánh qua giao diện web.</li>
+                <li>Model Registry quản lý trạng thái phiên bản mô hình, tránh nhầm lẫn giữa thử nghiệm và production.</li>
+                <li>Với ứng dụng LLM/GenAI, MLOps mở rộng thành LLMOps: thêm versioning cho prompt và dữ liệu RAG, cùng theo dõi chi phí/chất lượng theo token.</li>
+              </ul>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — LLMOps: MLOps cho thời đại GenAI</div>
+              Khi ứng dụng chuyển sang dùng LLM (khóa AI Engineer) thay vì chỉ mô hình Predictive AI truyền thống, các nguyên lý MLOps ở trên vẫn áp dụng nhưng cần thêm vài mảnh ghép mới — thường gọi chung là <b>LLMOps</b>:
+              <ul>
+                <li><b>Prompt versioning:</b> theo dõi phiên bản prompt/system prompt giống như theo dõi phiên bản mô hình, vì thay đổi một câu chữ trong prompt có thể ảnh hưởng lớn tới chất lượng đầu ra.</li>
+                <li><b>Eval cho LLM:</b> khác với accuracy/F1 (Chương 32) vốn có đáp án đúng rõ ràng, đánh giá chất lượng câu trả lời của LLM (mạch lạc, đúng ngữ cảnh, không hallucination) thường cần bộ test case mẫu, hoặc dùng chính một LLM khác để "chấm điểm" (LLM-as-judge).</li>
+                <li><b>Theo dõi chi phí token:</b> khác với mô hình tự host (chi phí cố định theo hạ tầng), gọi API LLM tính phí theo số token — cần theo dõi sát để tránh chi phí vận hành tăng đột biến.</li>
+                <li><b>Tracing cho Agent (Chương 46):</b> khi hệ thống có nhiều bước gọi tool/LLM nối tiếp nhau, cần công cụ "trace" toàn bộ chuỗi hành động để debug khi Agent trả lời sai hoặc chọn sai công cụ.</li>
+              </ul>
+              💡 Nhiều công cụ MLOps truyền thống (MLflow...) đã bổ sung tính năng LLMOps; đồng thời cũng xuất hiện các công cụ chuyên biệt riêng cho theo dõi/eval LLM. Nguyên lý cốt lõi ("đo lường, ghi lại, tái lập được") không đổi — chỉ mở rộng thêm đối tượng cần theo dõi.
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 40: DVC & KUBERNETES -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-40">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">40</div>
+            <div>
+              <h2>DVC &amp; Kubernetes (giới thiệu)</h2>
+              <div class="ch-sub">Quản lý phiên bản dữ liệu và mở rộng hệ thống ML</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>40.1. DVC (Data Version Control) — "Git cho dữ liệu"</h3>
+            <p>Nhớ lại cảnh báo ở Chương 37: Git không phù hợp để lưu trực tiếp file dữ liệu/model lớn. <b>DVC</b> giải quyết vấn đề này: nó hoạt động song song với Git,
+            nhưng lưu <i>con trỏ</i> (một file nhỏ, dạng text) trỏ tới dữ liệu thật đang nằm ở nơi lưu trữ riêng (local, S3, Google Drive...) — Git vẫn theo dõi lịch sử thay đổi, nhưng kho Git không hề phình to.</p>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code># Khởi tạo DVC trong dự án đã có Git
+dvc init
+
+# Bắt đầu theo dõi phiên bản một file dữ liệu lớn
+dvc add data/du_lieu_khach_hang.csv
+# Lệnh trên tạo ra file du_lieu_khach_hang.csv.dvc (con trỏ nhỏ, gọn)
+
+# Commit CON TRỎ (không phải data thật) vào Git
+git add data/du_lieu_khach_hang.csv.dvc .gitignore
+git commit -m "Thêm phiên bản dữ liệu khách hàng v1"
+
+# Đẩy dữ liệu thật lên nơi lưu trữ từ xa (remote storage)
+dvc push
+
+# Khi cần lấy lại đúng phiên bản dữ liệu tương ứng với 1 commit Git cũ:
+git checkout <commit-cu>
+dvc pull</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>dvc add data/...</code> — DVC tính toán "dấu vân tay" (hash) của file dữ liệu, tạo file <code>.dvc</code> nhỏ chứa thông tin đó, đồng thời tự thêm dữ liệu thật vào <code>.gitignore</code>.</li>
+                <li><code>git commit ...file.dvc</code> — Git chỉ theo dõi file con trỏ nhẹ, giữ lịch sử thay đổi dữ liệu mà không phình kho.</li>
+                <li><code>dvc push</code> / <code>dvc pull</code> — đồng bộ dữ liệu thật với kho lưu trữ từ xa, tương tự <code>git push</code>/<code>git pull</code> nhưng cho dữ liệu.</li>
+              </ol>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Kết hợp DVC với MLflow</div>
+              DVC trả lời câu hỏi "phiên bản dữ liệu nào đã dùng?", MLflow (Chương 39) trả lời câu hỏi "cấu hình/kết quả thí nghiệm nào?" — kết hợp cả hai cho khả năng <b>tái lập hoàn toàn</b> (full reproducibility) bất kỳ kết quả nào trong quá khứ: cùng dữ liệu, cùng code, cùng siêu tham số.
+            </div>
+
+            <h3>40.2. Kubernetes — mở rộng quy mô ứng dụng ML (giới thiệu)</h3>
+            <p>Nhớ lại Docker ở Chương 37: đóng gói ứng dụng thành container chạy nhất quán mọi nơi. Nhưng khi có <b>hàng nghìn request/giây</b> gọi tới API dự đoán (Chương 36),
+            một container đơn lẻ không đủ sức xử lý. <b>Kubernetes (K8s)</b> là hệ thống điều phối (orchestration) giúp tự động quản lý, mở rộng (scale), và duy trì hàng loạt container chạy song song.</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Khái niệm Kubernetes</th><th>Ý nghĩa</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Pod</b></td><td>Đơn vị nhỏ nhất, thường chứa 1 container (ví dụ: 1 instance API dự đoán từ Chương 36)</td></tr>
+                  <tr><td><b>Deployment</b></td><td>Định nghĩa "cần chạy bao nhiêu Pod giống nhau", tự động khởi động lại nếu Pod bị lỗi</td></tr>
+                  <tr><td><b>Service</b></td><td>Địa chỉ ổn định để truy cập vào nhóm Pod, tự động phân phối tải (load balancing)</td></tr>
+                  <tr><td><b>Horizontal Pod Autoscaler</b></td><td>Tự động tăng/giảm số lượng Pod theo tải thực tế (ví dụ CPU usage)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 500 150" width="100%">
+                <g font-family="Space Grotesk" font-size="11">
+                  <rect x="200" y="10" width="100" height="30" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
+                  <text x="250" y="30" text-anchor="middle" font-weight="700">Service</text>
+
+                  <rect x="60" y="80" width="90" height="50" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="105" y="108" text-anchor="middle" font-weight="700" font-size="10">Pod (API)</text>
+
+                  <rect x="205" y="80" width="90" height="50" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="250" y="108" text-anchor="middle" font-weight="700" font-size="10">Pod (API)</text>
+
+                  <rect x="350" y="80" width="90" height="50" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="395" y="108" text-anchor="middle" font-weight="700" font-size="10">Pod (API)</text>
+                </g>
+                <g stroke="var(--muted)" fill="none">
+                  <path d="M230,40 L105,80"/><path d="M250,40 V80"/><path d="M270,40 L395,80"/>
+                </g>
+              </svg>
+              <div class="diagram-caption">Service phân phối request tới nhiều Pod giống nhau — mỗi Pod chạy 1 instance API dự đoán, tăng khả năng chịu tải.</div>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Đây chỉ là giới thiệu — Kubernetes là một chủ đề rất sâu</div>
+              Kubernetes có đường cong học tập dốc và thường là công việc chuyên trách của <b>MLOps Engineer/DevOps Engineer</b>, không nhất thiết mọi Data Scientist đều cần thành thạo. Điều quan trọng ở giai đoạn này là hiểu <i>khái niệm</i> và <i>vì sao</i> nó cần thiết khi hệ thống ML mở rộng quy mô, để có thể giao tiếp hiệu quả với đội hạ tầng.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Giải thích bằng lời: nếu một Pod chạy API dự đoán bị crash (lỗi và dừng đột ngột), Kubernetes Deployment sẽ phản ứng như thế nào?</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <p>Deployment liên tục giám sát số lượng Pod đang chạy so với số lượng mong muốn đã khai báo. Nếu 1 Pod bị crash, Deployment sẽ <b>tự động khởi động lại một Pod mới</b> để thay thế, đảm bảo luôn duy trì đúng số lượng Pod đang hoạt động — đây là cơ chế "tự chữa lành" (self-healing) đặc trưng của Kubernetes.</p>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhảy thẳng vào học Kubernetes chi tiết khi dự án còn nhỏ và chỉ có 1 người dùng — độ phức tạp thêm vào thường không đáng, hãy bắt đầu đơn giản với Docker trước.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Dùng DVC song song với Git ngay từ đầu dự án có dữ liệu lớn, để đảm bảo khả năng tái lập kết quả về sau.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 40</h4>
+              <ul>
+                <li>DVC là "Git cho dữ liệu" — theo dõi phiên bản dữ liệu lớn mà không làm phình kho Git.</li>
+                <li>Kubernetes điều phối nhiều container để hệ thống ML chịu tải cao và tự phục hồi khi lỗi.</li>
+                <li>Kết hợp Git + DVC + MLflow cho khả năng tái lập hoàn toàn mọi kết quả thí nghiệm.</li>
+              </ul>
+              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã hoàn thành toàn bộ khối kiến thức MLOps cốt lõi! Phần 15 sẽ chuyển sang thực hành thực chiến trên Kaggle và xây Portfolio — còn Cloud cho AI, Hugging Face và Generative AI/LLM được học chuyên sâu ở khóa AI Engineer riêng.</b></p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 12</b>: SQL cho ML, MLOps &amp; MLflow, DVC và giới thiệu Kubernetes.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-11-explainable-ai-deployment.html" class="kbd" style="text-decoration:none;">← Phần 11. Explainable AI &amp; Deploy</a>
+        <a href="phan-15-kaggle-portfolio.html" class="kbd" style="text-decoration:none;">Sang Phần 15 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

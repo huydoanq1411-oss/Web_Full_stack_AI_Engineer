@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần 3 · Trực quan hóa dữ liệu: Matplotlib &amp; Seaborn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
+  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
+  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
+  --code-bg:#0E1626; --code-text:#DCE6F5;
+  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
+}
+html.dark{
+  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
+  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
+  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
+  --code-bg:#060A14; --code-text:#D9E4F7;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
+a{color:var(--teal);}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
+.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
+.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
+.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
+.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
+.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
+.toc{list-style:none;margin:0;padding:0;}
+.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
+.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toc li a:hover{background:var(--surface-2);color:var(--ink);}
+.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
+.main{flex:1;min-width:0;padding:0 0 80px;}
+.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
+.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
+.hero-inner{max-width:900px;margin:0 auto;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
+.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
+.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
+.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--surface-2);}
+.chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
+.ch-badge{font-family:'Space Grotesk';font-weight:700;font-size:14px;width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;}
+.chapter-head h2{margin:0;font-size:19px;}
+.chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
+.chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.chapter.open .chapter-body{max-height:none;}
+.chapter-inner{padding:4px 26px 30px;}
+.chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
+.chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
+.chapter-inner h4{font-size:14.5px;margin:18px 0 8px;color:var(--teal);}
+.chapter-inner p{margin:0 0 14px;color:var(--ink);}
+.chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
+.chapter-inner li{margin-bottom:6px;}
+.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
+.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+.box.note{background:var(--surface-2);border-color:var(--border);}
+.box.note .box-title{color:var(--muted);}
+.box.tip{background:var(--teal-dim);border-color:var(--teal);}
+.box.tip .box-title{color:var(--teal);}
+.box.warning{background:var(--amber-dim);border-color:var(--amber);}
+.box.warning .box-title{color:#95650B;}
+html.dark .box.warning .box-title{color:var(--amber);}
+.box.important{background:var(--rose-dim);border-color:var(--rose);}
+.box.important .box-title{color:var(--rose);}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:13.8px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
+.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
+.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
+.copy-btn:hover{background:rgba(255,255,255,.12);}
+.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
+pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
+pre.code code{white-space:pre;}
+.line-explain{margin:14px 0;}
+.line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
+.line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
+.line-explain li:last-child{border-bottom:none;}
+.line-explain li::before{content:counter(ln);position:absolute;left:8px;top:8px;font-family:'JetBrains Mono';font-size:11px;color:#fff;background:var(--violet);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.line-explain code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px;}
+.exercise{border:1px dashed var(--border);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.exercise h4{margin-top:0;color:var(--violet);}
+.reveal-btn{margin-top:10px;background:var(--violet);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter';transition:.15s;}
+.reveal-btn:hover{opacity:.88;}
+.answer-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);}
+.answer-panel.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.quiz{background:var(--surface-2);border-radius:14px;padding:20px 22px;margin:18px 0;border:1px solid var(--border);}
+.quiz-q{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:13.8px;transition:.15s;}
+.quiz-opt:hover{border-color:var(--teal);}
+.quiz-opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.quiz-opt.wrong{background:var(--rose-dim);border-color:var(--rose);}
+.quiz-feedback{font-size:13px;font-weight:600;margin-top:8px;display:none;}
+.quiz-feedback.show{display:block;animation:fadeIn .3s ease;}
+.quiz-item{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.quiz-item:last-child{border:none;margin-bottom:0;padding-bottom:0;}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+.pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+.mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.mistake-card b{color:var(--rose);}
+.practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
+.practice-card b{color:var(--teal);}
+.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
+.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
+.summary-box ul{margin-bottom:0;}
+.diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
+.diagram-card svg{max-width:100%;height:auto;}
+.diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
+.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
+.back-top.show{opacity:1;pointer-events:auto;}
+.back-top:hover{transform:translateY(-3px);}
+.next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
+.next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
+.next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
+.chart-mock{display:flex;align-items:flex-end;gap:10px;height:140px;padding:10px;}
+.chart-mock .bar{flex:1;border-radius:6px 6px 0 0;position:relative;}
+.chart-mock .bar span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted);}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
+@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
+
+/* ============ AI CHATBOT WIDGET ============ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:40;
+  display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,var(--teal),var(--violet));color:#fff;border:none;
+  padding:13px 18px 13px 15px;border-radius:30px;box-shadow:var(--shadow);cursor:pointer;
+  font-family:'Space Grotesk';font-weight:700;font-size:13.5px;transition:.25s;
+}
+.chat-fab:hover{transform:translateY(-3px);}
+.chat-fab .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.chat-panel{
+  position:fixed;bottom:26px;right:26px;z-index:50;
+  width:370px;max-width:calc(100vw - 40px);height:520px;max-height:calc(100vh - 60px);
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.chat-panel.open{display:flex;animation:fadeIn .25s ease;}
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:linear-gradient(135deg,var(--teal-dim),var(--violet-dim));border-bottom:1px solid var(--border);
+}
+.chat-head-title{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:14px;}
+.chat-head-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-size:15px;}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.chat-close:hover{color:var(--ink);}
+.chat-settings-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;line-height:1;}
+.chat-settings-btn:hover{color:var(--ink);}
+.api-key-panel{display:none;flex-direction:column;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.api-key-panel.open{display:flex;}
+.api-key-panel input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.api-key-panel .akp-row{display:flex;gap:8px;}
+.api-key-panel .akp-row button{flex:1;padding:8px;border-radius:8px;border:none;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter';}
+.api-key-panel .akp-save{background:var(--teal);color:#fff;}
+.api-key-panel .akp-clear{background:var(--surface);border:1px solid var(--border) !important;color:var(--muted);}
+.api-key-panel p{font-size:11.5px;color:var(--muted);margin:0;line-height:1.55;}
+.api-key-panel a{color:var(--teal);}
+.api-key-status{font-size:11.5px;font-weight:600;}
+.api-key-status.set{color:var(--teal);}
+.api-key-status.unset{color:var(--amber);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13.3px;line-height:1.55;white-space:pre-wrap;}
+.chat-msg.user{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.chat-msg.bot code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;}
+html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;}
+.chat-msg.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+.chat-msg.typing span:nth-child(2){animation-delay:.2s;}
+.chat-msg.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
+.chat-suggest button{
+  font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink);
+  padding:6px 10px;border-radius:20px;cursor:pointer;font-family:'Inter';transition:.15s;
+}
+.chat-suggest button:hover{border-color:var(--teal);color:var(--teal);}
+.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.chat-input-row input{
+  flex:1;border:1px solid var(--border);background:var(--surface-2);border-radius:10px;
+  padding:10px 12px;font-family:'Inter';font-size:13px;color:var(--ink);outline:none;
+}
+.chat-input-row input:focus{border-color:var(--teal);}
+.chat-send-btn{
+  background:var(--teal);color:#fff;border:none;border-radius:10px;width:42px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;
+}
+.chat-send-btn:hover{opacity:.85;}
+.chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
+@media(max-width:640px){
+  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
+  .chat-fab{right:12px;}
+}
+
+
+/* home fab - top right */
+.home-fab{
+  position:fixed;top:20px;right:26px;z-index:60;
+  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
+  transition:.2s;
+}
+.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
+.home-fab svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:640px){
+  .home-fab{top:14px;right:14px;padding:9px;}
+  .home-fab .home-fab-label{display:none;}
+}
+
+/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
+.crumb{
+  font-size:12.5px; color:var(--muted); margin-bottom:18px;
+  font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
+}
+.crumb a{ color:var(--muted); text-decoration:none; }
+.crumb a:hover{ color:var(--teal); }
+#topbar{
+  display:none;
+  position:sticky; top:0; z-index:60;
+  align-items:center; justify-content:space-between;
+  padding:12px 18px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+}
+#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
+#menu-toggle{
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+  width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
+}
+.chnav{
+  display:flex; justify-content:space-between; gap:12px;
+  margin-top:36px; padding-top:20px; border-top:1px solid var(--border);
+}
+.chnav a{
+  display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); text-decoration:none;
+  font-size:13.5px; font-weight:600; transition:.2s;
+}
+.chnav a:hover{ border-color:var(--teal); color:var(--teal); }
+.chnav .spacer{ flex:1; }
+@media(max-width:960px){
+  #topbar{ display:flex; }
+  .sidebar{
+    position:fixed; left:-320px; top:0; z-index:70;
+    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
+  }
+  .sidebar.open{ left:0; }
+}
+</style>
+</head>
+<body>
+<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="home-fab-label">Trang chủ</span>
+</a>
+<div id="topbar">
+  <span class="brand">📊 Machine Learning</span>
+  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+</div>
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+    <div class="sidebar-brand">
+      <div class="brand-mark">ML</div>
+      <div class="brand-text">Giáo trình ML</div>
+    </div>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Tiến độ Phần 3</span><span id="progressPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="nav-title">✓ Đã học</div>
+    <ul class="toc">
+      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
+      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
+    </ul>
+
+    <div class="nav-title">Các phần</div>
+    <ul class="toc" style="margin-bottom:16px;">
+      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
+      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
+      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" class="active"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
+      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
+      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
+      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
+      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
+      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
+      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
+      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
+      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
+      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
+      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
+      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
+      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
+    </ul>
+
+    <div class="nav-title">Mục lục — Phần 3</div>
+    <ul class="toc" id="tocList">
+      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 3</a></li>
+      <li><a href="#chuong-10"><span class="num">10</span> Matplotlib</a></li>
+      <li><a href="#chuong-11"><span class="num">11</span> Seaborn</a></li>
+      <li><a href="#chuong-12"><span class="num">12</span> Data Visualization nâng cao</a></li>
+    </ul>
+
+    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
+    <ul class="toc">
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">13</span> Data Preprocessing</a></li>
+      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">14</span> Data Cleaning &amp; EDA</a></li>
+    </ul>
+
+    <div class="toggle-row" style="margin-top:18px;">
+      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="crumb">
+      <a href="../index.html">🏠 Trang chủ</a> ·
+      <a href="index.html">📊 Machine Learning</a> ·
+      <span>Phần 3. Trực Quan Hóa Dữ Liệu</span>
+    </div>
+    <section class="hero" id="gioi-thieu">
+      <div class="hero-inner">
+        <span class="eyebrow">● Phần 3 / N — Trực quan hóa dữ liệu</span>
+        <h1>Biến dữ liệu khô khan<br>thành hình ảnh biết "nói"</h1>
+        <p class="lead">Một bảng số 10.000 dòng gần như vô nghĩa với mắt người — nhưng một biểu đồ đúng có thể cho bạn insight
+        trong vài giây. Phần 3 trang bị bộ công cụ trực quan hóa dữ liệu quan trọng nhất của Python: <b>Matplotlib</b> (nền tảng),
+        <b>Seaborn</b> (thống kê, đẹp mặc định), và các nguyên tắc <b>Data Visualization</b> để chọn đúng loại biểu đồ cho đúng câu hỏi.</p>
+
+        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0D9488"/>
+                <stop offset="100%" stop-color="#5B4EE5"/>
+              </linearGradient>
+            </defs>
+            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+            <g font-family="Space Grotesk, sans-serif">
+              <g><circle cx="80" cy="110" r="13" fill="var(--border)"/><text x="80" y="150" text-anchor="middle" font-size="10" fill="var(--muted)">Phần 1-2 ✓</text></g>
+              <g>
+                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
+                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 10</text>
+                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Matplotlib</text>
+              </g>
+              <g>
+                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
+                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 11</text>
+                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Seaborn</text>
+              </g>
+              <g>
+                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
+                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 12</text>
+                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Data Viz nâng cao</text>
+              </g>
+              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 4 →</text>
+            </g>
+          </svg>
+          <div class="diagram-caption">3 "ga" của Phần 3 — bộ công cụ trực quan hóa dữ liệu trong Python.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <div class="box note">
+        <div class="box-title">📌 Vì sao Data Visualization quan trọng với Machine Learning?</div>
+        Trực quan hóa không chỉ để "làm đẹp báo cáo". Đây là công cụ bạn dùng ở <b>hầu hết mọi bước</b> của quy trình ML: khám phá dữ liệu (EDA) để phát hiện outlier/lỗi,
+        kiểm tra phân phối trước khi chọn thuật toán, và theo dõi quá trình huấn luyện (đường cong loss) để phát hiện overfitting.
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 10: MATPLOTLIB -->
+      <!-- ================================================================ -->
+      <div class="chapter open" id="chuong-10">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">10</div>
+            <div>
+              <h2>Matplotlib — thư viện vẽ biểu đồ nền tảng</h2>
+              <div class="ch-sub">Figure, Axes, các loại biểu đồ cơ bản, tùy biến</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>10.1. Kiến trúc cốt lõi: Figure và Axes</h3>
+            <p>Matplotlib tổ chức mọi biểu đồ theo 2 khái niệm chính: <b>Figure</b> — "khung tranh" tổng thể chứa toàn bộ hình vẽ, và
+            <b>Axes</b> — mỗi "ô vẽ" bên trong Figure (một Figure có thể chứa nhiều Axes, tức nhiều biểu đồ con). Hiểu rõ 2 khái niệm này giúp bạn tránh nhầm lẫn khi code phức tạp dần.</p>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 420 200" width="380">
+                <rect x="10" y="10" width="400" height="180" fill="var(--surface-2)" stroke="var(--border)" stroke-width="2" rx="8"/>
+                <text x="20" y="28" font-size="11" fill="var(--muted)" font-family="JetBrains Mono">Figure</text>
+                <rect x="30" y="40" width="170" height="140" fill="var(--teal-dim)" stroke="var(--teal)" rx="6"/>
+                <text x="115" y="65" text-anchor="middle" font-size="11" font-family="JetBrains Mono" fill="var(--teal)">Axes[0,0]</text>
+                <rect x="220" y="40" width="170" height="140" fill="var(--violet-dim)" stroke="var(--violet)" rx="6"/>
+                <text x="305" y="65" text-anchor="middle" font-size="11" font-family="JetBrains Mono" fill="var(--violet)">Axes[0,1]</text>
+              </svg>
+              <div class="diagram-caption">Một Figure chứa nhiều Axes — mỗi Axes là một biểu đồ con độc lập.</div>
+            </div>
+
+            <h3>10.2. Vẽ biểu đồ đường (Line Plot) và biểu đồ cột (Bar Chart)</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import matplotlib.pyplot as plt
+import numpy as np
+
+thang = np.arange(1, 13)
+doanh_thu = np.array([12, 15, 14, 18, 20, 22, 19, 21, 25, 27, 24, 30])
+
+fig, ax = plt.subplots(figsize=(8, 4))          # tạo 1 Figure chứa 1 Axes
+ax.plot(thang, doanh_thu, marker='o', color='#0D9488', linewidth=2, label='Doanh thu 2025')
+ax.set_title('Doanh thu theo tháng')
+ax.set_xlabel('Tháng')
+ax.set_ylabel('Doanh thu (triệu VNĐ)')
+ax.legend()
+ax.grid(alpha=0.3)
+plt.savefig('doanh_thu.png', dpi=150, bbox_inches='tight')
+plt.show()</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>fig, ax = plt.subplots(figsize=(8,4))</code> — cách tạo biểu đồ được khuyến nghị nhất ("object-oriented API"): trả về cả Figure lẫn Axes để kiểm soát chi tiết.</li>
+                <li><code>ax.plot(thang, doanh_thu, marker='o', ...)</code> — vẽ đường nối các điểm dữ liệu, <code>marker='o'</code> đánh dấu từng điểm dữ liệu bằng hình tròn.</li>
+                <li><code>ax.set_title/set_xlabel/set_ylabel</code> — thêm tiêu đề và nhãn trục, giúp biểu đồ tự giải thích mà không cần chú thích ngoài.</li>
+                <li><code>ax.legend()</code> — hiển thị chú giải dựa trên tham số <code>label</code> đã đặt ở <code>ax.plot()</code>.</li>
+                <li><code>plt.savefig(..., dpi=150, bbox_inches='tight')</code> — lưu hình ra file với độ phân giải cao, tự cắt viền thừa.</li>
+              </ol>
+            </div>
+
+            <div class="diagram-card">
+              <div class="chart-mock">
+                <div class="bar" style="height:40%;background:var(--teal-dim);border:2px solid var(--teal);"><span>T1</span></div>
+                <div class="bar" style="height:50%;background:var(--teal-dim);border:2px solid var(--teal);"><span>T2</span></div>
+                <div class="bar" style="height:47%;background:var(--teal-dim);border:2px solid var(--teal);"><span>T3</span></div>
+                <div class="bar" style="height:60%;background:var(--teal-dim);border:2px solid var(--teal);"><span>T4</span></div>
+                <div class="bar" style="height:67%;background:var(--teal-dim);border:2px solid var(--teal);"><span>T5</span></div>
+                <div class="bar" style="height:100%;background:var(--violet-dim);border:2px solid var(--violet);"><span>T6</span></div>
+              </div>
+              <div class="diagram-caption" style="margin-top:26px;">Phác thảo hình dạng biểu đồ cột doanh thu theo tháng (cột cao nhất được tô nổi bật).</div>
+            </div>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code># Biểu đồ cột với nhiều Axes trên cùng 1 Figure (subplots)
+fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+
+phong_ban = ['Sales', 'Tech', 'HR', 'Marketing']
+so_nhan_vien = [25, 40, 8, 15]
+
+axes[0].bar(phong_ban, so_nhan_vien, color='#5B4EE5')
+axes[0].set_title('Số nhân viên theo phòng ban')
+
+axes[1].hist(np.random.normal(170, 8, 500), bins=25, color='#0D9488', alpha=0.8)
+axes[1].set_title('Phân phối chiều cao (histogram)')
+
+plt.tight_layout()   # tự động căn chỉnh khoảng cách giữa các subplot
+plt.show()</code></pre>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Hàm vẽ</th><th>Loại biểu đồ</th><th>Dùng khi nào</th></tr></thead>
+                <tbody>
+                  <tr><td><code>ax.plot()</code></td><td>Line chart</td><td>Xu hướng theo thời gian (time series)</td></tr>
+                  <tr><td><code>ax.bar() / barh()</code></td><td>Bar chart</td><td>So sánh số lượng giữa các nhóm rời rạc</td></tr>
+                  <tr><td><code>ax.scatter()</code></td><td>Scatter plot</td><td>Quan hệ giữa 2 biến số liên tục</td></tr>
+                  <tr><td><code>ax.hist()</code></td><td>Histogram</td><td>Phân phối của 1 biến số liên tục</td></tr>
+                  <tr><td><code>ax.boxplot()</code></td><td>Box plot</td><td>Phân phối + phát hiện outlier</td></tr>
+                  <tr><td><code>ax.pie()</code></td><td>Pie chart</td><td>Tỉ lệ phần trăm (nên dùng hạn chế, tối đa 5-6 phần)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box warning">
+              <div class="box-title">⚠️ Lỗi thường gặp</div>
+              Quên gọi <code>plt.show()</code> khi chạy script Python thuần (ngoài Jupyter) khiến biểu đồ không hiển thị. Trong Jupyter Notebook, biểu đồ thường tự hiện sau ô code nhờ "magic command" <code>%matplotlib inline</code>.
+            </div>
+
+            <h3>10.3. Vẽ Decision Boundary — trực quan hóa "ranh giới quyết định" của mô hình phân loại</h3>
+            <p>Một kỹ thuật rất hữu ích khi học các thuật toán Classification (Phần 6-8): vẽ ra <i>vùng không gian</i> mà mô hình dự đoán mỗi lớp, giúp thấy trực quan mô hình "nghĩ" gì thay vì chỉ nhìn con số accuracy.</p>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import numpy as np
+import matplotlib.pyplot as plt
+
+def ve_decision_boundary(mo_hinh, X, y):
+    """Chỉ áp dụng được khi X có đúng 2 đặc trưng (để vẽ được trên mặt phẳng 2D)"""
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200), np.linspace(y_min, y_max, 200))
+
+    # Dự đoán cho MỌI điểm trên lưới 200x200, không chỉ dữ liệu thật
+    Z = mo_hinh.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    fig, ax = plt.subplots(figsize=(7, 6))
+    ax.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')     # tô màu theo vùng dự đoán
+    ax.scatter(X[:, 0], X[:, 1], c=y, cmap='coolwarm', edgecolors='k')  # dữ liệu thật đè lên trên
+    ax.set_xlabel('Đặc trưng 1'); ax.set_ylabel('Đặc trưng 2')
+    plt.show()
+
+# Dùng thử: so sánh Logistic Regression (ranh giới thẳng) vs Decision Tree (ranh giới bậc thang)
+# ve_decision_boundary(logistic_model, X_2_dac_trung, y)
+# ve_decision_boundary(tree_model, X_2_dac_trung, y)</code></pre>
+            </div>
+            <div class="box tip">
+              <div class="box-title">💡 Vì sao kỹ thuật này giúp "cảm nhận" được từng thuật toán</div>
+              Vẽ decision boundary cho nhiều thuật toán trên cùng một bộ dữ liệu cho thấy rõ sự khác biệt đã học ở lý thuyết: Logistic Regression (Chương 21) luôn cho ranh giới là <b>đường thẳng</b>; Decision Tree (Chương 24) cho ranh giới dạng <b>bậc thang vuông góc</b>; KNN (Chương 22) cho ranh giới <b>lởm chởm, bám sát từng điểm dữ liệu</b> khi k nhỏ. Đây là cách trực quan nhất để hiểu vì sao một mô hình bị overfitting: ranh giới quá lởm chởm, "uốn éo" theo từng điểm nhiễu thay vì theo xu hướng chung.
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Vẽ scatter plot thể hiện quan hệ giữa 2 mảng <code>x = np.random.rand(50)</code> và <code>y = 2*x + np.random.normal(0, 0.1, 50)</code>, có tiêu đề "Quan hệ tuyến tính".</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>x = np.random.rand(50)
+y = 2 * x + np.random.normal(0, 0.1, 50)
+
+fig, ax = plt.subplots()
+ax.scatter(x, y, color='#5B4EE5', alpha=0.7)
+ax.set_title('Quan hệ tuyến tính')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+plt.show()</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Vẽ pie chart với quá nhiều phần (>6-7), khiến biểu đồ rối và khó so sánh — nên dùng bar chart thay thế.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn đặt tiêu đề và nhãn trục rõ ràng — một biểu đồ "đẹp" nhưng không ai hiểu là biểu đồ vô nghĩa.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 10</h4>
+              <ul>
+                <li>Figure chứa Axes; nên dùng object-oriented API (<code>fig, ax = plt.subplots()</code>) thay vì API kiểu <code>plt.plot()</code> trực tiếp khi cần kiểm soát chi tiết.</li>
+                <li>6 loại biểu đồ cốt lõi: line, bar, scatter, histogram, box, pie — mỗi loại phù hợp một mục đích riêng.</li>
+                <li>Decision boundary trực quan hóa vùng dự đoán của mô hình phân loại — cách nhanh nhất để "cảm nhận" sự khác biệt giữa các thuật toán và nhận ra overfitting.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 11: SEABORN -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-11">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">11</div>
+            <div>
+              <h2>Seaborn — trực quan hóa thống kê nâng cao</h2>
+              <div class="ch-sub">Xây trên Matplotlib, tích hợp trực tiếp với Pandas DataFrame</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>11.1. Vì sao dùng Seaborn thay vì chỉ Matplotlib?</h3>
+            <p>Seaborn được xây dựng trên nền Matplotlib nhưng cung cấp: (1) giao diện mặc định đẹp hơn, (2) hàm vẽ nhận trực tiếp DataFrame + tên cột thay vì phải tự trích xuất mảng, và (3) các biểu đồ thống kê phức tạp (như heatmap tương quan, violin plot) chỉ trong 1 dòng code.</p>
+
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.DataFrame({
+    'phong_ban': ['Sales']*20 + ['Tech']*20,
+    'luong':     list(np.random.normal(11, 2, 20)) + list(np.random.normal(20, 3, 20)),
+    'tuoi':      list(np.random.randint(22, 40, 20)) + list(np.random.randint(22, 45, 20)),
+})
+
+sns.set_style('whitegrid')   # đặt theme mặc định đẹp, gọn cho toàn bộ biểu đồ sau đó
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+sns.boxplot(data=df, x='phong_ban', y='luong', ax=axes[0], palette='Set2')
+axes[0].set_title('Phân phối lương theo phòng ban')
+
+sns.scatterplot(data=df, x='tuoi', y='luong', hue='phong_ban', ax=axes[1])
+axes[1].set_title('Tuổi vs Lương, tô màu theo phòng ban')
+
+plt.tight_layout()
+plt.show()</code></pre>
+            </div>
+
+            <div class="line-explain">
+              <ol>
+                <li><code>sns.set_style('whitegrid')</code> — đặt theme lưới nền trắng cho mọi biểu đồ vẽ sau đó, chỉ cần gọi một lần.</li>
+                <li><code>sns.boxplot(data=df, x='phong_ban', y='luong', ...)</code> — chỉ cần truyền DataFrame và tên cột, Seaborn tự nhóm và vẽ box plot cho từng phòng ban.</li>
+                <li><code>hue='phong_ban'</code> — tham số cực kỳ mạnh của Seaborn: tự động tô màu khác nhau theo một cột phân loại thứ 3, biến scatter 2D thành biểu đồ 3 chiều thông tin.</li>
+              </ol>
+            </div>
+
+            <h3>11.2. Heatmap tương quan — biểu đồ "phải biết" khi làm EDA</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>df_so = pd.DataFrame({
+    'dien_tich':   [50, 70, 90, 120, 150],
+    'so_phong':    [2, 2, 3, 4, 5],
+    'gia_trieu':   [1500, 2100, 2600, 3400, 4200],
+})
+
+ma_tran_tuong_quan = df_so.corr()   # tính hệ số tương quan giữa mọi cặp cột số
+
+plt.figure(figsize=(5, 4))
+sns.heatmap(ma_tran_tuong_quan, annot=True, cmap='YlGnBu', fmt='.2f', vmin=-1, vmax=1)
+plt.title('Ma trận tương quan')
+plt.show()</code></pre>
+            </div>
+
+            <div class="diagram-card">
+              <svg viewBox="0 0 260 260" width="220">
+                <g font-family="JetBrains Mono" font-size="11">
+                  <rect x="60" y="20" width="60" height="60" fill="#0D9488"/><text x="90" y="55" text-anchor="middle" fill="#fff">1.00</text>
+                  <rect x="120" y="20" width="60" height="60" fill="#4CB3A8"/><text x="150" y="55" text-anchor="middle" fill="#fff">0.97</text>
+                  <rect x="180" y="20" width="60" height="60" fill="#54B8AC"/><text x="210" y="55" text-anchor="middle" fill="#fff">0.99</text>
+                  <rect x="60" y="80" width="60" height="60" fill="#4CB3A8"/><text x="90" y="115" text-anchor="middle" fill="#fff">0.97</text>
+                  <rect x="120" y="80" width="60" height="60" fill="#0D9488"/><text x="150" y="115" text-anchor="middle" fill="#fff">1.00</text>
+                  <rect x="180" y="80" width="60" height="60" fill="#6BC4B8"/><text x="210" y="115" text-anchor="middle" fill="#fff">0.95</text>
+                  <rect x="60" y="140" width="60" height="60" fill="#54B8AC"/><text x="90" y="175" text-anchor="middle" fill="#fff">0.99</text>
+                  <rect x="120" y="140" width="60" height="60" fill="#6BC4B8"/><text x="150" y="175" text-anchor="middle" fill="#fff">0.95</text>
+                  <rect x="180" y="140" width="60" height="60" fill="#0D9488"/><text x="210" y="175" text-anchor="middle" fill="#fff">1.00</text>
+                  <text x="90" y="215" text-anchor="middle" font-size="9" fill="var(--muted)">dien_tich</text>
+                  <text x="150" y="215" text-anchor="middle" font-size="9" fill="var(--muted)">so_phong</text>
+                  <text x="210" y="215" text-anchor="middle" font-size="9" fill="var(--muted)">gia</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">Heatmap tương quan: màu càng đậm, hệ số tương quan càng gần 1 (tương quan thuận mạnh).</div>
+            </div>
+
+            <div class="box tip">
+              <div class="box-title">💡 Mẹo phân tích nhanh</div>
+              Heatmap tương quan giúp bạn phát hiện <b>đa cộng tuyến (multicollinearity)</b> — khi 2 đặc trưng tương quan quá cao với nhau (ví dụ >0.9), có thể chỉ cần giữ lại một trong hai khi huấn luyện một số mô hình tuyến tính.
+            </div>
+
+            <h3>11.3. Các loại biểu đồ Seaborn thường dùng trong EDA</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Hàm Seaborn</th><th>Mục đích</th></tr></thead>
+                <tbody>
+                  <tr><td><code>sns.histplot()</code></td><td>Histogram có thể kèm đường ước lượng mật độ (KDE)</td></tr>
+                  <tr><td><code>sns.boxplot()</code></td><td>So sánh phân phối + phát hiện outlier giữa các nhóm</td></tr>
+                  <tr><td><code>sns.violinplot()</code></td><td>Kết hợp box plot và mật độ phân phối, chi tiết hơn box plot</td></tr>
+                  <tr><td><code>sns.pairplot()</code></td><td>Vẽ tất cả cặp scatter plot giữa các cột số cùng lúc — rất hữu ích khi EDA nhanh</td></tr>
+                  <tr><td><code>sns.heatmap()</code></td><td>Trực quan hóa ma trận (thường dùng cho ma trận tương quan hoặc confusion matrix)</td></tr>
+                  <tr><td><code>sns.countplot()</code></td><td>Đếm số lượng theo từng danh mục (giống bar chart nhưng tự đếm)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Với DataFrame <code>df</code> ở mục 11.1, vẽ <code>sns.violinplot()</code> thể hiện phân phối <code>luong</code> theo <code>phong_ban</code>.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <div class="code-block">
+                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+                  <pre class="code"><code>plt.figure(figsize=(6, 4))
+sns.violinplot(data=df, x='phong_ban', y='luong', palette='Set2')
+plt.title('Phân phối lương (violin plot)')
+plt.show()</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chạy <code>sns.pairplot()</code> trên DataFrame có quá nhiều cột (>10), khiến hình quá lớn và chậm — nên chọn lọc trước các cột quan trọng.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Luôn vẽ heatmap tương quan như một bước EDA tiêu chuẩn ngay sau khi nạp dữ liệu số.</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 11</h4>
+              <ul>
+                <li>Seaborn tích hợp trực tiếp với DataFrame, giúp code ngắn gọn hơn Matplotlib thuần.</li>
+                <li><code>hue</code> là tham số mạnh nhất để thêm chiều thông tin thứ 3 vào biểu đồ 2D.</li>
+                <li>Heatmap tương quan và pairplot là 2 công cụ EDA nhanh, nên dùng đầu tiên với dữ liệu mới.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- CHƯƠNG 12: DATA VISUALIZATION NÂNG CAO -->
+      <!-- ================================================================ -->
+      <div class="chapter" id="chuong-12">
+        <div class="chapter-head" onclick="toggleChapter(this)">
+          <div class="ch-left">
+            <div class="ch-badge">12</div>
+            <div>
+              <h2>Nguyên tắc Data Visualization hiệu quả</h2>
+              <div class="ch-sub">Chọn đúng loại biểu đồ, tránh "nói dối" bằng biểu đồ</div>
+            </div>
+          </div>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="chapter-body">
+          <div class="chapter-inner">
+
+            <h3>12.1. Chọn đúng loại biểu đồ theo câu hỏi</h3>
+            <p>Nguyên tắc quan trọng nhất của trực quan hóa dữ liệu: <b>bắt đầu từ câu hỏi</b>, không bắt đầu từ "biểu đồ nào trông đẹp".</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Câu hỏi muốn trả lời</th><th>Loại biểu đồ phù hợp</th></tr></thead>
+                <tbody>
+                  <tr><td>Một biến thay đổi thế nào theo thời gian?</td><td>Line chart</td></tr>
+                  <tr><td>So sánh giá trị giữa các nhóm rời rạc?</td><td>Bar chart</td></tr>
+                  <tr><td>Hai biến số có quan hệ với nhau không?</td><td>Scatter plot</td></tr>
+                  <tr><td>Dữ liệu phân bố như thế nào (tập trung/lệch/outlier)?</td><td>Histogram, Box plot, Violin plot</td></tr>
+                  <tr><td>Tỉ lệ cấu thành của tổng thể?</td><td>Bar chart (100% stacked) hoặc Pie chart (rất ít phần)</td></tr>
+                  <tr><td>Mức độ tương quan giữa nhiều biến cùng lúc?</td><td>Heatmap</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>12.2. Những cách biểu đồ "nói dối" — và cách tránh</h3>
+            <div class="diagram-card">
+              <svg viewBox="0 0 500 180" width="440">
+                <g font-family="Space Grotesk" font-size="11">
+                  <text x="120" y="20" text-anchor="middle" fill="var(--rose)" font-weight="700">Trục Y bị cắt (sai)</text>
+                  <line x1="30" y1="140" x2="220" y2="140" stroke="var(--border)"/>
+                  <rect x="50" y="100" width="30" height="40" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <rect x="110" y="60" width="30" height="80" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <rect x="170" y="20" width="30" height="120" fill="var(--rose-dim)" stroke="var(--rose)"/>
+                  <text x="65" y="155" font-size="9" fill="var(--muted)">98</text>
+                  <text x="125" y="155" font-size="9" fill="var(--muted)">99</text>
+                  <text x="185" y="155" font-size="9" fill="var(--muted)">100</text>
+                  <text x="120" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">trục Y bắt đầu từ 98 -&gt; phóng đại chênh lệch</text>
+
+                  <text x="380" y="20" text-anchor="middle" fill="var(--teal)" font-weight="700">Trục Y đầy đủ (đúng)</text>
+                  <line x1="300" y1="140" x2="490" y2="140" stroke="var(--border)"/>
+                  <rect x="320" y="136" width="30" height="4" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <rect x="380" y="132" width="30" height="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <rect x="440" y="128" width="30" height="12" fill="var(--teal-dim)" stroke="var(--teal)"/>
+                  <text x="380" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">trục Y từ 0 -&gt; thể hiện đúng tỉ lệ chênh lệch thật</text>
+                </g>
+              </svg>
+              <div class="diagram-caption">Cùng một bộ dữ liệu (98, 99, 100) nhưng cắt trục Y khiến chênh lệch trông "khổng lồ" một cách sai lệch.</div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Lỗi phổ biến</th><th>Hậu quả</th><th>Cách tránh</th></tr></thead>
+                <tbody>
+                  <tr><td>Cắt trục Y (không bắt đầu từ 0) với bar chart</td><td>Phóng đại chênh lệch nhỏ thành lớn</td><td>Bar chart nên luôn bắt đầu trục từ 0; line chart có thể linh hoạt hơn</td></tr>
+                  <tr><td>Dùng quá nhiều màu sắc không cần thiết</td><td>Gây rối mắt, khó đọc thông điệp chính</td><td>Chỉ tô nổi bật (highlight) phần dữ liệu quan trọng, phần còn lại dùng màu trung tính</td></tr>
+                  <tr><td>Biểu đồ 3D không cần thiết</td><td>Bóp méo tỉ lệ thật, khó so sánh chính xác</td><td>Ưu tiên biểu đồ 2D đơn giản, rõ ràng</td></tr>
+                  <tr><td>Quá nhiều thông tin trong 1 biểu đồ</td><td>Người xem không biết tập trung vào đâu</td><td>Mỗi biểu đồ nên trả lời 1 câu hỏi chính</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="box important">
+              <div class="box-title">🔴 Đạo đức trong trực quan hóa dữ liệu</div>
+              Là người làm dữ liệu, bạn có trách nhiệm trình bày sự thật một cách trung thực. Việc cố ý chọn cách biểu diễn gây hiểu lầm (dù kỹ thuật không "sai") là vấn đề đạo đức nghề nghiệp, không chỉ là vấn đề thẩm mỹ.
+            </div>
+
+            <h3>12.3. Dashboard đơn giản với subplot tổng hợp</h3>
+            <div class="code-block">
+              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+              <pre class="code"><code>fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+fig.suptitle('Dashboard tổng quan dữ liệu bán hàng', fontsize=14, fontweight='bold')
+
+# Ô 1: xu hướng theo thời gian
+axes[0,0].plot(thang, doanh_thu, color='#0D9488')
+axes[0,0].set_title('Doanh thu theo tháng')
+
+# Ô 2: so sánh nhóm
+axes[0,1].bar(phong_ban, so_nhan_vien, color='#5B4EE5')
+axes[0,1].set_title('Nhân sự theo phòng ban')
+
+# Ô 3: phân phối
+axes[1,0].hist(np.random.normal(170, 8, 500), bins=20, color='#F59E0B')
+axes[1,0].set_title('Phân phối chiều cao')
+
+# Ô 4: tương quan
+sns.heatmap(df_so.corr(), annot=True, cmap='YlGnBu', ax=axes[1,1])
+axes[1,1].set_title('Ma trận tương quan')
+
+plt.tight_layout()
+plt.savefig('dashboard.png', dpi=150)
+plt.show()</code></pre>
+            </div>
+
+            <h4>Bài tập thực hành</h4>
+            <div class="exercise">
+              <h4>Bài 1</h4>
+              <p>Một đồng nghiệp trình bày biểu đồ cột so sánh doanh số 2 chi nhánh (10 tỷ và 10.5 tỷ), nhưng trục Y bắt đầu từ 9.8 tỷ khiến cột chi nhánh B trông "cao gấp đôi" chi nhánh A. Đây có phải vấn đề không? Đề xuất cách sửa.</p>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+              <div class="answer-panel">
+                <p><b>Có.</b> Chênh lệch thật giữa 10 tỷ và 10.5 tỷ chỉ là 5%, nhưng việc cắt trục Y khiến người xem cảm nhận sai lệch nghiêm trọng hơn nhiều. Cách sửa: đặt trục Y bắt đầu từ 0 (dùng <code>ax.set_ylim(0, ...)</code> trong Matplotlib), hoặc nếu bắt buộc phải zoom để thấy chênh lệch nhỏ, cần ghi chú rõ ràng rằng trục đã được cắt để tránh gây hiểu lầm.</p>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhồi nhét quá nhiều biến vào một biểu đồ duy nhất (quá nhiều màu, quá nhiều đường) khiến thông điệp chính bị loãng.</div>
+              <div class="practice-card"><b>✅ Best Practice:</b> Áp dụng nguyên tắc "data-ink ratio" — loại bỏ mọi chi tiết trang trí không phục vụ việc truyền tải thông tin (lưới thừa, viền thừa, hiệu ứng 3D không cần thiết).</div>
+            </div>
+
+            <div class="summary-box">
+              <h4>🎯 Tổng kết Chương 12</h4>
+              <ul>
+                <li>Luôn bắt đầu từ câu hỏi cần trả lời, rồi mới chọn loại biểu đồ phù hợp.</li>
+                <li>Cẩn trọng với các cách trình bày dễ gây hiểu lầm: cắt trục, biểu đồ 3D, quá nhiều màu sắc.</li>
+                <li>Dashboard tổng hợp (subplot 2x2 trở lên) giúp trình bày nhiều góc nhìn dữ liệu cùng lúc.</li>
+              </ul>
+            </div>
+
+            <div class="box note">
+              <div class="box-title">🆕 Cập nhật 2026 — Vẽ được cả embedding vector nhiều trăm chiều lên một biểu đồ 2D?</div>
+              Matplotlib/Seaborn ở chương này vẽ tốt dữ liệu có sẵn 2-3 chiều. Nhưng embedding vector (Phần 5, khóa AI Engineer) thường có hàng trăm chiều — không thể vẽ trực tiếp. Cách làm phổ biến hiện nay:
+              <ul>
+                <li>Dùng kỹ thuật giảm chiều <b>trước</b> khi vẽ — PCA (Chương 31, Phần 9) là lựa chọn đơn giản nhất, hoặc các kỹ thuật chuyên cho trực quan hóa như <b>t-SNE</b> hay <b>UMAP</b> — cả hai đều nén dữ liệu nhiều chiều xuống còn 2 chiều, chuyên tối ưu để giữ được các "cụm" dữ liệu gần nhau trông vẫn gần nhau trên biểu đồ.</li>
+                <li>Sau khi giảm chiều, việc vẽ ra vẫn dùng đúng <code>scatter plot</code> quen thuộc của Matplotlib/Seaborn đã học ở chương này — công cụ vẽ không đổi, chỉ khác ở bước chuẩn bị dữ liệu trước khi vẽ.</li>
+                <li>Ứng dụng thực tế: kiểm tra trực quan xem các embedding của câu hỏi/tài liệu trong hệ thống RAG (Chương 45) có thực sự "gom cụm" theo chủ đề hợp lý hay không — một cách debug rất hữu ích khi RAG trả kết quả không như mong đợi.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <p>✅ Bạn vừa hoàn thành <b>Phần 3</b>: Matplotlib, Seaborn và nguyên tắc Data Visualization hiệu quả.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="phan-2-toan-cho-ml.html" class="kbd" style="text-decoration:none;">← Phần 2. Toán Cho ML</a>
+        <a href="phan-4-tien-xu-ly-du-lieu.html" class="kbd" style="text-decoration:none;">Sang Phần 4 →</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<script>
+const darkToggle = document.getElementById('darkToggle');
+const THEME_KEY = 'ml-theme';
+function applyDarkPref(){
+  const isDark = document.documentElement.classList.contains('dark');
+  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+}
+darkToggle.addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.documentElement.classList.contains('dark');
+  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
+  applyDarkPref();
+});
+applyDarkPref();
+
+function toggleChapter(headEl){
+  const chapter = headEl.parentElement;
+  chapter.classList.toggle('open');
+}
+
+function toggleAnswer(btn){
+  const panel = btn.nextElementSibling;
+  const isShown = panel.classList.contains('show');
+  panel.classList.toggle('show');
+  btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
+  if(!isShown) btn.dataset.revealed = 'true';
+  updateProgress();
+}
+
+function checkQuiz(optEl, isCorrect){
+  const opts = optEl.parentElement;
+  if(opts.dataset.answered === 'true') return;
+  opts.dataset.answered = 'true';
+  const feedback = opts.nextElementSibling;
+  [...opts.children].forEach(o => o.style.pointerEvents = 'none');
+  if(isCorrect){
+    optEl.classList.add('correct');
+    feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
+    feedback.style.color = 'var(--teal)';
+  } else {
+    optEl.classList.add('wrong');
+    feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
+    feedback.style.color = 'var(--rose)';
+    [...opts.children].forEach(o => {
+      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+    });
+  }
+  feedback.classList.add('show');
+  updateProgress();
+}
+
+function copyCode(btn){
+  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const totalExercises = document.querySelectorAll('.reveal-btn').length;
+function updateProgress(){
+  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
+  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+updateProgress();
+
+const sections = document.querySelectorAll('.hero, .chapter');
+const tocLinks = document.querySelectorAll('#tocList a');
+window.addEventListener('scroll', () => {
+  let currentId = 'gioi-thieu';
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top <= 140) currentId = sec.id;
+  });
+  tocLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
+  });
+  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+});
+
+tocLinks.forEach(a => {
+  a.addEventListener('click', () => {
+    const id = a.getAttribute('href').replace('#','');
+    const target = document.getElementById(id);
+    if(target && target.classList.contains('chapter')) target.classList.add('open');
+  });
+});
+</script>
+<!-- ============ AI CHATBOT WIDGET ============ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <span class="dot"></span> 💬 Hỏi AI
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="chat-head-title">
+      <div class="chat-head-icon">🤖</div>
+      Trợ lý AI học Machine Learning
+    </div>
+    <div style="display:flex;align-items:center;">
+      <button class="chat-settings-btn" id="apiSettingsBtn" onclick="toggleApiKeyPanel()" title="Cài đặt API Key">⚙️</button>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+  </div>
+  <div class="api-key-panel" id="apiKeyPanel">
+    <p>Trợ lý dùng Claude API gọi trực tiếp từ trình duyệt của bạn. Dán API key vào đây (lấy miễn phí tại <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>) — key chỉ lưu trên máy bạn (trình duyệt), không gửi qua bất kỳ máy chủ trung gian nào ngoài Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="akp-row">
+      <button class="akp-save" onclick="saveApiKey()">💾 Lưu Key</button>
+      <button class="akp-clear" onclick="clearApiKey()">🗑️ Xóa Key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">Chào bạn! 👋 Mình là trợ lý AI, có thể giải thích lại bất kỳ khái niệm ML nào trong giáo trình, cho ví dụ khác, hoặc gỡ lỗi code Python giúp bạn. Bạn muốn hỏi gì?</div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button onclick="askSuggest(this)">Giải thích Overfitting là gì?</button>
+    <button onclick="askSuggest(this)">Khi nào dùng Random Forest thay vì Logistic Regression?</button>
+    <button onclick="askSuggest(this)">Cho ví dụ khác về Gradient Descent</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Hỏi về Machine Learning..." onkeydown="if(event.key==='Enter')sendChat();">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">➤</button>
+  </div>
+  <div class="chat-disclaimer">Trợ lý AI có thể thỉnh thoảng trả lời chưa chính xác — luôn đối chiếu lại với nội dung giáo trình.</div>
+</div>
+
+
+<script>
+/* ============ AI CHATBOT LOGIC ============ */
+const chatHistory = []; // {role, content} - lưu trong bộ nhớ phiên, không dùng localStorage
+const HE_THONG_PROMPT = `Bạn là một trợ lý AI hỗ trợ học Machine Learning bằng tiếng Việt, đi kèm một bộ giáo trình ML từ cơ bản đến nâng cao (AI/ML/DL, toán cho ML, NumPy/Pandas, trực quan hóa, tiền xử lý dữ liệu, feature engineering, các thuật toán Supervised/Unsupervised Learning, ensemble learning, đánh giá mô hình, MLOps...).
+Hãy trả lời NGẮN GỌN (tối đa khoảng 120-180 từ trừ khi người dùng yêu cầu chi tiết hơn), rõ ràng, dùng ví dụ cụ thể khi hữu ích, có thể dùng code Python ngắn trong dấu backtick khi phù hợp. Luôn trả lời bằng tiếng Việt. Nếu câu hỏi không liên quan tới Machine Learning/Data Science/lập trình, vẫn trả lời hữu ích nhưng có thể nhắc nhẹ đây là trợ lý chuyên về ML.`;
+
+function toggleChat(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function askSuggest(btn){
+  document.getElementById('chatInput').value = btn.textContent;
+  sendChat();
+}
+
+function addMessage(role, text){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+  div.innerHTML = escapeAndFormat(text);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function escapeAndFormat(text){
+  const escaped = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Chuyển `code` thành <code>, giữ xuống dòng
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function addTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+const API_KEY_STORAGE = 'ml_course_claude_api_key';
+
+function updateApiKeyStatus(){
+  const status = document.getElementById('apiKeyStatus');
+  const input = document.getElementById('apiKeyInput');
+  const key = localStorage.getItem(API_KEY_STORAGE);
+  if(!status || !input) return;
+  if(key){
+    status.textContent = '✓ Đã lưu key (••••' + key.slice(-4) + ')';
+    status.className = 'api-key-status set';
+    input.placeholder = 'Đã có key - nhập key mới để thay';
+  } else {
+    status.textContent = '⚠️ Chưa có API key — trợ lý sẽ không trả lời được.';
+    status.className = 'api-key-status unset';
+    input.placeholder = 'sk-ant-api03-...';
+  }
+}
+
+function toggleApiKeyPanel(){
+  const panel = document.getElementById('apiKeyPanel');
+  panel.classList.toggle('open');
+  updateApiKeyStatus();
+}
+
+function saveApiKey(){
+  const input = document.getElementById('apiKeyInput');
+  const val = input.value.trim();
+  if(!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  input.value = '';
+  updateApiKeyStatus();
+  document.getElementById('apiKeyPanel').classList.remove('open');
+}
+
+function clearApiKey(){
+  localStorage.removeItem(API_KEY_STORAGE);
+  updateApiKeyStatus();
+}
+
+updateApiKeyStatus();
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = localStorage.getItem(API_KEY_STORAGE);
+  if(!apiKey){
+    document.getElementById('apiKeyPanel').classList.add('open');
+    updateApiKeyStatus();
+    addMessage('bot', '⚠️ Bạn cần nhập Claude API Key trước (bấm nút ⚙️ ở góc trên bên phải khung chat) để mình có thể trả lời. Lấy key miễn phí tại console.anthropic.com.');
+    return;
+  }
+
+  const suggestRow = document.getElementById('chatSuggest');
+  if(suggestRow) suggestRow.style.display = 'none';
+
+  addMessage('user', text);
+  chatHistory.push({role: 'user', content: text});
+  input.value = '';
+
+  const sendBtn = document.getElementById('chatSendBtn');
+  sendBtn.disabled = true;
+  addTypingIndicator();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 700,
+        system: HE_THONG_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await response.json();
+    removeTypingIndicator();
+
+    if(!response.ok){
+      const errMsg = (data && data.error && data.error.message) ? data.error.message : ("Lỗi HTTP " + response.status);
+      addMessage('bot', '⚠️ API báo lỗi: ' + errMsg + '. Kiểm tra lại API key (bấm ⚙️) hoặc hạn mức tài khoản tại console.anthropic.com.');
+      chatHistory.pop();
+      return;
+    }
+
+    let replyText = "Xin lỗi, mình chưa nhận được phản hồi hợp lệ. Bạn thử hỏi lại nhé!";
+    if(data && data.content){
+      replyText = data.content.map(block => block.text || "").join("\n").trim() || replyText;
+    }
+    addMessage('bot', replyText);
+    chatHistory.push({role: 'assistant', content: replyText});
+  } catch(err){
+    removeTypingIndicator();
+    addMessage('bot', 'Có lỗi khi kết nối tới trợ lý AI (có thể do mạng hoặc trình duyệt chặn request). Kiểm tra kết nối mạng và API key rồi thử lại.');
+    chatHistory.pop();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+</script>
+</body>
+</html>
