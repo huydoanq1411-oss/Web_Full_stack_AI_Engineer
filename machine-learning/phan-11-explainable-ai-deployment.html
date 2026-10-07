@@ -1,61 +1,166 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('algo-mastery-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phần 11 · Explainable AI (SHAP, LIME) &amp; Model Deployment</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
-  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
-  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
-  --code-bg:#0E1626; --code-text:#DCE6F5;
-  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
-}
-html.dark{
-  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
-  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
-  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
-  --code-bg:#060A14; --code-text:#D9E4F7;
-  --shadow: 0 8px 28px rgba(0,0,0,.45);
-}
-*{box-sizing:border-box;}
+:root{--bg:#0a0c10;--bg-soft:#12151d;--bg-card:#171b26;--border:#262c3b;--text:#eef0f5;--text-dim:#8b93a7;--accent:#22d3ee;--accent2:#818cf8;--code-bg:#0d0f16;--kw:#c792ea;--str:#c3e88d;--num:#f2a65a;--com:#6b7280;--fn:#82aaff;--type:#7dd0e0;--ok:#6bd68b;--warn:#f2c14e;--danger:#f47174;--info:#6ab8f7;--radius:12px;--mono:'JetBrains Mono',Consolas,monospace;--sans:'Inter','Segoe UI',system-ui,sans-serif;--shadow-sm:0 2px 8px rgba(0,0,0,.18);--shadow-md:0 8px 24px rgba(0,0,0,.28);--grad-accent:linear-gradient(135deg,var(--accent),var(--accent2));}
+[data-theme="light"]{--bg:#f7f8fb;--bg-soft:#ffffff;--bg-card:#ffffff;--border:#e5e8ef;--text:#181c25;--text-dim:#5c6373;--code-bg:#f1f3f8;--shadow-sm:0 2px 8px rgba(20,20,40,.06);--shadow-md:0 8px 24px rgba(20,20,40,.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}
+::selection{background:var(--accent);color:#0a0c10;}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;z-index:999;transition:width .1s;}
+#topbar{display:flex;position:sticky;top:0;z-index:60;background:var(--bg-soft);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between;}
+#topbar .brand{font-weight:700;color:var(--accent);}
+#topbar .topbar-right{display:flex;align-items:center;gap:10px;}
+#topbar a.home-btn{display:flex;align-items:center;gap:6px;color:var(--text);text-decoration:none;font-family:var(--mono);font-size:13px;background:var(--bg-card);border:1px solid var(--border);padding:7px 14px;border-radius:100px;transition:border-color .2s ease,color .2s ease;}
+#topbar a.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+#menu-toggle{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;}
+.layout{display:flex;min-height:100vh;}
+.main-col{flex:1;min-width:0;}
+#sidebar{width:290px;flex-shrink:0;background:var(--bg-soft);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;padding:20px 14px 60px;}
+#sidebar .brand{font-size:1.15rem;font-weight:800;color:var(--accent);padding:8px 10px 4px;}
+#sidebar .sub{color:var(--text-dim);font-size:.78rem;padding:0 10px 14px;}
+#search-box{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);margin-bottom:14px;font-size:.85rem;}
+#search-box:focus{outline:none;border-color:var(--accent);}
+.nav-group-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);padding:14px 10px 6px;font-weight:700;}
+.nav-link{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:8px;font-size:.87rem;color:var(--text-dim);cursor:pointer;margin-bottom:2px;transition:background .15s,color .15s,transform .15s;}
+.nav-link:hover{background:var(--bg-card);color:var(--text);transform:translateX(2px);}
+.nav-link.active{background:rgba(34,211,238,.14);color:var(--accent);font-weight:700;box-shadow:var(--shadow-sm);}
+.nav-link.locked{opacity:.4;cursor:not-allowed;}
+.nav-link.locked:hover{background:none;color:var(--text-dim);transform:none;}
+.nav-link.visited:not(.active):before{content:'✓';color:var(--ok);font-size:.72rem;font-weight:700;}
+.lang-switch{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 16px;}
+.lang-switch a{font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);transition:all .15s;}
+.lang-switch a:hover{color:var(--text);border-color:var(--accent);}
+.lang-switch a.current{background:var(--accent);color:#0a0c10;border-color:var(--accent);}
+#theme-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);cursor:pointer;margin-top:16px;font-size:.85rem;}
+main{flex:1;min-width:0;padding:40px 48px 120px;max-width:920px;}
+.hero{margin-bottom:36px;animation:fadeInUp .6s ease both;}
+.hero h1{font-size:2.3rem;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{color:var(--text-dim);font-size:1.02rem;}
+.hero .badge{display:inline-block;background:rgba(34,211,238,.14);color:var(--accent);font-size:.72rem;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em;font-weight:600;border:1px solid rgba(34,211,238,.25);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.chapter{padding-top:60px;margin-top:-20px;border-top:1px dashed var(--border);opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.chapter.visible{opacity:1;transform:translateY(0);}
+.chapter:first-of-type{border-top:none;}
+.chapter h2{font-size:1.55rem;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-weight:700;letter-spacing:-.01em;}
+.chapter h2 .num{color:#0a0c10;font-family:var(--mono);font-size:.95rem;font-weight:700;background:var(--grad-accent);width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm);}
+.chapter .lead{color:var(--text-dim);margin-bottom:22px;font-size:.96rem;}
+.chapter h3{font-size:1.14rem;margin:28px 0 10px;color:var(--text);font-weight:700;}
+p{margin-bottom:12px;font-size:.95rem;}
+ul,ol{margin:0 0 14px 22px;font-size:.95rem;}
+li{margin-bottom:5px;}
+.box{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border-left:4px solid;font-size:.9rem;box-shadow:var(--shadow-sm);transition:transform .15s;}
+.box:hover{transform:translateX(2px);}
+.box-title{font-weight:700;margin-bottom:4px;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;}
+.box.note{background:rgba(34,211,238,.08);border-color:var(--info);}
+.box.note .box-title{color:var(--info);}
+.box.tip{background:rgba(107,214,139,.08);border-color:var(--ok);}
+.box.tip .box-title{color:var(--ok);}
+.box.warning{background:rgba(242,193,78,.08);border-color:var(--warn);}
+.box.warning .box-title{color:var(--warn);}
+.box.important{background:rgba(244,113,116,.08);border-color:var(--danger);}
+.box.important .box-title{color:var(--danger);}
+.code-wrap{position:relative;margin:14px 0 20px;}
+.code-label{position:absolute;top:0;left:14px;transform:translateY(-50%);background:var(--bg);color:var(--text-dim);font-size:.68rem;padding:1px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px 14px;overflow-x:auto;font-family:var(--mono);font-size:.83rem;line-height:1.65;box-shadow:var(--shadow-sm);}
+code{font-family:var(--mono);}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-dim);font-size:.7rem;padding:4px 9px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.tok-kw{color:var(--kw);}
+.tok-str{color:var(--str);}
+.tok-num{color:var(--num);}
+.tok-com{color:var(--com);font-style:italic;}
+.tok-fn{color:var(--fn);}
+.tok-type{color:var(--type);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.87rem;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;}
+th{background:var(--bg-card);color:var(--accent);font-weight:700;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+tbody tr:hover td{background:rgba(34,211,238,.05);}
+.accordion{border:1px solid var(--border);border-radius:var(--radius);margin:14px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.accordion-head{padding:13px 16px;background:var(--bg-card);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.9rem;transition:background .15s;}
+.accordion-head:hover{background:rgba(34,211,238,.06);}
+.accordion-head:after{content:'+';color:var(--accent);font-size:1.1rem;}
+.accordion.open .accordion-head:after{content:'−';}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--bg-soft);}
+.accordion.open .accordion-body{max-height:2000px;}
+.accordion-body-inner{padding:14px 16px;}
+.quiz{border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 14px;margin:22px 0;background:var(--bg-card);box-shadow:var(--shadow-sm);}
+.quiz h4{font-size:.95rem;margin-bottom:14px;color:var(--accent2);font-weight:700;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q p{font-weight:600;margin-bottom:8px;}
+.quiz-opt{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:.88rem;transition:border-color .15s,transform .1s,background .15s;}
+.quiz-opt:hover{border-color:var(--accent);transform:translateX(2px);}
+.quiz-opt.correct{border-color:var(--ok);background:rgba(107,214,139,.12);}
+.quiz-opt.wrong{border-color:var(--danger);background:rgba(244,113,116,.12);}
+.quiz-btn{background:var(--grad-accent);color:#0a0c10;border:none;padding:9px 20px;border-radius:9px;font-weight:700;cursor:pointer;font-size:.85rem;transition:transform .15s,box-shadow .15s;}
+.quiz-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.quiz-result{margin-top:10px;font-weight:700;font-size:.9rem;}
+.summary-box{background:linear-gradient(135deg,rgba(34,211,238,.1),rgba(129,140,248,.06));border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:26px 0;box-shadow:var(--shadow-sm);}
+.summary-box h4{color:var(--accent);margin-bottom:8px;font-size:.95rem;font-weight:700;}
+#back-to-top{position:fixed;bottom:26px;right:26px;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#0a0c10;border:none;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:80;}
+#back-to-top.show{display:flex;}
+.next-hint{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+@media(max-width:900px){#topbar{display:flex;}#sidebar{position:fixed;left:-320px;top:0;z-index:70;box-shadow:0 0 30px rgba(0,0,0,.4);transition:left .25s;}#sidebar.open{left:0;}main{padding:24px 18px 100px;}}
+.crumb{font-size:.82rem;color:var(--text-dim);margin-bottom:22px;}
+.crumb a{color:var(--text-dim);}
+.crumb a:hover{color:var(--accent);}
+.chpage{max-width:900px;margin:0 auto;padding:36px 24px 90px;}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-size:.85rem;text-decoration:none;transition:transform .15s,box-shadow .15s;}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.nav-btn.disabled{opacity:.35;cursor:not-allowed;}
+.chnav{display:flex;justify-content:space-between;gap:14px;margin-top:44px;padding-top:22px;border-top:1px dashed var(--border);flex-wrap:wrap;}
+.chapter{padding-top:0!important;margin-top:0!important;border-top:none!important;opacity:1!important;transform:none!important;}
+.toc-wrap{max-width:820px;margin:0 auto;padding:60px 24px 100px;}
+.toc-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;margin-top:28px;}
+.toc-list li a{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);transition:transform .15s,box-shadow .15s,border-color .15s;}
+.toc-list li a:hover{transform:translateX(4px);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.toc-num{font-family:var(--mono);font-size:.78rem;color:var(--accent);background:rgba(94,200,184,.12);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+tr td{transition:background .15s;}
+.options-roadmap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.options-roadmap .box{margin:0;}
+@media(max-width:700px){.options-roadmap{grid-template-columns:1fr;}}
+.roadmap-note{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+.extra-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-top:40px;}
+.extra-box h2{margin:0 0 14px;font-size:14px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);}
+.extra-box ol{list-style:none;margin:0;padding:0;columns:2;column-gap:28px;}
+.extra-box li{margin-bottom:8px;break-inside:avoid;}
+.extra-box a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border);}
+.extra-box a:hover{color:var(--accent);border-color:var(--accent);}
+@media(max-width:680px){.extra-box ol{columns:1;}}
+.chapter h4.subh{font-size:1rem;font-weight:700;margin:22px 0 8px;color:var(--accent);}
+.mono{font-family:var(--mono);}
+:root{--ink:var(--text);--paper:var(--bg);--surface:var(--bg-card);--surface-2:var(--bg-soft);--muted:var(--text-dim);--teal:var(--accent);--violet:var(--accent2);--amber:var(--warn);--rose:var(--danger);--teal-dim:color-mix(in srgb,var(--accent) 16%,transparent);--amber-dim:color-mix(in srgb,var(--warn) 16%,transparent);--violet-dim:color-mix(in srgb,var(--accent2) 16%,transparent);--rose-dim:color-mix(in srgb,var(--danger) 16%,transparent);--code-text:#dce6f5;--shadow:var(--shadow-md);}
+.mlhero{padding:8px 0 28px;}
+.mlhero h1{font-size:2rem;font-weight:800;line-height:1.25;margin:10px 0 14px;}
+.mlhero .eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--accent);}
+.mlhero .roadmap-svg{width:100%;height:auto;margin-top:18px;}
+.mlchap{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);margin:16px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.container-ml{display:block;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+@media(max-width:640px){.chat-panel{left:12px;right:12px;width:auto;bottom:12px;}.chat-fab{right:12px;}}
 h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
-a{color:var(--teal);}
 code, pre, .mono{font-family:'JetBrains Mono',monospace;}
-.app{display:flex;min-height:100vh;}
-.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
-.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
-.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
-.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
-.progress-wrap{margin-bottom:20px;}
-.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
-.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
-.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
-.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
-.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
-.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
-.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
-.toc{list-style:none;margin:0;padding:0;}
-.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
-.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.toc li a:hover{background:var(--surface-2);color:var(--ink);}
-.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
-.main{flex:1;min-width:0;padding:0 0 80px;}
-.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
-.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
-.hero-inner{max-width:900px;margin:0 auto;}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
-.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
-.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
-.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
-.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.mlchap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
 .chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
 .chapter-head:hover{background:var(--surface-2);}
 .chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
@@ -63,9 +168,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-head h2{margin:0;font-size:19px;}
 .chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
 .chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
-.chapter.open .chevron{transform:rotate(180deg);}
+.mlchap.open .chevron{transform:rotate(180deg);}
 .chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
-.chapter.open .chapter-body{max-height:none;}
+.mlchap.open .chapter-body{max-height:none;}
 .chapter-inner{padding:4px 26px 30px;}
 .chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
 .chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
@@ -73,31 +178,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-inner p{margin:0 0 14px;color:var(--ink);}
 .chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
 .chapter-inner li{margin-bottom:6px;}
-.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
-.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
-.box.note{background:var(--surface-2);border-color:var(--border);}
-.box.note .box-title{color:var(--muted);}
-.box.tip{background:var(--teal-dim);border-color:var(--teal);}
-.box.tip .box-title{color:var(--teal);}
-.box.warning{background:var(--amber-dim);border-color:var(--amber);}
-.box.warning .box-title{color:#95650B;}
 html.dark .box.warning .box-title{color:var(--amber);}
-.box.important{background:var(--rose-dim);border-color:var(--rose);}
-.box.important .box-title{color:var(--rose);}
 .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
-table{width:100%;border-collapse:collapse;font-size:13.8px;}
 th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
-thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:var(--surface-2);}
-.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
-.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
-.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
-.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
-.copy-btn:hover{background:rgba(255,255,255,.12);}
-.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
-pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
-pre.code code{white-space:pre;}
 .line-explain{margin:14px 0;}
 .line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
 .line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
@@ -125,20 +208,13 @@ pre.code code{white-space:pre;}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
 .pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
-@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
 .mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .mistake-card b{color:var(--rose);}
 .practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .practice-card b{color:var(--teal);}
-.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
-.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
-.summary-box ul{margin-bottom:0;}
 .diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
 .diagram-card svg{max-width:100%;height:auto;}
 .diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
-.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
-.back-top.show{opacity:1;pointer-events:auto;}
-.back-top:hover{transform:translateY(-3px);}
 .next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
 .next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
 .next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
@@ -146,15 +222,6 @@ pre.code code{white-space:pre;}
 .checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
 .checklist li:last-child{border-bottom:none;}
 .checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
-.shap-bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-family:'JetBrains Mono';font-size:11px;}
-.shap-label{width:110px;flex-shrink:0;color:var(--muted);text-align:right;}
-.shap-track{flex:1;height:20px;background:var(--surface-2);border-radius:4px;position:relative;overflow:hidden;}
-.shap-fill{height:100%;border-radius:4px;position:absolute;top:0;}
-::-webkit-scrollbar{width:9px;height:9px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
-@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
-
-/* ============ AI CHATBOT WIDGET ============ */
 .chat-fab{
   position:fixed;bottom:26px;right:26px;z-index:40;
   display:flex;align-items:center;gap:9px;
@@ -223,43 +290,12 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 .chat-send-btn:hover{opacity:.85;}
 .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
 .chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
-@media(max-width:640px){
-  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
-  .chat-fab{right:12px;}
-}
-
-
-/* home fab - top right */
-.home-fab{
-  position:fixed;top:20px;right:26px;z-index:60;
-  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
-  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
-  transition:.2s;
-}
-.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
-.home-fab svg{width:18px;height:18px;flex-shrink:0;}
-@media(max-width:640px){
-  .home-fab{top:14px;right:14px;padding:9px;}
-  .home-fab .home-fab-label{display:none;}
-}
-
-/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
 .crumb{
   font-size:12.5px; color:var(--muted); margin-bottom:18px;
   font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
 }
 .crumb a{ color:var(--muted); text-decoration:none; }
 .crumb a:hover{ color:var(--teal); }
-#topbar{
-  display:none;
-  position:sticky; top:0; z-index:60;
-  align-items:center; justify-content:space-between;
-  padding:12px 18px;
-  background:var(--surface); border-bottom:1px solid var(--border);
-}
-#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
 #menu-toggle{
   background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
   width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
@@ -276,219 +312,166 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 }
 .chnav a:hover{ border-color:var(--teal); color:var(--teal); }
 .chnav .spacer{ flex:1; }
-@media(max-width:960px){
-  #topbar{ display:flex; }
-  .sidebar{
-    position:fixed; left:-320px; top:0; z-index:70;
-    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
-  }
-  .sidebar.open{ left:0; }
-}
+.shap-bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-family:'JetBrains Mono';font-size:11px;}
+.shap-label{width:110px;flex-shrink:0;color:var(--muted);text-align:right;}
+.shap-track{flex:1;height:20px;background:var(--surface-2);border-radius:4px;position:relative;overflow:hidden;}
+.shap-fill{height:100%;border-radius:4px;position:absolute;top:0;}
 </style>
+<title>Phần 11 · Explainable AI (SHAP, LIME) &amp; Model Deployment — Giáo Trình Machine Learning</title>
 </head>
 <body>
-<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span class="home-fab-label">Trang chủ</span>
-</a>
+<div id="progress-bar"></div>
 <div id="topbar">
   <span class="brand">📊 Machine Learning</span>
-  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+  <div class="topbar-right">
+    <a class="home-btn" href="../index.html">🏠 Trang chủ</a>
+    <button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Mở danh sách chương">☰</button>
+  </div>
 </div>
-<div class="app">
-
-  <aside class="sidebar">
-    <a href="index.html" style="text-decoration:none;color:inherit;">
-    <div class="sidebar-brand">
-      <div class="brand-mark">ML</div>
-      <div class="brand-text">Giáo trình ML</div>
-    </div>
-    </a>
-
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Tiến độ Phần 11</span><span id="progressPct">0%</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
-    <div class="nav-title">✓ Đã học</div>
-    <ul class="toc">
-      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
-      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
-      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
-      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
-      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
-      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
-      <li><a href="phan-7-knn-bayes-tree-svm.html" style="opacity:.7;"><span class="num">✓</span> Phần 7 — KNN·Bayes·Tree·SVM</a></li>
-      <li><a href="phan-8-ensemble-random-forest.html" style="opacity:.7;"><span class="num">✓</span> Phần 8 — Ensemble &amp; Boosting</a></li>
-      <li><a href="phan-9-unsupervised-clustering-pca.html" style="opacity:.7;"><span class="num">✓</span> Phần 9 — Clustering &amp; PCA</a></li>
-      <li><a href="phan-10-model-evaluation-tuning.html" style="opacity:.7;"><span class="num">✓</span> Phần 10 — Evaluation &amp; Tuning</a></li>
-    </ul>
-
-    <div class="nav-title">Các phần</div>
-    <ul class="toc" style="margin-bottom:16px;">
-      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
-      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
-      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
-      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
-      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
-      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
-      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
-      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
-      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
-      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
-      <li><a href="phan-11-explainable-ai-deployment.html" class="active"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
-      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
-      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
-      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
-      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
-    </ul>
-
-    <div class="nav-title">Mục lục — Phần 11</div>
-    <ul class="toc" id="tocList">
-      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 11</a></li>
-      <li><a href="#chuong-35"><span class="num">35</span> Explainable AI: SHAP &amp; LIME</a></li>
-      <li><a href="#chuong-36"><span class="num">36</span> Model Deployment: Flask &amp; FastAPI</a></li>
-      <li><a href="#chuong-37"><span class="num">37</span> Docker, Git &amp; GitHub cho dự án ML</a></li>
-    </ul>
-
-    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
-    <ul class="toc">
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">38</span> SQL cho Machine Learning</a></li>
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">39</span> MLOps, MLflow &amp; DVC</a></li>
-    </ul>
-
-    <div class="toggle-row" style="margin-top:18px;">
-      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
-    </div>
+<div class="layout">
+  <aside id="sidebar">
+    <div class="brand">📊 Machine Learning</div>
+    <div class="sub">16 chương</div>
+    <input type="text" id="search-box" placeholder="Tìm chương…" oninput="filterNav(this.value)">
+    <div class="nav-group-title">Danh sách chương</div>
+    <a class="nav-link" href="phan-1-nen-tang-ml.html">Phần 1. Nền Tảng ML</a>
+    <a class="nav-link" href="phan-2-toan-cho-ml.html">Phần 2. Toán Cho ML</a>
+    <a class="nav-link" href="phan-3-truc-quan-hoa-du-lieu.html">Phần 3. Trực Quan Hóa Dữ Liệu</a>
+    <a class="nav-link" href="phan-4-tien-xu-ly-du-lieu.html">Phần 4. Tiền Xử Lý &amp; EDA</a>
+    <a class="nav-link" href="phan-5-feature-engineering-pipeline.html">Phần 5. Feature Engineering</a>
+    <a class="nav-link" href="phan-6-supervised-learning.html">Phần 6. Supervised Learning</a>
+    <a class="nav-link" href="phan-7-knn-bayes-tree-svm.html">Phần 7. KNN, Bayes, Tree, SVM</a>
+    <a class="nav-link" href="phan-8-ensemble-random-forest.html">Phần 8. Ensemble &amp; Random Forest</a>
+    <a class="nav-link" href="phan-9-unsupervised-clustering-pca.html">Phần 9. Unsupervised &amp; PCA</a>
+    <a class="nav-link" href="phan-10-model-evaluation-tuning.html">Phần 10. Model Evaluation &amp; Tuning</a>
+    <a class="nav-link active" href="phan-11-explainable-ai-deployment.html">Phần 11. Explainable AI &amp; Deploy</a>
+    <a class="nav-link" href="phan-12-sql-mlops.html">Phần 12. SQL &amp; MLOps</a>
+    <a class="nav-link" href="phan-13-kaggle-portfolio.html">Phần 13. Kaggle &amp; Portfolio</a>
+    <a class="nav-link" href="phan-14-deep-learning.html">Phần 14. Deep Learning</a>
+    <a class="nav-link" href="phan-15-reinforcement-learning.html">Phần 15. Reinforcement Learning</a>
+    <a class="nav-link" href="tong-hop-cheat-sheet.html">📋 Tổng hợp công thức</a>
+    <div class="nav-group-title">Trong phần này</div>
+    <a class="nav-link" href="#gioi-thieu" data-target="gioi-thieu">Giới thiệu Phần 11</a>
+    <a class="nav-link" href="#chuong-35" data-target="chuong-35">Explainable AI: SHAP &amp; LIME</a>
+    <a class="nav-link" href="#chuong-36" data-target="chuong-36">Model Deployment: Flask &amp; FastAPI</a>
+    <a class="nav-link" href="#chuong-37" data-target="chuong-37">Docker, Git &amp; GitHub cho dự án ML</a>
+    <button id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Chế độ tối</span></button>
   </aside>
-
-  <main class="main">
-
-    <div class="crumb">
-      <a href="../index.html">🏠 Trang chủ</a> ·
-      <a href="index.html">📊 Machine Learning</a> ·
-      <span>Phần 11. Explainable AI &amp; Deploy</span>
-    </div>
-    <section class="hero" id="gioi-thieu">
-      <div class="hero-inner">
-        <span class="eyebrow">● Phần 11 / N — Từ "mô hình chạy được" đến "sản phẩm thật"</span>
-        <h1>Mở hộp đen, rồi đưa mô hình<br>ra khỏi Jupyter Notebook</h1>
-        <p class="lead">Một mô hình chính xác nhưng không ai hiểu vì sao nó quyết định vậy, hoặc chỉ chạy được trong notebook của riêng bạn, thì giá trị thực tế rất hạn chế.
+  <div class="main-col">
+<div class="chpage">
+  <div class="crumb">
+    <a href="../index.html">🏠 Trang chủ</a> ·
+    <a href="index.html">📊 Machine Learning</a> ·
+    <span>Phần 11. Explainable AI &amp; Deploy</span>
+  </div>
+  <main style="padding:0;max-width:none;">
+<div class="mlhero" id="gioi-thieu">
+      <span class="eyebrow">● Phần 11 / 15 — Từ "mô hình chạy được" đến "sản phẩm thật"</span>
+      <h1>Mở hộp đen, rồi đưa mô hình<br/>ra khỏi Jupyter Notebook</h1>
+      <p class="lead">Một mô hình chính xác nhưng không ai hiểu vì sao nó quyết định vậy, hoặc chỉ chạy được trong notebook của riêng bạn, thì giá trị thực tế rất hạn chế.
         Phần 11 giải quyết 2 vấn đề đó: <b>Explainable AI</b> (SHAP, LIME) giúp "mở hộp đen" giải thích từng dự đoán cụ thể, và <b>Model Deployment</b> (Flask, FastAPI, Docker, Git/GitHub)
         đưa mô hình từ notebook thành một dịch vụ thực sự có thể gọi qua API.</p>
+      <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+<svg class="roadmap-svg" viewbox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#0D9488"></stop>
+<stop offset="100%" stop-color="#5B4EE5"></stop>
+</lineargradient>
+</defs>
+<path d="M40,110 H820" stroke="url(#lineGrad)" stroke-linecap="round" stroke-width="6"></path>
+<path d="M760,110 H840" stroke="var(--border)" stroke-dasharray="2 10" stroke-linecap="round" stroke-width="6"></path>
+<g font-family="Space Grotesk, sans-serif">
+<g><circle cx="70" cy="110" fill="var(--border)" r="13"></circle><text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="70" y="150">Phần 1-10 ✓</text></g>
+<g>
+<circle cx="280" cy="110" fill="#0D9488" r="15"></circle><circle cx="280" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="280" y="70">Ga 35</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="280" y="150">SHAP &amp; LIME</text>
+</g>
+<g>
+<circle cx="470" cy="110" fill="#0D9488" r="15"></circle><circle cx="470" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="470" y="70">Ga 36</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="470" y="150">Flask &amp; FastAPI</text>
+</g>
+<g>
+<circle cx="660" cy="110" fill="#5B4EE5" r="15"></circle><circle cx="660" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="660" y="70">Ga 37</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="660" y="150">Docker · Git</text>
+</g>
+<text fill="var(--muted)" font-size="11" font-style="italic" x="800" y="90">Phần 12 →</text>
+</g>
+</svg>
+<div class="diagram-caption">3 "ga" của Phần 11 — từ giải thích mô hình đến đưa mô hình vào sản phẩm thực tế.</div>
+</div>
+    </div>
 
-        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
-          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#0D9488"/>
-                <stop offset="100%" stop-color="#5B4EE5"/>
-              </linearGradient>
-            </defs>
-            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
-            <g font-family="Space Grotesk, sans-serif">
-              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-10 ✓</text></g>
-              <g>
-                <circle cx="280" cy="110" r="15" fill="#0D9488"/><circle cx="280" cy="110" r="6" fill="#fff"/>
-                <text x="280" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 35</text>
-                <text x="280" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">SHAP &amp; LIME</text>
-              </g>
-              <g>
-                <circle cx="470" cy="110" r="15" fill="#0D9488"/><circle cx="470" cy="110" r="6" fill="#fff"/>
-                <text x="470" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 36</text>
-                <text x="470" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Flask &amp; FastAPI</text>
-              </g>
-              <g>
-                <circle cx="660" cy="110" r="15" fill="#5B4EE5"/><circle cx="660" cy="110" r="6" fill="#fff"/>
-                <text x="660" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 37</text>
-                <text x="660" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Docker · Git</text>
-              </g>
-              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 12 →</text>
-            </g>
-          </svg>
-          <div class="diagram-caption">3 "ga" của Phần 11 — từ giải thích mô hình đến đưa mô hình vào sản phẩm thực tế.</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="container">
-
-      <div class="box note">
-        <div class="box-title">📌 Vì sao 2 chủ đề tưởng chừng khác nhau lại ở cùng 1 phần?</div>
+<div class="box note">
+<div class="box-title">📌 Vì sao 2 chủ đề tưởng chừng khác nhau lại ở cùng 1 phần?</div>
         Cả Explainable AI lẫn Model Deployment đều trả lời câu hỏi <i>"Làm sao đưa mô hình từ notebook ra thế giới thực?"</i> — một bên là niềm tin (người dùng/quản lý cần hiểu vì sao mô hình quyết định),
         một bên là hạ tầng kỹ thuật (mô hình cần chạy ổn định, có thể gọi được). Cả hai đều là bước bắt buộc trước khi một dự án ML thực sự "hoàn thành".
       </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 35: EXPLAINABLE AI -->
-      <!-- ================================================================ -->
-      <div class="chapter open" id="chuong-35">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">35</div>
-            <div>
-              <h2>Explainable AI: SHAP &amp; LIME</h2>
-              <div class="ch-sub">Giải thích vì sao mô hình đưa ra một dự đoán cụ thể</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>35.1. Vì sao cần "giải thích" mô hình?</h3>
-            <p>Các mô hình mạnh nhất (Random Forest, Gradient Boosting, Neural Network) thường là <b>"hộp đen" (black box)</b> — chính xác cao nhưng khó hiểu tại sao ra kết quả đó,
+ ================================================================ 
+ CHƯƠNG 35: EXPLAINABLE AI 
+ ================================================================ 
+<div class="mlchap open" id="chuong-35">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">35</div>
+<div>
+<h2>Explainable AI: SHAP &amp; LIME</h2>
+<div class="ch-sub">Giải thích vì sao mô hình đưa ra một dự đoán cụ thể</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>35.1. Vì sao cần "giải thích" mô hình?</h3>
+<p>Các mô hình mạnh nhất (Random Forest, Gradient Boosting, Neural Network) thường là <b>"hộp đen" (black box)</b> — chính xác cao nhưng khó hiểu tại sao ra kết quả đó,
             trái ngược với Decision Tree hay Linear Regression (dễ diễn giải nhưng thường kém chính xác hơn — nhắc lại đánh đổi ở Chương 24 và 20).</p>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Lý do cần giải thích</th><th>Ví dụ</th></tr></thead>
-                <tbody>
-                  <tr><td>Tuân thủ pháp lý</td><td>Luật yêu cầu giải thích lý do từ chối khoản vay cho khách hàng</td></tr>
-                  <tr><td>Debug mô hình</td><td>Phát hiện mô hình đang dựa vào đặc trưng sai/thiên vị (bias)</td></tr>
-                  <tr><td>Xây dựng niềm tin</td><td>Bác sĩ cần hiểu vì sao AI đề xuất một chẩn đoán trước khi tin tưởng</td></tr>
-                  <tr><td>Cải thiện mô hình</td><td>Hiểu đặc trưng nào thực sự quan trọng để tập trung feature engineering</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3>35.2. SHAP (SHapley Additive exPlanations)</h3>
-            <p>SHAP dựa trên khái niệm <b>Shapley Value</b> từ lý thuyết trò chơi hợp tác: coi mỗi đặc trưng như một "người chơi" đóng góp vào kết quả dự đoán cuối cùng,
+<div class="table-wrap">
+<table>
+<thead><tr><th>Lý do cần giải thích</th><th>Ví dụ</th></tr></thead>
+<tbody>
+<tr><td>Tuân thủ pháp lý</td><td>Luật yêu cầu giải thích lý do từ chối khoản vay cho khách hàng</td></tr>
+<tr><td>Debug mô hình</td><td>Phát hiện mô hình đang dựa vào đặc trưng sai/thiên vị (bias)</td></tr>
+<tr><td>Xây dựng niềm tin</td><td>Bác sĩ cần hiểu vì sao AI đề xuất một chẩn đoán trước khi tin tưởng</td></tr>
+<tr><td>Cải thiện mô hình</td><td>Hiểu đặc trưng nào thực sự quan trọng để tập trung feature engineering</td></tr>
+</tbody>
+</table>
+</div>
+<h3>35.2. SHAP (SHapley Additive exPlanations)</h3>
+<p>SHAP dựa trên khái niệm <b>Shapley Value</b> từ lý thuyết trò chơi hợp tác: coi mỗi đặc trưng như một "người chơi" đóng góp vào kết quả dự đoán cuối cùng,
             và tính toán công bằng phần đóng góp của từng đặc trưng bằng cách xem xét mọi thứ tự kết hợp đặc trưng có thể.</p>
-
-            <div class="diagram-card">
-              <div style="text-align:left;max-width:420px;margin:0 auto;">
-                <div class="shap-bar">
-                  <span class="shap-label">thu_nhap</span>
-                  <div class="shap-track"><div class="shap-fill" style="left:50%;width:32%;background:var(--teal);"></div></div>
-                  <span style="color:var(--teal);">+0.32</span>
-                </div>
-                <div class="shap-bar">
-                  <span class="shap-label">tuoi</span>
-                  <div class="shap-track"><div class="shap-fill" style="left:50%;width:15%;background:var(--teal);"></div></div>
-                  <span style="color:var(--teal);">+0.15</span>
-                </div>
-                <div class="shap-bar">
-                  <span class="shap-label">no_hien_tai</span>
-                  <div class="shap-track"><div class="shap-fill" style="left:28%;width:22%;background:var(--rose);"></div></div>
-                  <span style="color:var(--rose);">-0.22</span>
-                </div>
-                <div class="shap-bar">
-                  <span class="shap-label">so_nam_lam_viec</span>
-                  <div class="shap-track"><div class="shap-fill" style="left:50%;width:8%;background:var(--teal);"></div></div>
-                  <span style="color:var(--teal);">+0.08</span>
-                </div>
-              </div>
-              <div class="diagram-caption">SHAP values cho 1 dự đoán cụ thể: thanh xanh đẩy dự đoán về phía "duyệt vay", thanh đỏ đẩy về phía "từ chối".</div>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># pip install shap
+<div class="diagram-card">
+<div style="text-align:left;max-width:420px;margin:0 auto;">
+<div class="shap-bar">
+<span class="shap-label">thu_nhap</span>
+<div class="shap-track"><div class="shap-fill" style="left:50%;width:32%;background:var(--teal);"></div></div>
+<span style="color:var(--teal);">+0.32</span>
+</div>
+<div class="shap-bar">
+<span class="shap-label">tuoi</span>
+<div class="shap-track"><div class="shap-fill" style="left:50%;width:15%;background:var(--teal);"></div></div>
+<span style="color:var(--teal);">+0.15</span>
+</div>
+<div class="shap-bar">
+<span class="shap-label">no_hien_tai</span>
+<div class="shap-track"><div class="shap-fill" style="left:28%;width:22%;background:var(--rose);"></div></div>
+<span style="color:var(--rose);">-0.22</span>
+</div>
+<div class="shap-bar">
+<span class="shap-label">so_nam_lam_viec</span>
+<div class="shap-track"><div class="shap-fill" style="left:50%;width:8%;background:var(--teal);"></div></div>
+<span style="color:var(--teal);">+0.08</span>
+</div>
+</div>
+<div class="diagram-caption">SHAP values cho 1 dự đoán cụ thể: thanh xanh đẩy dự đoán về phía "duyệt vay", thanh đỏ đẩy về phía "từ chối".</div>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># pip install shap
 import shap
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import load_breast_cancer
@@ -508,51 +491,47 @@ shap.summary_plot(shap_values[1], X, feature_names=data.feature_names)
 mau_thu_0 = X[0:1]
 shap.force_plot(explainer.expected_value[1], shap_values[1][0], mau_thu_0,
                  feature_names=data.feature_names)</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>shap.TreeExplainer(model)</code> — phiên bản SHAP tối ưu tốc độ cho các mô hình dựa trên cây quyết định (Random Forest, Gradient Boosting — Phần 7-8), nhanh hơn nhiều so với phương pháp SHAP tổng quát.</li>
-                <li><code>shap.summary_plot(...)</code> — biểu đồ giải thích <b>toàn cục</b>: tổng hợp mức độ ảnh hưởng của từng đặc trưng qua toàn bộ tập dữ liệu, tương tự Feature Importance ở Chương 27 nhưng chi tiết và có hướng (tăng/giảm) hơn.</li>
-                <li><code>shap.force_plot(...)</code> — biểu đồ giải thích <b>cục bộ</b>: cho một mẫu dữ liệu cụ thể, hiển thị chính xác đặc trưng nào đẩy dự đoán tăng/giảm và mức độ bao nhiêu.</li>
-              </ol>
-            </div>
-
-            <h3>35.3. LIME (Local Interpretable Model-agnostic Explanations)</h3>
-            <p>Khác với SHAP (dựa trên nền tảng lý thuyết trò chơi chặt chẽ), LIME dùng ý tưởng đơn giản hơn: quanh 1 điểm dữ liệu cần giải thích, tạo ra nhiều mẫu nhiễu loạn nhỏ xung quanh nó,
+</div>
+<div class="line-explain">
+<ol>
+<li><code>shap.TreeExplainer(model)</code> — phiên bản SHAP tối ưu tốc độ cho các mô hình dựa trên cây quyết định (Random Forest, Gradient Boosting — Phần 7-8), nhanh hơn nhiều so với phương pháp SHAP tổng quát.</li>
+<li><code>shap.summary_plot(...)</code> — biểu đồ giải thích <b>toàn cục</b>: tổng hợp mức độ ảnh hưởng của từng đặc trưng qua toàn bộ tập dữ liệu, tương tự Feature Importance ở Chương 27 nhưng chi tiết và có hướng (tăng/giảm) hơn.</li>
+<li><code>shap.force_plot(...)</code> — biểu đồ giải thích <b>cục bộ</b>: cho một mẫu dữ liệu cụ thể, hiển thị chính xác đặc trưng nào đẩy dự đoán tăng/giảm và mức độ bao nhiêu.</li>
+</ol>
+</div>
+<h3>35.3. LIME (Local Interpretable Model-agnostic Explanations)</h3>
+<p>Khác với SHAP (dựa trên nền tảng lý thuyết trò chơi chặt chẽ), LIME dùng ý tưởng đơn giản hơn: quanh 1 điểm dữ liệu cần giải thích, tạo ra nhiều mẫu nhiễu loạn nhỏ xung quanh nó,
             rồi huấn luyện một <b>mô hình đơn giản, dễ diễn giải</b> (như Linear Regression) chỉ trên vùng lân cận đó để xấp xỉ hành vi của mô hình phức tạp <i>cục bộ</i>.</p>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Tiêu chí</th><th>SHAP</th><th>LIME</th></tr></thead>
-                <tbody>
-                  <tr><td>Nền tảng lý thuyết</td><td>Shapley Value (lý thuyết trò chơi), có tính chất toán học chặt chẽ</td><td>Xấp xỉ cục bộ bằng mô hình đơn giản, trực giác hơn</td></tr>
-                  <tr><td>Tốc độ</td><td>Nhanh với TreeExplainer, chậm hơn với mô hình khác</td><td>Thường nhanh, độc lập với loại mô hình</td></tr>
-                  <tr><td>Tính nhất quán</td><td>Có đảm bảo toán học về tính công bằng khi phân bổ đóng góp</td><td>Có thể cho kết quả hơi khác nhau giữa các lần chạy do tính ngẫu nhiên</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 "Model-agnostic" nghĩa là gì?</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tiêu chí</th><th>SHAP</th><th>LIME</th></tr></thead>
+<tbody>
+<tr><td>Nền tảng lý thuyết</td><td>Shapley Value (lý thuyết trò chơi), có tính chất toán học chặt chẽ</td><td>Xấp xỉ cục bộ bằng mô hình đơn giản, trực giác hơn</td></tr>
+<tr><td>Tốc độ</td><td>Nhanh với TreeExplainer, chậm hơn với mô hình khác</td><td>Thường nhanh, độc lập với loại mô hình</td></tr>
+<tr><td>Tính nhất quán</td><td>Có đảm bảo toán học về tính công bằng khi phân bổ đóng góp</td><td>Có thể cho kết quả hơi khác nhau giữa các lần chạy do tính ngẫu nhiên</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box tip">
+<div class="box-title">💡 "Model-agnostic" nghĩa là gì?</div>
               LIME (và SHAP ở chế độ tổng quát) được gọi là <b>model-agnostic</b> — không quan tâm mô hình bên trong là gì (Random Forest, Neural Network, hay bất kỳ thuật toán nào), miễn có hàm <code>predict()</code> là có thể giải thích được. Điều này khác với các phương pháp giải thích "tích hợp sẵn" chỉ áp dụng được cho 1 loại mô hình cụ thể.
             </div>
-
-            <h3>35.4. Fairness &amp; Bias Auditing — mô hình chính xác chưa chắc đã công bằng</h3>
-            <p>SHAP/LIME giải thích <i>vì sao</i> mô hình dự đoán một kết quả, nhưng không tự động cho biết mô hình có <b>đối xử công bằng giữa các nhóm người dùng khác nhau</b> hay không. Một mô hình có Accuracy cao vẫn có thể học phải các thiên kiến (bias) có sẵn trong dữ liệu lịch sử — ví dụ mô hình duyệt vay từng huấn luyện trên dữ liệu quá khứ có thể vô tình học lại định kiến giới tính/chủng tộc từng tồn tại trong quyết định của con người.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Chỉ số Fairness</th><th>Câu hỏi trả lời</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Demographic Parity</b></td><td>Tỉ lệ được dự đoán "duyệt/tích cực" có bằng nhau giữa các nhóm không? (VD: nam vs nữ)</td></tr>
-                  <tr><td><b>Equalized Odds</b></td><td>Trong số những người <i>thực sự</i> đủ điều kiện (hoặc không), tỉ lệ True Positive Rate/False Positive Rate (Chương 32) có bằng nhau giữa các nhóm không?</td></tr>
-                  <tr><td><b>Disparate Impact Ratio</b></td><td>Tỉ lệ được duyệt của nhóm thiểu số so với nhóm đa số — theo quy tắc "80%" phổ biến trong luật lao động Mỹ, tỉ lệ này nên trên 0.8</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># pip install fairlearn
+<h3>35.4. Fairness &amp; Bias Auditing — mô hình chính xác chưa chắc đã công bằng</h3>
+<p>SHAP/LIME giải thích <i>vì sao</i> mô hình dự đoán một kết quả, nhưng không tự động cho biết mô hình có <b>đối xử công bằng giữa các nhóm người dùng khác nhau</b> hay không. Một mô hình có Accuracy cao vẫn có thể học phải các thiên kiến (bias) có sẵn trong dữ liệu lịch sử — ví dụ mô hình duyệt vay từng huấn luyện trên dữ liệu quá khứ có thể vô tình học lại định kiến giới tính/chủng tộc từng tồn tại trong quyết định của con người.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Chỉ số Fairness</th><th>Câu hỏi trả lời</th></tr></thead>
+<tbody>
+<tr><td><b>Demographic Parity</b></td><td>Tỉ lệ được dự đoán "duyệt/tích cực" có bằng nhau giữa các nhóm không? (VD: nam vs nữ)</td></tr>
+<tr><td><b>Equalized Odds</b></td><td>Trong số những người <i>thực sự</i> đủ điều kiện (hoặc không), tỉ lệ True Positive Rate/False Positive Rate (Chương 32) có bằng nhau giữa các nhóm không?</td></tr>
+<tr><td><b>Disparate Impact Ratio</b></td><td>Tỉ lệ được duyệt của nhóm thiểu số so với nhóm đa số — theo quy tắc "80%" phổ biến trong luật lao động Mỹ, tỉ lệ này nên trên 0.8</td></tr>
+</tbody>
+</table>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># pip install fairlearn
 from fairlearn.metrics import MetricFrame, demographic_parity_difference
 from sklearn.metrics import accuracy_score
 
@@ -568,86 +547,77 @@ print(khung_metric.by_group)   # accuracy riêng cho từng nhóm - phát hiện
 
 do_lech = demographic_parity_difference(y_test, y_pred, sensitive_features=nhom_nhay_cam)
 print(f"Demographic Parity Difference: {do_lech:.3f}")   # càng gần 0 càng công bằng</code></pre>
-            </div>
-            <div class="box important">
-              <div class="box-title">🔴 Đánh đổi quan trọng: không có "công bằng tuyệt đối"</div>
+</div>
+<div class="box important">
+<div class="box-title">🔴 Đánh đổi quan trọng: không có "công bằng tuyệt đối"</div>
               Về mặt toán học, đã chứng minh được rằng <b>không thể đồng thời thỏa mãn tất cả định nghĩa fairness cùng lúc</b> trừ trường hợp đặc biệt — tối ưu Demographic Parity có thể làm giảm Equalized Odds và ngược lại. Chọn chỉ số fairness nào để ưu tiên là một quyết định <i>mang tính chính sách/đạo đức</i>, không phải thuần túy kỹ thuật — nên luôn có sự tham gia của các bên liên quan (pháp lý, đạo đức, đối tượng bị ảnh hưởng), không để một mình đội kỹ thuật tự quyết định.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Giải thích bằng lời: nếu SHAP value của đặc trưng "no_hien_tai" là -0.22 cho một khách hàng cụ thể, điều đó có ý nghĩa gì đối với quyết định của mô hình?</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <p>Giá trị âm nghĩa là đặc trưng "nợ hiện tại" của khách hàng này đang <b>kéo dự đoán về phía "từ chối vay"</b> (giảm xác suất được duyệt), với mức độ đóng góp là 0.22 đơn vị trên thang xác suất/log-odds mà mô hình dùng. Nếu không có yếu tố này, dự đoán của mô hình cho khách hàng đó sẽ nghiêng về phía "duyệt vay" nhiều hơn.</p>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhầm lẫn giữa giải thích toàn cục (feature importance chung) và giải thích cục bộ (vì sao 1 dự đoán cụ thể ra như vậy) — dùng sai loại cho câu hỏi cần trả lời.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Dùng <code>summary_plot</code> để hiểu mô hình nói chung, dùng <code>force_plot</code>/LIME khi cần giải thích cho một khách hàng/trường hợp cụ thể.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 35</h4>
-              <ul>
-                <li>Explainable AI giúp "mở hộp đen" của các mô hình phức tạp, cần thiết cho pháp lý, debug, và xây dựng niềm tin.</li>
-                <li>SHAP dựa trên Shapley Value, có nền tảng toán học chặt chẽ; LIME xấp xỉ cục bộ bằng mô hình đơn giản.</li>
-                <li>Cả hai đều là "model-agnostic" — hoạt động độc lập với loại mô hình bên trong.</li>
-                <li>Fairness Auditing (Demographic Parity, Equalized Odds) kiểm tra mô hình có đối xử công bằng giữa các nhóm — không thể tối ưu mọi định nghĩa fairness cùng lúc, đây là quyết định chính sách chứ không chỉ kỹ thuật.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 36: MODEL DEPLOYMENT -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-36">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">36</div>
-            <div>
-              <h2>Model Deployment: Flask &amp; FastAPI</h2>
-              <div class="ch-sub">Biến mô hình đã huấn luyện thành một API có thể gọi được</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>36.1. Từ notebook tới sản phẩm — có gì phải làm?</h3>
-            <div class="diagram-card">
-              <svg viewBox="0 0 700 110" width="100%">
-                <g font-family="Space Grotesk" font-size="11">
-                  <rect x="10" y="30" width="140" height="50" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
-                  <text x="80" y="60" text-anchor="middle" font-weight="700">1. Lưu mô hình</text>
-
-                  <rect x="190" y="30" width="140" height="50" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
-                  <text x="260" y="60" text-anchor="middle" font-weight="700">2. Viết API</text>
-
-                  <rect x="370" y="30" width="140" height="50" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
-                  <text x="440" y="60" text-anchor="middle" font-weight="700">3. Đóng gói (Docker)</text>
-
-                  <rect x="550" y="30" width="140" height="50" rx="8" fill="var(--rose-dim)" stroke="var(--rose)"/>
-                  <text x="620" y="60" text-anchor="middle" font-weight="700">4. Triển khai</text>
-                </g>
-                <g stroke="var(--muted)" fill="none" marker-end="url(#arrd)">
-                  <path d="M150,55 H190"/><path d="M330,55 H370"/><path d="M510,55 H550"/>
-                </g>
-                <defs><marker id="arrd" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"/></marker></defs>
-              </svg>
-              <div class="diagram-caption">4 bước cơ bản đưa một mô hình từ notebook thành dịch vụ thực tế.</div>
-            </div>
-
-            <h3>36.2. Bước 1: Lưu mô hình đã huấn luyện</h3>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import joblib
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Giải thích bằng lời: nếu SHAP value của đặc trưng "no_hien_tai" là -0.22 cho một khách hàng cụ thể, điều đó có ý nghĩa gì đối với quyết định của mô hình?</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+<p>Giá trị âm nghĩa là đặc trưng "nợ hiện tại" của khách hàng này đang <b>kéo dự đoán về phía "từ chối vay"</b> (giảm xác suất được duyệt), với mức độ đóng góp là 0.22 đơn vị trên thang xác suất/log-odds mà mô hình dùng. Nếu không có yếu tố này, dự đoán của mô hình cho khách hàng đó sẽ nghiêng về phía "duyệt vay" nhiều hơn.</p>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhầm lẫn giữa giải thích toàn cục (feature importance chung) và giải thích cục bộ (vì sao 1 dự đoán cụ thể ra như vậy) — dùng sai loại cho câu hỏi cần trả lời.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Dùng <code>summary_plot</code> để hiểu mô hình nói chung, dùng <code>force_plot</code>/LIME khi cần giải thích cho một khách hàng/trường hợp cụ thể.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 35</h4>
+<ul>
+<li>Explainable AI giúp "mở hộp đen" của các mô hình phức tạp, cần thiết cho pháp lý, debug, và xây dựng niềm tin.</li>
+<li>SHAP dựa trên Shapley Value, có nền tảng toán học chặt chẽ; LIME xấp xỉ cục bộ bằng mô hình đơn giản.</li>
+<li>Cả hai đều là "model-agnostic" — hoạt động độc lập với loại mô hình bên trong.</li>
+<li>Fairness Auditing (Demographic Parity, Equalized Odds) kiểm tra mô hình có đối xử công bằng giữa các nhóm — không thể tối ưu mọi định nghĩa fairness cùng lúc, đây là quyết định chính sách chứ không chỉ kỹ thuật.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 36: MODEL DEPLOYMENT 
+ ================================================================ 
+<div class="mlchap" id="chuong-36">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">36</div>
+<div>
+<h2>Model Deployment: Flask &amp; FastAPI</h2>
+<div class="ch-sub">Biến mô hình đã huấn luyện thành một API có thể gọi được</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>36.1. Từ notebook tới sản phẩm — có gì phải làm?</h3>
+<div class="diagram-card">
+<svg viewbox="0 0 700 110" width="100%">
+<g font-family="Space Grotesk" font-size="11">
+<rect fill="var(--teal-dim)" height="50" rx="8" stroke="var(--teal)" width="140" x="10" y="30"></rect>
+<text font-weight="700" text-anchor="middle" x="80" y="60">1. Lưu mô hình</text>
+<rect fill="var(--violet-dim)" height="50" rx="8" stroke="var(--violet)" width="140" x="190" y="30"></rect>
+<text font-weight="700" text-anchor="middle" x="260" y="60">2. Viết API</text>
+<rect fill="var(--amber-dim)" height="50" rx="8" stroke="var(--amber)" width="140" x="370" y="30"></rect>
+<text font-weight="700" text-anchor="middle" x="440" y="60">3. Đóng gói (Docker)</text>
+<rect fill="var(--rose-dim)" height="50" rx="8" stroke="var(--rose)" width="140" x="550" y="30"></rect>
+<text font-weight="700" text-anchor="middle" x="620" y="60">4. Triển khai</text>
+</g>
+<g fill="none" marker-end="url(#arrd)" stroke="var(--muted)">
+<path d="M150,55 H190"></path><path d="M330,55 H370"></path><path d="M510,55 H550"></path>
+</g>
+<defs><marker id="arrd" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"></path></marker></defs>
+</svg>
+<div class="diagram-caption">4 bước cơ bản đưa một mô hình từ notebook thành dịch vụ thực tế.</div>
+</div>
+<h3>36.2. Bước 1: Lưu mô hình đã huấn luyện</h3>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import load_breast_cancer
 
@@ -660,18 +630,17 @@ joblib.dump(model, 'model.pkl')
 # Nạp lại mô hình ở bất kỳ đâu, bất kỳ lúc nào
 model_da_luu = joblib.load('model.pkl')
 print(model_da_luu.predict(X[:3]))</code></pre>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 Mẹo: luôn lưu cả Pipeline, không chỉ mô hình</div>
+</div>
+<div class="box tip">
+<div class="box-title">💡 Mẹo: luôn lưu cả Pipeline, không chỉ mô hình</div>
               Nếu dự án có bước tiền xử lý (Chương 13, 18), hãy lưu <b>toàn bộ Pipeline</b> (bao gồm scaler, encoder, model) chứ không chỉ riêng mô hình — đảm bảo dữ liệu mới trong production được xử lý giống hệt lúc huấn luyện.
             </div>
-
-            <h3>36.3. Bước 2: Viết API với Flask</h3>
-            <p>Flask là framework web Python nhẹ, phổ biến để nhanh chóng biến mô hình thành API.</p>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># app_flask.py
+<h3>36.3. Bước 2: Viết API với Flask</h3>
+<p>Flask là framework web Python nhẹ, phổ biến để nhanh chóng biến mô hình thành API.</p>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># app_flask.py
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
@@ -692,22 +661,20 @@ def predict():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>@app.route('/predict', methods=['POST'])</code> — định nghĩa một "endpoint" API: khi có request POST tới địa chỉ <code>/predict</code>, hàm <code>predict()</code> sẽ được gọi.</li>
-                <li><code>request.get_json()</code> — lấy dữ liệu client gửi lên dưới dạng JSON, định dạng phổ biến nhất để trao đổi dữ liệu qua API.</li>
-                <li><code>jsonify({...})</code> — trả kết quả về cho client dưới dạng JSON, dễ dàng tích hợp với web app, mobile app, hoặc hệ thống khác.</li>
-              </ol>
-            </div>
-
-            <h3>36.4. FastAPI — lựa chọn hiện đại hơn</h3>
-            <p>FastAPI ngày càng phổ biến hơn Flask cho các dự án ML mới nhờ: tốc độ nhanh hơn, tự động sinh tài liệu API (Swagger UI), và validate dữ liệu đầu vào tự động bằng type hints Python.</p>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># app_fastapi.py
+</div>
+<div class="line-explain">
+<ol>
+<li><code>@app.route('/predict', methods=['POST'])</code> — định nghĩa một "endpoint" API: khi có request POST tới địa chỉ <code>/predict</code>, hàm <code>predict()</code> sẽ được gọi.</li>
+<li><code>request.get_json()</code> — lấy dữ liệu client gửi lên dưới dạng JSON, định dạng phổ biến nhất để trao đổi dữ liệu qua API.</li>
+<li><code>jsonify({...})</code> — trả kết quả về cho client dưới dạng JSON, dễ dàng tích hợp với web app, mobile app, hoặc hệ thống khác.</li>
+</ol>
+</div>
+<h3>36.4. FastAPI — lựa chọn hiện đại hơn</h3>
+<p>FastAPI ngày càng phổ biến hơn Flask cho các dự án ML mới nhờ: tốc độ nhanh hơn, tự động sinh tài liệu API (Swagger UI), và validate dữ liệu đầu vào tự động bằng type hints Python.</p>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># app_fastapi.py
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
@@ -729,142 +696,130 @@ def predict(du_lieu: DauVao):
 
 # Chạy bằng: uvicorn app_fastapi:app --reload --port 8000
 # Tài liệu API tự động sinh tại: http://localhost:8000/docs</code></pre>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Tiêu chí</th><th>Flask</th><th>FastAPI</th></tr></thead>
-                <tbody>
-                  <tr><td>Tốc độ</td><td>Chậm hơn (đồng bộ mặc định)</td><td>Nhanh hơn (hỗ trợ bất đồng bộ - async)</td></tr>
-                  <tr><td>Validate dữ liệu</td><td>Phải tự viết kiểm tra thủ công</td><td>Tự động qua Pydantic + type hints</td></tr>
-                  <tr><td>Tài liệu API</td><td>Cần cài thêm thư viện riêng</td><td>Tự động sinh Swagger UI tại <code>/docs</code></td></tr>
-                  <tr><td>Độ trưởng thành</td><td>Lâu đời, cộng đồng rất lớn</td><td>Mới hơn nhưng phát triển rất nhanh</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box note">
-              <div class="box-title">🆕 Cập nhật 2026 — Triển khai ứng dụng LLM/GenAI có gì khác?</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tiêu chí</th><th>Flask</th><th>FastAPI</th></tr></thead>
+<tbody>
+<tr><td>Tốc độ</td><td>Chậm hơn (đồng bộ mặc định)</td><td>Nhanh hơn (hỗ trợ bất đồng bộ - async)</td></tr>
+<tr><td>Validate dữ liệu</td><td>Phải tự viết kiểm tra thủ công</td><td>Tự động qua Pydantic + type hints</td></tr>
+<tr><td>Tài liệu API</td><td>Cần cài thêm thư viện riêng</td><td>Tự động sinh Swagger UI tại <code>/docs</code></td></tr>
+<tr><td>Độ trưởng thành</td><td>Lâu đời, cộng đồng rất lớn</td><td>Mới hơn nhưng phát triển rất nhanh</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box note">
+<div class="box-title">🆕 Cập nhật 2026 — Triển khai ứng dụng LLM/GenAI có gì khác?</div>
               Cách deploy ở trên (Flask/FastAPI + lưu model.pkl) áp dụng cho <b>Predictive AI</b> (Phần 1-12). Khi triển khai ứng dụng dựa trên LLM (khóa AI Engineer), có vài điểm khác biệt quan trọng cần biết thêm:
               <ul>
-                <li><b>Không tự lưu "model.pkl":</b> phần lớn ứng dụng gọi LLM qua API của nhà cung cấp (Anthropic, OpenAI...) thay vì tự host mô hình khổng lồ — endpoint FastAPI của bạn khi đó đóng vai trò "lớp trung gian" (gọi LLM, xử lý RAG, gọi tool) chứ không phải chính bản thân mô hình.</li>
-                <li><b>Streaming response:</b> vì LLM sinh văn bản từng token một, API thường trả kết quả theo dạng <i>streaming</i> (trả dần từng phần) thay vì chờ toàn bộ câu trả lời xong mới trả một lần — giúp người dùng thấy phản hồi ngay lập tức thay vì chờ lâu.</li>
-                <li><b>Chi phí tính theo token:</b> khác với model.pkl chạy miễn phí sau khi deploy, gọi LLM qua API tốn phí theo số token input/output — cần theo dõi chi phí (cost monitoring) như một chỉ số vận hành, tương tự theo dõi độ trễ (latency).</li>
-                <li><b>Health check phức tạp hơn:</b> ngoài kiểm tra API còn sống, cần thêm giám sát riêng cho hallucination/chất lượng câu trả lời — thường qua việc chấm điểm mẫu output tự động (LLM-as-judge) hoặc phản hồi người dùng.</li>
-              </ul>
+<li><b>Không tự lưu "model.pkl":</b> phần lớn ứng dụng gọi LLM qua API của nhà cung cấp (Anthropic, OpenAI...) thay vì tự host mô hình khổng lồ — endpoint FastAPI của bạn khi đó đóng vai trò "lớp trung gian" (gọi LLM, xử lý RAG, gọi tool) chứ không phải chính bản thân mô hình.</li>
+<li><b>Streaming response:</b> vì LLM sinh văn bản từng token một, API thường trả kết quả theo dạng <i>streaming</i> (trả dần từng phần) thay vì chờ toàn bộ câu trả lời xong mới trả một lần — giúp người dùng thấy phản hồi ngay lập tức thay vì chờ lâu.</li>
+<li><b>Chi phí tính theo token:</b> khác với model.pkl chạy miễn phí sau khi deploy, gọi LLM qua API tốn phí theo số token input/output — cần theo dõi chi phí (cost monitoring) như một chỉ số vận hành, tương tự theo dõi độ trễ (latency).</li>
+<li><b>Health check phức tạp hơn:</b> ngoài kiểm tra API còn sống, cần thêm giám sát riêng cho hallucination/chất lượng câu trả lời — thường qua việc chấm điểm mẫu output tự động (LLM-as-judge) hoặc phản hồi người dùng.</li>
+</ul>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Lưu ý khi triển khai thực tế</div>
+<code>app.run()</code> của Flask (hay chạy trực tiếp uvicorn) chỉ phù hợp để phát triển/thử nghiệm. Trong production thực tế, cần dùng WSGI/ASGI server chuyên dụng (như Gunicorn, Uvicorn với nhiều worker) đặt sau một reverse proxy (như Nginx) để đảm bảo hiệu năng và độ ổn định.
             </div>
-
-            <div class="box warning">
-              <div class="box-title">⚠️ Lưu ý khi triển khai thực tế</div>
-              <code>app.run()</code> của Flask (hay chạy trực tiếp uvicorn) chỉ phù hợp để phát triển/thử nghiệm. Trong production thực tế, cần dùng WSGI/ASGI server chuyên dụng (như Gunicorn, Uvicorn với nhiều worker) đặt sau một reverse proxy (như Nginx) để đảm bảo hiệu năng và độ ổn định.
-            </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Viết đoạn code Python dùng thư viện <code>requests</code> để gọi thử API Flask ở mục 36.3 (giả sử đang chạy ở localhost:5000) với 5 giá trị đặc trưng mẫu.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>import requests
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Viết đoạn code Python dùng thư viện <code>requests</code> để gọi thử API Flask ở mục 36.3 (giả sử đang chạy ở localhost:5000) với 5 giá trị đặc trưng mẫu.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import requests
 
 payload = {'features': [14.2, 20.1, 91.5, 640.3, 0.095]}
 response = requests.post('http://localhost:5000/predict', json=payload)
 print(response.json())</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <h3>36.5. Model Drift — vì sao mô hình "tốt lúc deploy" có thể tệ dần theo thời gian?</h3>
-            <p>Deploy xong không phải là kết thúc. Thế giới thực thay đổi liên tục — hành vi khách hàng, xu hướng thị trường, thậm chí cách người dùng viết văn bản — khiến dữ liệu mô hình gặp trong production ngày càng khác so với dữ liệu nó từng học. Hiện tượng này gọi là <b>Model Drift</b>, và nó khiến hiệu năng mô hình âm thầm giảm dần mà không có lỗi/crash nào báo hiệu.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Loại Drift</th><th>Điều gì thay đổi</th><th>Ví dụ</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Data Drift</b></td><td>Phân phối của input (đặc trưng đầu vào) thay đổi</td><td>Độ tuổi trung bình khách hàng dịch chuyển dần theo thời gian</td></tr>
-                  <tr><td><b>Concept Drift</b></td><td>Mối quan hệ giữa input và target thay đổi, dù input trông vẫn "giống cũ"</td><td>Hành vi gian lận thẻ tín dụng thay đổi thủ đoạn sau khi mô hình cũ được biết tới</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="box important">
-              <div class="box-title">🔴 Vì sao khó phát hiện bằng cách thông thường?</div>
+</div>
+</div>
+</div>
+<h3>36.5. Model Drift — vì sao mô hình "tốt lúc deploy" có thể tệ dần theo thời gian?</h3>
+<p>Deploy xong không phải là kết thúc. Thế giới thực thay đổi liên tục — hành vi khách hàng, xu hướng thị trường, thậm chí cách người dùng viết văn bản — khiến dữ liệu mô hình gặp trong production ngày càng khác so với dữ liệu nó từng học. Hiện tượng này gọi là <b>Model Drift</b>, và nó khiến hiệu năng mô hình âm thầm giảm dần mà không có lỗi/crash nào báo hiệu.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Loại Drift</th><th>Điều gì thay đổi</th><th>Ví dụ</th></tr></thead>
+<tbody>
+<tr><td><b>Data Drift</b></td><td>Phân phối của input (đặc trưng đầu vào) thay đổi</td><td>Độ tuổi trung bình khách hàng dịch chuyển dần theo thời gian</td></tr>
+<tr><td><b>Concept Drift</b></td><td>Mối quan hệ giữa input và target thay đổi, dù input trông vẫn "giống cũ"</td><td>Hành vi gian lận thẻ tín dụng thay đổi thủ đoạn sau khi mô hình cũ được biết tới</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box important">
+<div class="box-title">🔴 Vì sao khó phát hiện bằng cách thông thường?</div>
               Khác với lỗi hệ thống (API crash, timeout) vốn dễ phát hiện qua health check (Chương 36.4), Model Drift <b>không gây lỗi kỹ thuật nào cả</b> — API vẫn trả lời bình thường, chỉ là câu trả lời ngày càng kém chính xác hơn. Cần đo lại các metric đã học ở Chương 32 (Accuracy, F1...) trên dữ liệu <i>mới nhất</i>, hoặc theo dõi phân phối input hiện tại có lệch nhiều so với phân phối dữ liệu train hay không — chứ không thể chỉ dựa vào việc "API không báo lỗi" để yên tâm.
             </div>
-            <div class="box note">
-              <div class="box-title">📌 Cách xử lý thực tế</div>
+<div class="box note">
+<div class="box-title">📌 Cách xử lý thực tế</div>
               Giải pháp phổ biến nhất là <b>huấn luyện lại định kỳ (retraining)</b> trên dữ liệu mới, dùng chính hạ tầng MLOps đã học ở Phần 12 (MLflow Model Registry — Chương 39) để quản lý phiên bản mô hình mới mà không làm gián đoạn hệ thống đang chạy — thường qua chiến lược triển khai dần (canary deployment: cho mô hình mới phục vụ một phần nhỏ traffic trước, so sánh hiệu năng, rồi mới chuyển toàn bộ nếu ổn).
             </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chỉ lưu mô hình mà quên lưu scaler/encoder đi kèm, khiến dữ liệu mới trong production bị xử lý sai cách so với lúc huấn luyện.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn viết endpoint kiểm tra sức khỏe (health check, ví dụ <code>GET /health</code>) để hệ thống giám sát biết API còn hoạt động hay không.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 36</h4>
-              <ul>
-                <li>Quy trình deploy cơ bản: lưu mô hình → viết API → đóng gói → triển khai.</li>
-                <li>Flask đơn giản, lâu đời; FastAPI nhanh hơn, tự động validate và sinh tài liệu.</li>
-                <li>Luôn lưu toàn bộ Pipeline, không chỉ riêng mô hình, để đảm bảo tính nhất quán khi xử lý dữ liệu mới.</li>
-                <li>Model Drift (Data Drift/Concept Drift) khiến mô hình tệ dần theo thời gian mà không báo lỗi kỹ thuật — cần theo dõi metric trên dữ liệu mới và retraining định kỳ.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 37: DOCKER, GIT & GITHUB -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-37">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">37</div>
-            <div>
-              <h2>Docker, Git &amp; GitHub cho dự án ML</h2>
-              <div class="ch-sub">Đóng gói môi trường và quản lý phiên bản mã nguồn chuyên nghiệp</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>37.1. Docker — "Nó chạy trên máy tôi mà!"</h3>
-            <p>Câu than phiền kinh điển trong lập trình: code chạy tốt trên máy người viết nhưng lỗi trên máy khác, do khác phiên bản Python/thư viện/hệ điều hành.
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chỉ lưu mô hình mà quên lưu scaler/encoder đi kèm, khiến dữ liệu mới trong production bị xử lý sai cách so với lúc huấn luyện.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn viết endpoint kiểm tra sức khỏe (health check, ví dụ <code>GET /health</code>) để hệ thống giám sát biết API còn hoạt động hay không.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 36</h4>
+<ul>
+<li>Quy trình deploy cơ bản: lưu mô hình → viết API → đóng gói → triển khai.</li>
+<li>Flask đơn giản, lâu đời; FastAPI nhanh hơn, tự động validate và sinh tài liệu.</li>
+<li>Luôn lưu toàn bộ Pipeline, không chỉ riêng mô hình, để đảm bảo tính nhất quán khi xử lý dữ liệu mới.</li>
+<li>Model Drift (Data Drift/Concept Drift) khiến mô hình tệ dần theo thời gian mà không báo lỗi kỹ thuật — cần theo dõi metric trên dữ liệu mới và retraining định kỳ.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 37: DOCKER, GIT & GITHUB 
+ ================================================================ 
+<div class="mlchap" id="chuong-37">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">37</div>
+<div>
+<h2>Docker, Git &amp; GitHub cho dự án ML</h2>
+<div class="ch-sub">Đóng gói môi trường và quản lý phiên bản mã nguồn chuyên nghiệp</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>37.1. Docker — "Nó chạy trên máy tôi mà!"</h3>
+<p>Câu than phiền kinh điển trong lập trình: code chạy tốt trên máy người viết nhưng lỗi trên máy khác, do khác phiên bản Python/thư viện/hệ điều hành.
             <b>Docker</b> giải quyết triệt để vấn đề này bằng cách đóng gói toàn bộ ứng dụng + môi trường (Python, thư viện, cấu hình hệ thống) vào một <b>container</b> — chạy giống hệt nhau ở bất kỳ đâu.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 500 130" width="100%">
-                <g font-family="Space Grotesk" font-size="11">
-                  <rect x="20" y="20" width="140" height="90" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
-                  <text x="90" y="45" text-anchor="middle" font-weight="700">Dockerfile</text>
-                  <text x="90" y="65" text-anchor="middle" font-size="9.5" fill="var(--muted)">"công thức"</text>
-                  <text x="90" y="80" text-anchor="middle" font-size="9.5" fill="var(--muted)">định nghĩa môi trường</text>
-
-                  <rect x="200" y="20" width="140" height="90" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
-                  <text x="270" y="45" text-anchor="middle" font-weight="700">Docker Image</text>
-                  <text x="270" y="65" text-anchor="middle" font-size="9.5" fill="var(--muted)">"bản đóng gói"</text>
-                  <text x="270" y="80" text-anchor="middle" font-size="9.5" fill="var(--muted)">tĩnh, có thể chia sẻ</text>
-
-                  <rect x="380" y="20" width="110" height="90" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
-                  <text x="435" y="45" text-anchor="middle" font-weight="700">Container</text>
-                  <text x="435" y="65" text-anchor="middle" font-size="9.5" fill="var(--muted)">instance đang</text>
-                  <text x="435" y="80" text-anchor="middle" font-size="9.5" fill="var(--muted)">chạy thực tế</text>
-                </g>
-                <g stroke="var(--muted)" fill="none" marker-end="url(#arrdo)">
-                  <path d="M160,65 H200"/><path d="M340,65 H380"/>
-                </g>
-                <defs><marker id="arrdo" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"/></marker></defs>
-              </svg>
-              <div class="diagram-caption">Dockerfile (công thức) → build thành Image (bản đóng gói tĩnh) → chạy thành Container (instance sống).</div>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">dockerfile</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># Dockerfile
+<div class="diagram-card">
+<svg viewbox="0 0 500 130" width="100%">
+<g font-family="Space Grotesk" font-size="11">
+<rect fill="var(--surface-2)" height="90" rx="8" stroke="var(--border)" width="140" x="20" y="20"></rect>
+<text font-weight="700" text-anchor="middle" x="90" y="45">Dockerfile</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="90" y="65">"công thức"</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="90" y="80">định nghĩa môi trường</text>
+<rect fill="var(--teal-dim)" height="90" rx="8" stroke="var(--teal)" width="140" x="200" y="20"></rect>
+<text font-weight="700" text-anchor="middle" x="270" y="45">Docker Image</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="270" y="65">"bản đóng gói"</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="270" y="80">tĩnh, có thể chia sẻ</text>
+<rect fill="var(--violet-dim)" height="90" rx="8" stroke="var(--violet)" width="110" x="380" y="20"></rect>
+<text font-weight="700" text-anchor="middle" x="435" y="45">Container</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="435" y="65">instance đang</text>
+<text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="435" y="80">chạy thực tế</text>
+</g>
+<g fill="none" marker-end="url(#arrdo)" stroke="var(--muted)">
+<path d="M160,65 H200"></path><path d="M340,65 H380"></path>
+</g>
+<defs><marker id="arrdo" markerheight="8" markerwidth="8" orient="auto" refx="6" refy="3"><path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"></path></marker></defs>
+</svg>
+<div class="diagram-caption">Dockerfile (công thức) → build thành Image (bản đóng gói tĩnh) → chạy thành Container (instance sống).</div>
+</div>
+ <div class="code-wrap">
+<span class="code-label">dockerfile</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -878,32 +833,30 @@ COPY . .
 
 EXPOSE 8000
 CMD ["uvicorn", "app_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># Build image từ Dockerfile
+</div>
+ <div class="code-wrap">
+<span class="code-label">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Build image từ Dockerfile
 docker build -t my-ml-api .
 
 # Chạy container từ image vừa build, map cổng 8000 của container ra cổng 8000 máy host
 docker run -p 8000:8000 my-ml-api</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>FROM python:3.11-slim</code> — chọn "base image" có sẵn Python 3.11 phiên bản gọn nhẹ, làm nền cho image của mình.</li>
-                <li><code>COPY requirements.txt .</code> rồi <code>RUN pip install ...</code> trước khi copy toàn bộ code — thứ tự này giúp Docker tận dụng cache: nếu chỉ sửa code mà không đổi thư viện, bước cài đặt thư viện (thường lâu nhất) không cần chạy lại.</li>
-                <li><code>EXPOSE 8000</code> — khai báo container sẽ lắng nghe ở cổng 8000 bên trong.</li>
-                <li><code>docker run -p 8000:8000</code> — "map" cổng 8000 của container ra cổng 8000 của máy thật, cho phép truy cập API từ bên ngoài container.</li>
-              </ol>
-            </div>
-
-            <h3>37.2. Git &amp; GitHub — quản lý phiên bản mã nguồn</h3>
-            <p><b>Git</b> là công cụ theo dõi lịch sử thay đổi của code theo thời gian, cho phép nhiều người cùng làm việc mà không ghi đè lên nhau. <b>GitHub</b> là nền tảng lưu trữ trực tuyến cho các "kho" (repository) Git, hỗ trợ cộng tác nhóm.</p>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># Khởi tạo Git cho một dự án ML mới
+</div>
+<div class="line-explain">
+<ol>
+<li><code>FROM python:3.11-slim</code> — chọn "base image" có sẵn Python 3.11 phiên bản gọn nhẹ, làm nền cho image của mình.</li>
+<li><code>COPY requirements.txt .</code> rồi <code>RUN pip install ...</code> trước khi copy toàn bộ code — thứ tự này giúp Docker tận dụng cache: nếu chỉ sửa code mà không đổi thư viện, bước cài đặt thư viện (thường lâu nhất) không cần chạy lại.</li>
+<li><code>EXPOSE 8000</code> — khai báo container sẽ lắng nghe ở cổng 8000 bên trong.</li>
+<li><code>docker run -p 8000:8000</code> — "map" cổng 8000 của container ra cổng 8000 của máy thật, cho phép truy cập API từ bên ngoài container.</li>
+</ol>
+</div>
+<h3>37.2. Git &amp; GitHub — quản lý phiên bản mã nguồn</h3>
+<p><b>Git</b> là công cụ theo dõi lịch sử thay đổi của code theo thời gian, cho phép nhiều người cùng làm việc mà không ghi đè lên nhau. <b>GitHub</b> là nền tảng lưu trữ trực tuyến cho các "kho" (repository) Git, hỗ trợ cộng tác nhóm.</p>
+ <div class="code-wrap">
+<span class="code-label">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Khởi tạo Git cho một dự án ML mới
 git init
 git add .
 git commit -m "Khởi tạo dự án: pipeline tiền xử lý + Random Forest baseline"
@@ -918,112 +871,80 @@ git checkout -b thu-nghiem-xgboost
 git add .
 git commit -m "Thử nghiệm XGBoost, so sánh F1-score với Random Forest"
 git push origin thu-nghiem-xgboost</code></pre>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Lệnh</th><th>Ý nghĩa</th></tr></thead>
-                <tbody>
-                  <tr><td><code>git add .</code></td><td>Đánh dấu các thay đổi sẽ được lưu vào commit tiếp theo</td></tr>
-                  <tr><td><code>git commit -m "..."</code></td><td>Lưu một "điểm mốc" trong lịch sử, kèm mô tả rõ ràng đã thay đổi gì</td></tr>
-                  <tr><td><code>git checkout -b ten-nhanh</code></td><td>Tạo và chuyển sang nhánh (branch) mới, tách biệt khỏi code chính</td></tr>
-                  <tr><td><code>git push</code></td><td>Đẩy các commit từ máy local lên kho lưu trữ từ xa (như GitHub)</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 File .gitignore cho dự án ML</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Lệnh</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><code>git add .</code></td><td>Đánh dấu các thay đổi sẽ được lưu vào commit tiếp theo</td></tr>
+<tr><td><code>git commit -m "..."</code></td><td>Lưu một "điểm mốc" trong lịch sử, kèm mô tả rõ ràng đã thay đổi gì</td></tr>
+<tr><td><code>git checkout -b ten-nhanh</code></td><td>Tạo và chuyển sang nhánh (branch) mới, tách biệt khỏi code chính</td></tr>
+<tr><td><code>git push</code></td><td>Đẩy các commit từ máy local lên kho lưu trữ từ xa (như GitHub)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box tip">
+<div class="box-title">💡 File .gitignore cho dự án ML</div>
               Luôn tạo file <code>.gitignore</code> để loại trừ những thứ không nên đưa lên Git: file dữ liệu lớn (<code>*.csv</code>, <code>*.parquet</code>), model đã huấn luyện nặng (<code>*.pkl</code>, <code>*.h5</code>), môi trường ảo (<code>venv/</code>), và file cache của Jupyter (<code>.ipynb_checkpoints/</code>) — giữ kho Git gọn nhẹ, chỉ chứa code và cấu hình.
             </div>
-
-            <div class="box important">
-              <div class="box-title">🔴 Vì sao không nên commit trực tiếp file dữ liệu/model lớn?</div>
+<div class="box important">
+<div class="box-title">🔴 Vì sao không nên commit trực tiếp file dữ liệu/model lớn?</div>
               Git được thiết kế để theo dõi thay đổi <b>văn bản</b> hiệu quả (code), không phù hợp với file nhị phân lớn — mỗi lần thay đổi nhỏ vẫn lưu lại toàn bộ file, khiến kho phình to rất nhanh. Với dữ liệu/model, nên dùng công cụ chuyên biệt như <b>DVC (Data Version Control)</b> — sẽ học ở phần MLOps tiếp theo.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Viết nội dung một file <code>.gitignore</code> cơ bản cho dự án ML gồm: môi trường ảo tên <code>venv</code>, thư mục dữ liệu <code>data/</code>, và file model <code>*.pkl</code>.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">text</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>venv/
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Viết nội dung một file <code>.gitignore</code> cơ bản cho dự án ML gồm: môi trường ảo tên <code>venv</code>, thư mục dữ liệu <code>data/</code>, và file model <code>*.pkl</code>.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">text</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>venv/
 data/
 *.pkl
 __pycache__/
 .ipynb_checkpoints/
 .env</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Commit trực tiếp file dữ liệu lớn hoặc API key/mật khẩu vào Git, gây rò rỉ thông tin nhạy cảm hoặc phình kho không cần thiết.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn viết <code>.gitignore</code> ngay từ đầu dự án, và dùng nhánh (branch) riêng khi thử nghiệm ý tưởng mới thay vì sửa trực tiếp trên nhánh chính.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 37</h4>
-              <ul>
-                <li>Docker đóng gói toàn bộ môi trường ứng dụng, đảm bảo chạy nhất quán ở mọi nơi.</li>
-                <li>Git/GitHub quản lý phiên bản mã nguồn, hỗ trợ cộng tác nhóm qua branch và pull request.</li>
-                <li>Dữ liệu/model lớn nên dùng công cụ chuyên biệt (DVC) thay vì commit trực tiếp vào Git.</li>
-              </ul>
-              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã có đủ kỹ năng để đưa một mô hình từ ý tưởng tới sản phẩm thực tế! Phần 12 sẽ đi sâu vào MLOps — quy trình vận hành ML chuyên nghiệp với MLflow, DVC và giới thiệu Kubernetes.</b></p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="next-hint">
-        <p>✅ Bạn vừa hoàn thành <b>Phần 11</b>: Explainable AI (SHAP, LIME), Model Deployment (Flask, FastAPI), Docker và Git/GitHub.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="phan-10-model-evaluation-tuning.html" class="kbd" style="text-decoration:none;">← Phần 10. Model Evaluation &amp; Tuning</a>
-        <a href="phan-12-sql-mlops.html" class="kbd" style="text-decoration:none;">Sang Phần 12 →</a>
-        </div>
-      </div>
-
-    </div>
-  </main>
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Commit trực tiếp file dữ liệu lớn hoặc API key/mật khẩu vào Git, gây rò rỉ thông tin nhạy cảm hoặc phình kho không cần thiết.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn viết <code>.gitignore</code> ngay từ đầu dự án, và dùng nhánh (branch) riêng khi thử nghiệm ý tưởng mới thay vì sửa trực tiếp trên nhánh chính.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 37</h4>
+<ul>
+<li>Docker đóng gói toàn bộ môi trường ứng dụng, đảm bảo chạy nhất quán ở mọi nơi.</li>
+<li>Git/GitHub quản lý phiên bản mã nguồn, hỗ trợ cộng tác nhóm qua branch và pull request.</li>
+<li>Dữ liệu/model lớn nên dùng công cụ chuyên biệt (DVC) thay vì commit trực tiếp vào Git.</li>
+</ul>
+<p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã có đủ kỹ năng để đưa một mô hình từ ý tưởng tới sản phẩm thực tế! Phần 12 sẽ đi sâu vào MLOps — quy trình vận hành ML chuyên nghiệp với MLflow, DVC và giới thiệu Kubernetes.</b></p>
+</div>
+</div>
+</div>
 </div>
 
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
 
+<div class="next-hint"><p>✅ Bạn vừa hoàn thành <b>Phần 11</b>: Explainable AI (SHAP, LIME), Model Deployment (Flask, FastAPI), Docker và Git/GitHub.</p></div>
+  </main>
+  <div class="chnav">
+    <a class="nav-btn prev" href="phan-10-model-evaluation-tuning.html">← Phần 10. Model Evaluation &amp; Tuning</a>
+    <a class="nav-btn next" href="phan-12-sql-mlops.html">Phần 12. SQL &amp; MLOps →</a>
+  </div>
+</div>
+</div>
+</div>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <script>
-const darkToggle = document.getElementById('darkToggle');
-const THEME_KEY = 'ml-theme';
-function applyDarkPref(){
-  const isDark = document.documentElement.classList.contains('dark');
-  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
-}
-darkToggle.addEventListener('click', () => {
-  document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
-  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
-  applyDarkPref();
-});
-applyDarkPref();
-
-function toggleChapter(headEl){
-  const chapter = headEl.parentElement;
-  chapter.classList.toggle('open');
-}
-
+function toggleChapter(headEl){ headEl.parentElement.classList.toggle('open'); }
 function toggleAnswer(btn){
   const panel = btn.nextElementSibling;
   const isShown = panel.classList.contains('show');
   panel.classList.toggle('show');
   btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
-  if(!isShown) btn.dataset.revealed = 'true';
-  updateProgress();
 }
-
 function checkQuiz(optEl, isCorrect){
   const opts = optEl.parentElement;
   if(opts.dataset.answered === 'true') return;
@@ -1033,61 +954,133 @@ function checkQuiz(optEl, isCorrect){
   if(isCorrect){
     optEl.classList.add('correct');
     feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
-    feedback.style.color = 'var(--teal)';
+    feedback.style.color = 'var(--ok)';
   } else {
     optEl.classList.add('wrong');
     feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
-    feedback.style.color = 'var(--rose)';
-    [...opts.children].forEach(o => {
-      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
-    });
+    feedback.style.color = 'var(--danger)';
+    [...opts.children].forEach(o => { if((o.getAttribute('onclick')||'').includes('true')) o.classList.add('correct'); });
   }
   feedback.classList.add('show');
-  updateProgress();
 }
+document.querySelectorAll('.nav-link[data-target]').forEach(a=>{
+  a.addEventListener('click',()=>{ const t=document.getElementById(a.dataset.target); if(t && t.classList.contains('mlchap')) t.classList.add('open'); });
+});
 
-function copyCode(btn){
-  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
-  const text = codeEl.innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    const original = btn.innerHTML;
-    btn.innerHTML = '✅ Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  try{ localStorage.setItem('algo-mastery-theme', newTheme); }catch(e){}
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if(label) label.textContent = newTheme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+(function(){
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  if(label) label.textContent = current === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = current === 'dark' ? '🌙' : '☀️';
+})();
+const links = document.querySelectorAll('.nav-link[data-target]');
+links.forEach(link=>{
+  link.addEventListener('click', ()=>{
+    const target = document.getElementById(link.dataset.target);
+    if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    document.getElementById('sidebar').classList.remove('open');
   });
-}
-
-const totalExercises = document.querySelectorAll('.reveal-btn').length;
-function updateProgress(){
-  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
-  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
-}
-updateProgress();
-
-const sections = document.querySelectorAll('.hero, .chapter');
-const tocLinks = document.querySelectorAll('#tocList a');
-window.addEventListener('scroll', () => {
-  let currentId = 'gioi-thieu';
-  sections.forEach(sec => {
+});
+const sections = document.querySelectorAll('.chapter, .mlchap');
+function updateActiveNav(){
+  let current = sections[0]?.id;
+  sections.forEach(sec=>{
     const rect = sec.getBoundingClientRect();
-    if(rect.top <= 140) currentId = sec.id;
+    if(rect.top <= 140) current = sec.id;
   });
-  tocLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
-  });
-  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+  links.forEach(l=>l.classList.toggle('active', l.dataset.target===current));
+}
+window.addEventListener('scroll', ()=>{
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight>0 ? (scrollTop/docHeight)*100 : 0;
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('back-to-top').classList.toggle('show', scrollTop>500);
+  updateActiveNav();
 });
-
-tocLinks.forEach(a => {
-  a.addEventListener('click', () => {
-    const id = a.getAttribute('href').replace('#','');
-    const target = document.getElementById(id);
-    if(target && target.classList.contains('chapter')) target.classList.add('open');
+function filterNav(query){
+  const q = query.trim().toLowerCase();
+  links.forEach(link=>{
+    const text = link.textContent.toLowerCase();
+    link.style.display = (q==='' || text.includes(q)) ? 'block' : 'none';
+  });
+}
+function copyCode(btn){
+  const pre = btn.parentElement.querySelector('pre code') || btn.parentElement.querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = '✓ Đã copy';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  });
+}
+function highlightPython(code){
+  const keywords = /\b(def|return|if|elif|else|for|while|in|import|from|as|class|try|except|finally|raise|with|pass|break|continue|lambda|True|False|None|and|or|not|is|global|yield|async|await)\b/g;
+  let html = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/(#.*)$/gm, '<span class="tok-com">$1</span>');
+  html = html.replace(/(&quot;.*?&quot;|'.*?'|""".*?"""|f&quot;.*?&quot;)/gs, '<span class="tok-str">$1</span>');
+  html = html.replace(keywords, '<span class="tok-kw">$1</span>');
+  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
+  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, '<span class="tok-fn">$1</span>');
+  return html;
+}
+document.querySelectorAll('pre code').forEach(block=>{ block.innerHTML = highlightPython(block.textContent); });
+function gradeQuiz(quizId){
+  const quiz = document.querySelector(`[data-quiz="${quizId}"]`);
+  const questions = quiz.querySelectorAll('.quiz-q');
+  let correct = 0;
+  questions.forEach(q=>{
+    const answer = q.dataset.answer;
+    const opts = q.querySelectorAll('.quiz-opt');
+    opts.forEach(opt=>{
+      opt.classList.remove('correct','wrong');
+      opt.style.pointerEvents = 'none';
+      if(opt.dataset.idx === answer){ opt.classList.add('correct'); }
+    });
+    const selected = q.dataset.selected;
+    if(selected === answer){ correct++; }
+    else if(selected !== undefined){
+      const wrongOpt = q.querySelector(`.quiz-opt[data-idx="${selected}"]`);
+      if(wrongOpt) wrongOpt.classList.add('wrong');
+    }
+  });
+  const resultEl = document.getElementById('result-'+quizId);
+  resultEl.textContent = `Kết quả: ${correct}/${questions.length} câu đúng`;
+  resultEl.style.color = correct===questions.length ? 'var(--ok)' : 'var(--warn)';
+}
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  q.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      q.dataset.selected = opt.dataset.idx;
+      q.querySelectorAll('.quiz-opt').forEach(o=>o.style.borderColor='var(--border)');
+      opt.style.borderColor = 'var(--accent)';
+    });
   });
 });
+updateActiveNav();
+const chapterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      const link = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+      if(link) link.classList.add('visited');
+    }
+  });
+}, {threshold:0.08, rootMargin:'0px 0px -10% 0px'});
+document.querySelectorAll('.chapter, .mlchap').forEach(sec=>chapterObserver.observe(sec));
 </script>
+
 <!-- ============ AI CHATBOT WIDGET ============ -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">
   <span class="dot"></span> 💬 Hỏi AI

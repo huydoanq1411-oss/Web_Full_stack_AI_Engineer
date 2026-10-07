@@ -1,61 +1,166 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('algo-mastery-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phần 7 · KNN, Naive Bayes, Decision Tree &amp; SVM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
-  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
-  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
-  --code-bg:#0E1626; --code-text:#DCE6F5;
-  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
-}
-html.dark{
-  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
-  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
-  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
-  --code-bg:#060A14; --code-text:#D9E4F7;
-  --shadow: 0 8px 28px rgba(0,0,0,.45);
-}
-*{box-sizing:border-box;}
+:root{--bg:#0a0c10;--bg-soft:#12151d;--bg-card:#171b26;--border:#262c3b;--text:#eef0f5;--text-dim:#8b93a7;--accent:#22d3ee;--accent2:#818cf8;--code-bg:#0d0f16;--kw:#c792ea;--str:#c3e88d;--num:#f2a65a;--com:#6b7280;--fn:#82aaff;--type:#7dd0e0;--ok:#6bd68b;--warn:#f2c14e;--danger:#f47174;--info:#6ab8f7;--radius:12px;--mono:'JetBrains Mono',Consolas,monospace;--sans:'Inter','Segoe UI',system-ui,sans-serif;--shadow-sm:0 2px 8px rgba(0,0,0,.18);--shadow-md:0 8px 24px rgba(0,0,0,.28);--grad-accent:linear-gradient(135deg,var(--accent),var(--accent2));}
+[data-theme="light"]{--bg:#f7f8fb;--bg-soft:#ffffff;--bg-card:#ffffff;--border:#e5e8ef;--text:#181c25;--text-dim:#5c6373;--code-bg:#f1f3f8;--shadow-sm:0 2px 8px rgba(20,20,40,.06);--shadow-md:0 8px 24px rgba(20,20,40,.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}
+::selection{background:var(--accent);color:#0a0c10;}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;z-index:999;transition:width .1s;}
+#topbar{display:flex;position:sticky;top:0;z-index:60;background:var(--bg-soft);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between;}
+#topbar .brand{font-weight:700;color:var(--accent);}
+#topbar .topbar-right{display:flex;align-items:center;gap:10px;}
+#topbar a.home-btn{display:flex;align-items:center;gap:6px;color:var(--text);text-decoration:none;font-family:var(--mono);font-size:13px;background:var(--bg-card);border:1px solid var(--border);padding:7px 14px;border-radius:100px;transition:border-color .2s ease,color .2s ease;}
+#topbar a.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+#menu-toggle{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;}
+.layout{display:flex;min-height:100vh;}
+.main-col{flex:1;min-width:0;}
+#sidebar{width:290px;flex-shrink:0;background:var(--bg-soft);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;padding:20px 14px 60px;}
+#sidebar .brand{font-size:1.15rem;font-weight:800;color:var(--accent);padding:8px 10px 4px;}
+#sidebar .sub{color:var(--text-dim);font-size:.78rem;padding:0 10px 14px;}
+#search-box{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);margin-bottom:14px;font-size:.85rem;}
+#search-box:focus{outline:none;border-color:var(--accent);}
+.nav-group-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);padding:14px 10px 6px;font-weight:700;}
+.nav-link{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:8px;font-size:.87rem;color:var(--text-dim);cursor:pointer;margin-bottom:2px;transition:background .15s,color .15s,transform .15s;}
+.nav-link:hover{background:var(--bg-card);color:var(--text);transform:translateX(2px);}
+.nav-link.active{background:rgba(34,211,238,.14);color:var(--accent);font-weight:700;box-shadow:var(--shadow-sm);}
+.nav-link.locked{opacity:.4;cursor:not-allowed;}
+.nav-link.locked:hover{background:none;color:var(--text-dim);transform:none;}
+.nav-link.visited:not(.active):before{content:'✓';color:var(--ok);font-size:.72rem;font-weight:700;}
+.lang-switch{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 16px;}
+.lang-switch a{font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);transition:all .15s;}
+.lang-switch a:hover{color:var(--text);border-color:var(--accent);}
+.lang-switch a.current{background:var(--accent);color:#0a0c10;border-color:var(--accent);}
+#theme-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);cursor:pointer;margin-top:16px;font-size:.85rem;}
+main{flex:1;min-width:0;padding:40px 48px 120px;max-width:920px;}
+.hero{margin-bottom:36px;animation:fadeInUp .6s ease both;}
+.hero h1{font-size:2.3rem;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{color:var(--text-dim);font-size:1.02rem;}
+.hero .badge{display:inline-block;background:rgba(34,211,238,.14);color:var(--accent);font-size:.72rem;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em;font-weight:600;border:1px solid rgba(34,211,238,.25);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.chapter{padding-top:60px;margin-top:-20px;border-top:1px dashed var(--border);opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.chapter.visible{opacity:1;transform:translateY(0);}
+.chapter:first-of-type{border-top:none;}
+.chapter h2{font-size:1.55rem;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-weight:700;letter-spacing:-.01em;}
+.chapter h2 .num{color:#0a0c10;font-family:var(--mono);font-size:.95rem;font-weight:700;background:var(--grad-accent);width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm);}
+.chapter .lead{color:var(--text-dim);margin-bottom:22px;font-size:.96rem;}
+.chapter h3{font-size:1.14rem;margin:28px 0 10px;color:var(--text);font-weight:700;}
+p{margin-bottom:12px;font-size:.95rem;}
+ul,ol{margin:0 0 14px 22px;font-size:.95rem;}
+li{margin-bottom:5px;}
+.box{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border-left:4px solid;font-size:.9rem;box-shadow:var(--shadow-sm);transition:transform .15s;}
+.box:hover{transform:translateX(2px);}
+.box-title{font-weight:700;margin-bottom:4px;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;}
+.box.note{background:rgba(34,211,238,.08);border-color:var(--info);}
+.box.note .box-title{color:var(--info);}
+.box.tip{background:rgba(107,214,139,.08);border-color:var(--ok);}
+.box.tip .box-title{color:var(--ok);}
+.box.warning{background:rgba(242,193,78,.08);border-color:var(--warn);}
+.box.warning .box-title{color:var(--warn);}
+.box.important{background:rgba(244,113,116,.08);border-color:var(--danger);}
+.box.important .box-title{color:var(--danger);}
+.code-wrap{position:relative;margin:14px 0 20px;}
+.code-label{position:absolute;top:0;left:14px;transform:translateY(-50%);background:var(--bg);color:var(--text-dim);font-size:.68rem;padding:1px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px 14px;overflow-x:auto;font-family:var(--mono);font-size:.83rem;line-height:1.65;box-shadow:var(--shadow-sm);}
+code{font-family:var(--mono);}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-dim);font-size:.7rem;padding:4px 9px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.tok-kw{color:var(--kw);}
+.tok-str{color:var(--str);}
+.tok-num{color:var(--num);}
+.tok-com{color:var(--com);font-style:italic;}
+.tok-fn{color:var(--fn);}
+.tok-type{color:var(--type);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.87rem;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;}
+th{background:var(--bg-card);color:var(--accent);font-weight:700;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+tbody tr:hover td{background:rgba(34,211,238,.05);}
+.accordion{border:1px solid var(--border);border-radius:var(--radius);margin:14px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.accordion-head{padding:13px 16px;background:var(--bg-card);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.9rem;transition:background .15s;}
+.accordion-head:hover{background:rgba(34,211,238,.06);}
+.accordion-head:after{content:'+';color:var(--accent);font-size:1.1rem;}
+.accordion.open .accordion-head:after{content:'−';}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--bg-soft);}
+.accordion.open .accordion-body{max-height:2000px;}
+.accordion-body-inner{padding:14px 16px;}
+.quiz{border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 14px;margin:22px 0;background:var(--bg-card);box-shadow:var(--shadow-sm);}
+.quiz h4{font-size:.95rem;margin-bottom:14px;color:var(--accent2);font-weight:700;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q p{font-weight:600;margin-bottom:8px;}
+.quiz-opt{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:.88rem;transition:border-color .15s,transform .1s,background .15s;}
+.quiz-opt:hover{border-color:var(--accent);transform:translateX(2px);}
+.quiz-opt.correct{border-color:var(--ok);background:rgba(107,214,139,.12);}
+.quiz-opt.wrong{border-color:var(--danger);background:rgba(244,113,116,.12);}
+.quiz-btn{background:var(--grad-accent);color:#0a0c10;border:none;padding:9px 20px;border-radius:9px;font-weight:700;cursor:pointer;font-size:.85rem;transition:transform .15s,box-shadow .15s;}
+.quiz-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.quiz-result{margin-top:10px;font-weight:700;font-size:.9rem;}
+.summary-box{background:linear-gradient(135deg,rgba(34,211,238,.1),rgba(129,140,248,.06));border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:26px 0;box-shadow:var(--shadow-sm);}
+.summary-box h4{color:var(--accent);margin-bottom:8px;font-size:.95rem;font-weight:700;}
+#back-to-top{position:fixed;bottom:26px;right:26px;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#0a0c10;border:none;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:80;}
+#back-to-top.show{display:flex;}
+.next-hint{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+@media(max-width:900px){#topbar{display:flex;}#sidebar{position:fixed;left:-320px;top:0;z-index:70;box-shadow:0 0 30px rgba(0,0,0,.4);transition:left .25s;}#sidebar.open{left:0;}main{padding:24px 18px 100px;}}
+.crumb{font-size:.82rem;color:var(--text-dim);margin-bottom:22px;}
+.crumb a{color:var(--text-dim);}
+.crumb a:hover{color:var(--accent);}
+.chpage{max-width:900px;margin:0 auto;padding:36px 24px 90px;}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-size:.85rem;text-decoration:none;transition:transform .15s,box-shadow .15s;}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.nav-btn.disabled{opacity:.35;cursor:not-allowed;}
+.chnav{display:flex;justify-content:space-between;gap:14px;margin-top:44px;padding-top:22px;border-top:1px dashed var(--border);flex-wrap:wrap;}
+.chapter{padding-top:0!important;margin-top:0!important;border-top:none!important;opacity:1!important;transform:none!important;}
+.toc-wrap{max-width:820px;margin:0 auto;padding:60px 24px 100px;}
+.toc-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;margin-top:28px;}
+.toc-list li a{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);transition:transform .15s,box-shadow .15s,border-color .15s;}
+.toc-list li a:hover{transform:translateX(4px);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.toc-num{font-family:var(--mono);font-size:.78rem;color:var(--accent);background:rgba(94,200,184,.12);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+tr td{transition:background .15s;}
+.options-roadmap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.options-roadmap .box{margin:0;}
+@media(max-width:700px){.options-roadmap{grid-template-columns:1fr;}}
+.roadmap-note{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+.extra-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-top:40px;}
+.extra-box h2{margin:0 0 14px;font-size:14px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);}
+.extra-box ol{list-style:none;margin:0;padding:0;columns:2;column-gap:28px;}
+.extra-box li{margin-bottom:8px;break-inside:avoid;}
+.extra-box a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border);}
+.extra-box a:hover{color:var(--accent);border-color:var(--accent);}
+@media(max-width:680px){.extra-box ol{columns:1;}}
+.chapter h4.subh{font-size:1rem;font-weight:700;margin:22px 0 8px;color:var(--accent);}
+.mono{font-family:var(--mono);}
+:root{--ink:var(--text);--paper:var(--bg);--surface:var(--bg-card);--surface-2:var(--bg-soft);--muted:var(--text-dim);--teal:var(--accent);--violet:var(--accent2);--amber:var(--warn);--rose:var(--danger);--teal-dim:color-mix(in srgb,var(--accent) 16%,transparent);--amber-dim:color-mix(in srgb,var(--warn) 16%,transparent);--violet-dim:color-mix(in srgb,var(--accent2) 16%,transparent);--rose-dim:color-mix(in srgb,var(--danger) 16%,transparent);--code-text:#dce6f5;--shadow:var(--shadow-md);}
+.mlhero{padding:8px 0 28px;}
+.mlhero h1{font-size:2rem;font-weight:800;line-height:1.25;margin:10px 0 14px;}
+.mlhero .eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--accent);}
+.mlhero .roadmap-svg{width:100%;height:auto;margin-top:18px;}
+.mlchap{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);margin:16px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.container-ml{display:block;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+@media(max-width:640px){.chat-panel{left:12px;right:12px;width:auto;bottom:12px;}.chat-fab{right:12px;}}
 h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
-a{color:var(--teal);}
 code, pre, .mono{font-family:'JetBrains Mono',monospace;}
-.app{display:flex;min-height:100vh;}
-.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
-.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
-.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
-.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
-.progress-wrap{margin-bottom:20px;}
-.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
-.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
-.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
-.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
-.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
-.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
-.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
-.toc{list-style:none;margin:0;padding:0;}
-.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
-.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.toc li a:hover{background:var(--surface-2);color:var(--ink);}
-.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
-.main{flex:1;min-width:0;padding:0 0 80px;}
-.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
-.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
-.hero-inner{max-width:900px;margin:0 auto;}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
-.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
-.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
-.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
-.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.mlchap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
 .chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
 .chapter-head:hover{background:var(--surface-2);}
 .chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
@@ -63,9 +168,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-head h2{margin:0;font-size:19px;}
 .chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
 .chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
-.chapter.open .chevron{transform:rotate(180deg);}
+.mlchap.open .chevron{transform:rotate(180deg);}
 .chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
-.chapter.open .chapter-body{max-height:none;}
+.mlchap.open .chapter-body{max-height:none;}
 .chapter-inner{padding:4px 26px 30px;}
 .chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
 .chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
@@ -73,31 +178,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-inner p{margin:0 0 14px;color:var(--ink);}
 .chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
 .chapter-inner li{margin-bottom:6px;}
-.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
-.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
-.box.note{background:var(--surface-2);border-color:var(--border);}
-.box.note .box-title{color:var(--muted);}
-.box.tip{background:var(--teal-dim);border-color:var(--teal);}
-.box.tip .box-title{color:var(--teal);}
-.box.warning{background:var(--amber-dim);border-color:var(--amber);}
-.box.warning .box-title{color:#95650B;}
 html.dark .box.warning .box-title{color:var(--amber);}
-.box.important{background:var(--rose-dim);border-color:var(--rose);}
-.box.important .box-title{color:var(--rose);}
 .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
-table{width:100%;border-collapse:collapse;font-size:13.8px;}
 th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
-thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:var(--surface-2);}
-.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
-.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
-.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
-.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
-.copy-btn:hover{background:rgba(255,255,255,.12);}
-.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
-pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
-pre.code code{white-space:pre;}
 .line-explain{margin:14px 0;}
 .line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
 .line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
@@ -125,20 +208,13 @@ pre.code code{white-space:pre;}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
 .pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
-@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
 .mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .mistake-card b{color:var(--rose);}
 .practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .practice-card b{color:var(--teal);}
-.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
-.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
-.summary-box ul{margin-bottom:0;}
 .diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
 .diagram-card svg{max-width:100%;height:auto;}
 .diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
-.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
-.back-top.show{opacity:1;pointer-events:auto;}
-.back-top:hover{transform:translateY(-3px);}
 .next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
 .next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
 .next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
@@ -146,11 +222,6 @@ pre.code code{white-space:pre;}
 .checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
 .checklist li:last-child{border-bottom:none;}
 .checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
-::-webkit-scrollbar{width:9px;height:9px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
-@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
-
-/* ============ AI CHATBOT WIDGET ============ */
 .chat-fab{
   position:fixed;bottom:26px;right:26px;z-index:40;
   display:flex;align-items:center;gap:9px;
@@ -219,43 +290,12 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 .chat-send-btn:hover{opacity:.85;}
 .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
 .chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
-@media(max-width:640px){
-  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
-  .chat-fab{right:12px;}
-}
-
-
-/* home fab - top right */
-.home-fab{
-  position:fixed;top:20px;right:26px;z-index:60;
-  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
-  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
-  transition:.2s;
-}
-.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
-.home-fab svg{width:18px;height:18px;flex-shrink:0;}
-@media(max-width:640px){
-  .home-fab{top:14px;right:14px;padding:9px;}
-  .home-fab .home-fab-label{display:none;}
-}
-
-/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
 .crumb{
   font-size:12.5px; color:var(--muted); margin-bottom:18px;
   font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
 }
 .crumb a{ color:var(--muted); text-decoration:none; }
 .crumb a:hover{ color:var(--teal); }
-#topbar{
-  display:none;
-  position:sticky; top:0; z-index:60;
-  align-items:center; justify-content:space-between;
-  padding:12px 18px;
-  background:var(--surface); border-bottom:1px solid var(--border);
-}
-#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
 #menu-toggle{
   background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
   width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
@@ -272,225 +312,173 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 }
 .chnav a:hover{ border-color:var(--teal); color:var(--teal); }
 .chnav .spacer{ flex:1; }
-@media(max-width:960px){
-  #topbar{ display:flex; }
-  .sidebar{
-    position:fixed; left:-320px; top:0; z-index:70;
-    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
-  }
-  .sidebar.open{ left:0; }
-}
+
 </style>
+<title>Phần 7 · KNN, Naive Bayes, Decision Tree &amp; SVM — Giáo Trình Machine Learning</title>
 </head>
 <body>
-<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span class="home-fab-label">Trang chủ</span>
-</a>
+<div id="progress-bar"></div>
 <div id="topbar">
   <span class="brand">📊 Machine Learning</span>
-  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+  <div class="topbar-right">
+    <a class="home-btn" href="../index.html">🏠 Trang chủ</a>
+    <button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Mở danh sách chương">☰</button>
+  </div>
 </div>
-<div class="app">
-
-  <aside class="sidebar">
-    <a href="index.html" style="text-decoration:none;color:inherit;">
-    <div class="sidebar-brand">
-      <div class="brand-mark">ML</div>
-      <div class="brand-text">Giáo trình ML</div>
-    </div>
-    </a>
-
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Tiến độ Phần 7</span><span id="progressPct">0%</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
-    <div class="nav-title">✓ Đã học</div>
-    <ul class="toc">
-      <li><a href="phan-1-nen-tang-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 1 — Nền tảng</a></li>
-      <li><a href="phan-2-toan-cho-ml.html" style="opacity:.7;"><span class="num">✓</span> Phần 2 — Toán cho ML</a></li>
-      <li><a href="phan-3-truc-quan-hoa-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 3 — Trực quan hóa</a></li>
-      <li><a href="phan-4-tien-xu-ly-du-lieu.html" style="opacity:.7;"><span class="num">✓</span> Phần 4 — Tiền xử lý &amp; EDA</a></li>
-      <li><a href="phan-5-feature-engineering-pipeline.html" style="opacity:.7;"><span class="num">✓</span> Phần 5 — Feature Eng. &amp; Pipeline</a></li>
-      <li><a href="phan-6-supervised-learning.html" style="opacity:.7;"><span class="num">✓</span> Phần 6 — Linear/Logistic Reg.</a></li>
-    </ul>
-
-    <div class="nav-title">Các phần</div>
-    <ul class="toc" style="margin-bottom:16px;">
-      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
-      <li><a href="phan-2-toan-cho-ml.html"><span class="num">2</span> Toán Cho ML</a></li>
-      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
-      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
-      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
-      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
-      <li><a href="phan-7-knn-bayes-tree-svm.html" class="active"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
-      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
-      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
-      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
-      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
-      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
-      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
-      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
-      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
-    </ul>
-
-    <div class="nav-title">Mục lục — Phần 7</div>
-    <ul class="toc" id="tocList">
-      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 7</a></li>
-      <li><a href="#chuong-22"><span class="num">22</span> K-Nearest Neighbors (KNN)</a></li>
-      <li><a href="#chuong-23"><span class="num">23</span> Naive Bayes</a></li>
-      <li><a href="#chuong-24"><span class="num">24</span> Decision Tree</a></li>
-      <li><a href="#chuong-25"><span class="num">25</span> Support Vector Machine (SVM)</a></li>
-    </ul>
-
-    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
-    <ul class="toc">
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">26</span> Ensemble Learning</a></li>
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">27</span> Random Forest</a></li>
-    </ul>
-
-    <div class="toggle-row" style="margin-top:18px;">
-      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
-    </div>
+<div class="layout">
+  <aside id="sidebar">
+    <div class="brand">📊 Machine Learning</div>
+    <div class="sub">16 chương</div>
+    <input type="text" id="search-box" placeholder="Tìm chương…" oninput="filterNav(this.value)">
+    <div class="nav-group-title">Danh sách chương</div>
+    <a class="nav-link" href="phan-1-nen-tang-ml.html">Phần 1. Nền Tảng ML</a>
+    <a class="nav-link" href="phan-2-toan-cho-ml.html">Phần 2. Toán Cho ML</a>
+    <a class="nav-link" href="phan-3-truc-quan-hoa-du-lieu.html">Phần 3. Trực Quan Hóa Dữ Liệu</a>
+    <a class="nav-link" href="phan-4-tien-xu-ly-du-lieu.html">Phần 4. Tiền Xử Lý &amp; EDA</a>
+    <a class="nav-link" href="phan-5-feature-engineering-pipeline.html">Phần 5. Feature Engineering</a>
+    <a class="nav-link" href="phan-6-supervised-learning.html">Phần 6. Supervised Learning</a>
+    <a class="nav-link active" href="phan-7-knn-bayes-tree-svm.html">Phần 7. KNN, Bayes, Tree, SVM</a>
+    <a class="nav-link" href="phan-8-ensemble-random-forest.html">Phần 8. Ensemble &amp; Random Forest</a>
+    <a class="nav-link" href="phan-9-unsupervised-clustering-pca.html">Phần 9. Unsupervised &amp; PCA</a>
+    <a class="nav-link" href="phan-10-model-evaluation-tuning.html">Phần 10. Model Evaluation &amp; Tuning</a>
+    <a class="nav-link" href="phan-11-explainable-ai-deployment.html">Phần 11. Explainable AI &amp; Deploy</a>
+    <a class="nav-link" href="phan-12-sql-mlops.html">Phần 12. SQL &amp; MLOps</a>
+    <a class="nav-link" href="phan-13-kaggle-portfolio.html">Phần 13. Kaggle &amp; Portfolio</a>
+    <a class="nav-link" href="phan-14-deep-learning.html">Phần 14. Deep Learning</a>
+    <a class="nav-link" href="phan-15-reinforcement-learning.html">Phần 15. Reinforcement Learning</a>
+    <a class="nav-link" href="tong-hop-cheat-sheet.html">📋 Tổng hợp công thức</a>
+    <div class="nav-group-title">Trong phần này</div>
+    <a class="nav-link" href="#gioi-thieu" data-target="gioi-thieu">Giới thiệu Phần 7</a>
+    <a class="nav-link" href="#chuong-22" data-target="chuong-22">K-Nearest Neighbors (KNN)</a>
+    <a class="nav-link" href="#chuong-23" data-target="chuong-23">Naive Bayes</a>
+    <a class="nav-link" href="#chuong-24" data-target="chuong-24">Decision Tree</a>
+    <a class="nav-link" href="#chuong-25" data-target="chuong-25">Support Vector Machine (SVM)</a>
+    <button id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Chế độ tối</span></button>
   </aside>
-
-  <main class="main">
-
-    <div class="crumb">
-      <a href="../index.html">🏠 Trang chủ</a> ·
-      <a href="index.html">📊 Machine Learning</a> ·
-      <span>Phần 7. KNN, Bayes, Tree, SVM</span>
-    </div>
-    <section class="hero" id="gioi-thieu">
-      <div class="hero-inner">
-        <span class="eyebrow">● Phần 7 / N — Mở rộng bộ công cụ Supervised Learning</span>
-        <h1>Bốn "trường phái" tư duy khác nhau<br>để giải cùng một bài toán</h1>
-        <p class="lead">Linear/Logistic Regression tìm một đường/ranh giới toàn cục. Phần 7 giới thiệu 4 thuật toán với triết lý hoàn toàn khác:
+  <div class="main-col">
+<div class="chpage">
+  <div class="crumb">
+    <a href="../index.html">🏠 Trang chủ</a> ·
+    <a href="index.html">📊 Machine Learning</a> ·
+    <span>Phần 7. KNN, Bayes, Tree, SVM</span>
+  </div>
+  <main style="padding:0;max-width:none;">
+<div class="mlhero" id="gioi-thieu">
+      <span class="eyebrow">● Phần 7 / 15 — Mở rộng bộ công cụ Supervised Learning</span>
+      <h1>Bốn "trường phái" tư duy khác nhau<br/>để giải cùng một bài toán</h1>
+      <p class="lead">Linear/Logistic Regression tìm một đường/ranh giới toàn cục. Phần 7 giới thiệu 4 thuật toán với triết lý hoàn toàn khác:
         <b>KNN</b> ("hỏi hàng xóm gần nhất"), <b>Naive Bayes</b> (dựa trên xác suất — nhớ lại định lý Bayes ở Chương 8),
         <b>Decision Tree</b> (chuỗi câu hỏi if-else), và <b>SVM</b> (tìm ranh giới có "lề" rộng nhất). Mỗi thuật toán phù hợp với một kiểu bài toán khác nhau.</p>
+      <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+<svg class="roadmap-svg" viewbox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#0D9488"></stop>
+<stop offset="100%" stop-color="#5B4EE5"></stop>
+</lineargradient>
+</defs>
+<path d="M40,110 H820" stroke="url(#lineGrad)" stroke-linecap="round" stroke-width="6"></path>
+<path d="M760,110 H840" stroke="var(--border)" stroke-dasharray="2 10" stroke-linecap="round" stroke-width="6"></path>
+<g font-family="Space Grotesk, sans-serif">
+<g><circle cx="70" cy="110" fill="var(--border)" r="13"></circle><text fill="var(--muted)" font-size="9.5" text-anchor="middle" x="70" y="150">Phần 1-6 ✓</text></g>
+<g>
+<circle cx="240" cy="110" fill="#0D9488" r="15"></circle><circle cx="240" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="240" y="70">Ga 22</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="240" y="150">KNN</text>
+</g>
+<g>
+<circle cx="400" cy="110" fill="#0D9488" r="15"></circle><circle cx="400" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="400" y="70">Ga 23</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="400" y="150">Naive Bayes</text>
+</g>
+<g>
+<circle cx="560" cy="110" fill="#5B4EE5" r="15"></circle><circle cx="560" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="560" y="70">Ga 24</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="560" y="150">Decision Tree</text>
+</g>
+<g>
+<circle cx="720" cy="110" fill="#5B4EE5" r="15"></circle><circle cx="720" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="720" y="70">Ga 25</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="720" y="150">SVM</text>
+</g>
+<text fill="var(--muted)" font-size="11" font-style="italic" x="800" y="90">Phần 8 →</text>
+</g>
+</svg>
+<div class="diagram-caption">4 "ga" của Phần 7 — mỗi ga là một triết lý thuật toán khác nhau.</div>
+</div>
+    </div>
 
-        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
-          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#0D9488"/>
-                <stop offset="100%" stop-color="#5B4EE5"/>
-              </linearGradient>
-            </defs>
-            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
-            <g font-family="Space Grotesk, sans-serif">
-              <g><circle cx="70" cy="110" r="13" fill="var(--border)"/><text x="70" y="150" text-anchor="middle" font-size="9.5" fill="var(--muted)">Phần 1-6 ✓</text></g>
-              <g>
-                <circle cx="240" cy="110" r="15" fill="#0D9488"/><circle cx="240" cy="110" r="6" fill="#fff"/>
-                <text x="240" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 22</text>
-                <text x="240" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">KNN</text>
-              </g>
-              <g>
-                <circle cx="400" cy="110" r="15" fill="#0D9488"/><circle cx="400" cy="110" r="6" fill="#fff"/>
-                <text x="400" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 23</text>
-                <text x="400" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Naive Bayes</text>
-              </g>
-              <g>
-                <circle cx="560" cy="110" r="15" fill="#5B4EE5"/><circle cx="560" cy="110" r="6" fill="#fff"/>
-                <text x="560" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 24</text>
-                <text x="560" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Decision Tree</text>
-              </g>
-              <g>
-                <circle cx="720" cy="110" r="15" fill="#5B4EE5"/><circle cx="720" cy="110" r="6" fill="#fff"/>
-                <text x="720" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 25</text>
-                <text x="720" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">SVM</text>
-              </g>
-              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 8 →</text>
-            </g>
-          </svg>
-          <div class="diagram-caption">4 "ga" của Phần 7 — mỗi ga là một triết lý thuật toán khác nhau.</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="container">
-
-      <div class="box note">
-        <div class="box-title">📌 Không có thuật toán nào "tốt nhất" tuyệt đối</div>
+<div class="box note">
+<div class="box-title">📌 Không có thuật toán nào "tốt nhất" tuyệt đối</div>
         Đây là nguyên lý <b>"No Free Lunch"</b> trong ML: không thuật toán nào luôn thắng mọi bài toán. Mục tiêu của Phần 7 là giúp bạn có đủ
         "vốn từ vựng" thuật toán để chọn công cụ phù hợp nhất cho từng tình huống cụ thể — dựa trên kích thước dữ liệu, độ phi tuyến, và yêu cầu về khả năng diễn giải.
       </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 22: KNN -->
-      <!-- ================================================================ -->
-      <div class="chapter open" id="chuong-22">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">22</div>
-            <div>
-              <h2>K-Nearest Neighbors (KNN)</h2>
-              <div class="ch-sub">"Hãy cho tôi biết bạn của bạn là ai, tôi sẽ nói bạn là người thế nào"</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>22.1. Trực giác: phân loại dựa trên "hàng xóm gần nhất"</h3>
-            <p>KNN là thuật toán đơn giản nhất về mặt ý tưởng: để dự đoán nhãn của một điểm dữ liệu mới, tìm <code>k</code> điểm dữ liệu <b>gần nó nhất</b> trong tập huấn luyện
+ ================================================================ 
+ CHƯƠNG 22: KNN 
+ ================================================================ 
+<div class="mlchap open" id="chuong-22">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">22</div>
+<div>
+<h2>K-Nearest Neighbors (KNN)</h2>
+<div class="ch-sub">"Hãy cho tôi biết bạn của bạn là ai, tôi sẽ nói bạn là người thế nào"</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>22.1. Trực giác: phân loại dựa trên "hàng xóm gần nhất"</h3>
+<p>KNN là thuật toán đơn giản nhất về mặt ý tưởng: để dự đoán nhãn của một điểm dữ liệu mới, tìm <code>k</code> điểm dữ liệu <b>gần nó nhất</b> trong tập huấn luyện
             (dùng norm/khoảng cách Euclid đã học ở Chương 6), rồi lấy nhãn <b>phổ biến nhất</b> trong số đó (với Classification) hoặc <b>trung bình</b> (với Regression).</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 360 220" width="320">
-                <circle cx="180" cy="120" r="70" fill="none" stroke="var(--violet)" stroke-dasharray="4 3"/>
-                <circle cx="120" cy="90" r="6" fill="var(--teal)"/>
-                <circle cx="150" cy="140" r="6" fill="var(--teal)"/>
-                <circle cx="200" cy="80" r="6" fill="var(--rose)"/>
-                <circle cx="220" cy="150" r="6" fill="var(--teal)"/>
-                <circle cx="90" cy="180" r="6" fill="var(--rose)"/>
-                <circle cx="260" cy="60" r="6" fill="var(--rose)"/>
-                <circle cx="60" cy="60" r="6" fill="var(--rose)"/>
-                <circle cx="180" cy="120" r="8" fill="var(--amber)" stroke="#fff" stroke-width="2"/>
-                <text x="180" y="205" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Space Grotesk">Điểm mới (●) — xét k=3 hàng xóm gần nhất</text>
-              </svg>
-              <div class="diagram-caption">Với k=3, 3 điểm gần nhất quyết định nhãn của điểm mới (đa số ở đây quyết định lớp).</div>
+<div class="diagram-card">
+<svg viewbox="0 0 360 220" width="320">
+<circle cx="180" cy="120" fill="none" r="70" stroke="var(--violet)" stroke-dasharray="4 3"></circle>
+<circle cx="120" cy="90" fill="var(--teal)" r="6"></circle>
+<circle cx="150" cy="140" fill="var(--teal)" r="6"></circle>
+<circle cx="200" cy="80" fill="var(--rose)" r="6"></circle>
+<circle cx="220" cy="150" fill="var(--teal)" r="6"></circle>
+<circle cx="90" cy="180" fill="var(--rose)" r="6"></circle>
+<circle cx="260" cy="60" fill="var(--rose)" r="6"></circle>
+<circle cx="60" cy="60" fill="var(--rose)" r="6"></circle>
+<circle cx="180" cy="120" fill="var(--amber)" r="8" stroke="#fff" stroke-width="2"></circle>
+<text fill="var(--muted)" font-family="Space Grotesk" font-size="11" text-anchor="middle" x="180" y="205">Điểm mới (●) — xét k=3 hàng xóm gần nhất</text>
+</svg>
+<div class="diagram-caption">Với k=3, 3 điểm gần nhất quyết định nhãn của điểm mới (đa số ở đây quyết định lớp).</div>
+</div>
+<p>"Gần nhất" ở trên mặc định dùng khoảng cách Euclidean (norm — Chương 6), nhưng đó chỉ là một trong nhiều lựa chọn đo khoảng cách:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Distance Metric</th><th>Công thức / Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><b>Euclidean</b> (p=2)</td><td>Khoảng cách đường thẳng thông thường — phổ biến nhất, mặc định trong KNN.</td></tr>
+<tr><td><b>Manhattan</b> (p=1)</td><td>Tổng trị tuyệt đối hiệu từng chiều — như đi theo các ô bàn cờ/đường phố dạng lưới, không đi được đường chéo.</td></tr>
+<tr><td><b>Minkowski</b></td><td>Công thức tổng quát hóa cả Euclidean (p=2) và Manhattan (p=1) — chọn giá trị p bất kỳ để nội suy giữa hai loại trên.</td></tr>
+<tr><td><b>Hamming</b></td><td>Đếm số vị trí khác nhau giữa 2 chuỗi — dùng cho dữ liệu categorical/nhị phân, không phải dữ liệu số liên tục.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box tip">
+<div class="box-title">💡 scikit-learn dùng Minkowski làm mặc định</div>
+<code>KNeighborsClassifier(metric='minkowski', p=2)</code> chính là Euclidean (p=2); đổi <code>p=1</code> sẽ thành Manhattan — không cần đổi hẳn <code>metric</code>, chỉ cần chỉnh tham số <code>p</code> nhờ Minkowski là công thức tổng quát.
             </div>
-
-            <p>"Gần nhất" ở trên mặc định dùng khoảng cách Euclidean (norm — Chương 6), nhưng đó chỉ là một trong nhiều lựa chọn đo khoảng cách:</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Distance Metric</th><th>Công thức / Ý nghĩa</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Euclidean</b> (p=2)</td><td>Khoảng cách đường thẳng thông thường — phổ biến nhất, mặc định trong KNN.</td></tr>
-                  <tr><td><b>Manhattan</b> (p=1)</td><td>Tổng trị tuyệt đối hiệu từng chiều — như đi theo các ô bàn cờ/đường phố dạng lưới, không đi được đường chéo.</td></tr>
-                  <tr><td><b>Minkowski</b></td><td>Công thức tổng quát hóa cả Euclidean (p=2) và Manhattan (p=1) — chọn giá trị p bất kỳ để nội suy giữa hai loại trên.</td></tr>
-                  <tr><td><b>Hamming</b></td><td>Đếm số vị trí khác nhau giữa 2 chuỗi — dùng cho dữ liệu categorical/nhị phân, không phải dữ liệu số liên tục.</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="box tip">
-              <div class="box-title">💡 scikit-learn dùng Minkowski làm mặc định</div>
-              <code>KNeighborsClassifier(metric='minkowski', p=2)</code> chính là Euclidean (p=2); đổi <code>p=1</code> sẽ thành Manhattan — không cần đổi hẳn <code>metric</code>, chỉ cần chỉnh tham số <code>p</code> nhờ Minkowski là công thức tổng quát.
-            </div>
-
-            <h3>22.2. KNN là "Lazy Learning" — không thực sự "học" gì cả</h3>
-            <p>Khác với Linear/Logistic Regression (phải tối ưu hóa tham số qua Gradient Descent), KNN <b>không có giai đoạn huấn luyện thực sự</b> —
+<h3>22.2. KNN là "Lazy Learning" — không thực sự "học" gì cả</h3>
+<p>Khác với Linear/Logistic Regression (phải tối ưu hóa tham số qua Gradient Descent), KNN <b>không có giai đoạn huấn luyện thực sự</b> —
             nó chỉ lưu lại toàn bộ dữ liệu train, và mọi tính toán (tìm hàng xóm) chỉ xảy ra tại thời điểm dự đoán. Vì vậy KNN được gọi là <b>"lazy learner"</b>, khác với các mô hình "eager learner" khác.</p>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 np.random.seed(0)
-# Dữ liệu: [gio_hoc, so_bai_tap_lam] -> nhan: dau (1) / rot (0)
+# Dữ liệu: [gio_hoc, so_bai_tap_lam] -&gt; nhan: dau (1) / rot (0)
 X = np.random.rand(200, 2) * 10
-y = ((X[:,0] + X[:,1]) > 10).astype(int)
+y = ((X[:,0] + X[:,1]) &gt; 10).astype(int)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -503,58 +491,54 @@ knn = KNeighborsClassifier(n_neighbors=5)
 knn.fit(X_train_scaled, y_train)
 y_pred = knn.predict(X_test_scaled)
 print("Accuracy:", accuracy_score(y_test, y_pred))</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>StandardScaler()</code> — bắt buộc với KNN vì thuật toán dựa hoàn toàn vào <b>khoảng cách</b>; nếu một cột có thang đo lớn hơn nhiều, nó sẽ "áp đảo" khoảng cách một cách không công bằng (nhắc lại Chương 13).</li>
-                <li><code>KNeighborsClassifier(n_neighbors=5)</code> — tham số <code>n_neighbors</code> (chính là <code>k</code>) là siêu tham số quan trọng nhất, cần tinh chỉnh qua cross-validation.</li>
-                <li><code>knn.fit(...)</code> — với KNN, bước này chỉ đơn giản là "ghi nhớ" dữ liệu train, không có quá trình tối ưu hóa nào.</li>
-              </ol>
-            </div>
-
-            <h3>22.3. Chọn giá trị k như thế nào?</h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>k</th><th>Hiện tượng</th></tr></thead>
-                <tbody>
-                  <tr><td>k quá nhỏ (ví dụ k=1)</td><td>Nhạy cảm với nhiễu, dễ overfitting — ranh giới quyết định rất "gồ ghề"</td></tr>
-                  <tr><td>k quá lớn</td><td>Ranh giới quá mượt, có thể underfitting, và tính toán chậm hơn</td></tr>
-                  <tr><td>k phù hợp</td><td>Thường chọn qua thử nghiệm nhiều giá trị bằng cross-validation; k lẻ giúp tránh hòa phiếu khi phân loại nhị phân</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box warning">
-              <div class="box-title">⚠️ Nhược điểm lớn nhất của KNN</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>StandardScaler()</code> — bắt buộc với KNN vì thuật toán dựa hoàn toàn vào <b>khoảng cách</b>; nếu một cột có thang đo lớn hơn nhiều, nó sẽ "áp đảo" khoảng cách một cách không công bằng (nhắc lại Chương 13).</li>
+<li><code>KNeighborsClassifier(n_neighbors=5)</code> — tham số <code>n_neighbors</code> (chính là <code>k</code>) là siêu tham số quan trọng nhất, cần tinh chỉnh qua cross-validation.</li>
+<li><code>knn.fit(...)</code> — với KNN, bước này chỉ đơn giản là "ghi nhớ" dữ liệu train, không có quá trình tối ưu hóa nào.</li>
+</ol>
+</div>
+<h3>22.3. Chọn giá trị k như thế nào?</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>k</th><th>Hiện tượng</th></tr></thead>
+<tbody>
+<tr><td>k quá nhỏ (ví dụ k=1)</td><td>Nhạy cảm với nhiễu, dễ overfitting — ranh giới quyết định rất "gồ ghề"</td></tr>
+<tr><td>k quá lớn</td><td>Ranh giới quá mượt, có thể underfitting, và tính toán chậm hơn</td></tr>
+<tr><td>k phù hợp</td><td>Thường chọn qua thử nghiệm nhiều giá trị bằng cross-validation; k lẻ giúp tránh hòa phiếu khi phân loại nhị phân</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Nhược điểm lớn nhất của KNN</div>
               Vì phải tính khoảng cách tới <i>toàn bộ</i> điểm dữ liệu train mỗi khi dự đoán, KNN <b>rất chậm với dữ liệu lớn</b> và tốn nhiều bộ nhớ (phải lưu toàn bộ tập train). Đây là lý do KNN thường không phải lựa chọn đầu tiên cho các bài toán production quy mô lớn.
             </div>
-
-            <h3>22.4. "Lời nguyền chiều dữ liệu" (Curse of Dimensionality)</h3>
-            <p>KNN gặp thêm một vấn đề tinh vi hơn khi số chiều (số đặc trưng) tăng lên: trong không gian rất nhiều chiều, khái niệm "gần nhau" dần <b>mất ý nghĩa</b>. Khi số chiều tăng, khoảng cách giữa điểm gần nhất và điểm xa nhất trong tập dữ liệu ngày càng <i>xích lại gần nhau</i> về mặt tỉ lệ — tức là mọi điểm dần trở nên "xa nhau gần như bằng nhau", khiến việc chọn ra "hàng xóm gần nhất" thực sự trở nên kém tin cậy.</p>
-            <div class="box tip">
-              <div class="box-title">💡 Trực giác đơn giản</div>
+<h3>22.4. "Lời nguyền chiều dữ liệu" (Curse of Dimensionality)</h3>
+<p>KNN gặp thêm một vấn đề tinh vi hơn khi số chiều (số đặc trưng) tăng lên: trong không gian rất nhiều chiều, khái niệm "gần nhau" dần <b>mất ý nghĩa</b>. Khi số chiều tăng, khoảng cách giữa điểm gần nhất và điểm xa nhất trong tập dữ liệu ngày càng <i>xích lại gần nhau</i> về mặt tỉ lệ — tức là mọi điểm dần trở nên "xa nhau gần như bằng nhau", khiến việc chọn ra "hàng xóm gần nhất" thực sự trở nên kém tin cậy.</p>
+<div class="box tip">
+<div class="box-title">💡 Trực giác đơn giản</div>
               Với 2-3 chiều, "gần" là khái niệm rõ ràng (như trên bản đồ). Nhưng thử tưởng tượng một khối lập phương nhiều chiều: càng nhiều chiều, phần lớn "thể tích" của khối lập phương càng dồn về các góc/rìa thay vì ở giữa — dữ liệu ngẫu nhiên trong không gian đó có xu hướng nằm rải rác gần các "góc", khiến khoảng cách giữa các điểm trở nên đồng đều một cách bất thường.
             </div>
-            <div class="box important">
-              <div class="box-title">🔴 Liên hệ ngược lại: vì sao RAG/vector search vẫn hoạt động tốt dù embedding có hàng trăm chiều?</div>
+<div class="box important">
+<div class="box-title">🔴 Liên hệ ngược lại: vì sao RAG/vector search vẫn hoạt động tốt dù embedding có hàng trăm chiều?</div>
               Đây là câu hỏi tự nhiên nhớ lại phần liên hệ RAG (Chương 45) đã nhắc ở cuối chương này: embedding thường có 384-1536 chiều — vậy Curse of Dimensionality có làm hỏng việc tìm kiếm ngữ nghĩa không? Trong thực tế, embedding hoạt động tốt vì dữ liệu ngôn ngữ tự nhiên không "trải đều ngẫu nhiên" khắp không gian nhiều chiều đó, mà tập trung gần một "đa tạp" (manifold) chiều thấp hơn nhiều bên trong không gian lớn — các mô hình embedding được huấn luyện chính để tạo ra cấu trúc tập trung như vậy, giúp cosine similarity vẫn phản ánh đúng độ liên quan ngữ nghĩa dù số chiều danh nghĩa rất lớn.
             </div>
-
-            <h3>22.5. Recommender System — ứng dụng thực tế nổi tiếng nhất của "hàng xóm gần nhất"</h3>
-            <p>"Có thể bạn cũng thích..." trên Shopee/Netflix/Spotify phần lớn dựa trên <b>Collaborative Filtering</b> — về bản chất, chính là KNN áp dụng lên ma trận người dùng × sản phẩm, thay vì ma trận đặc trưng × nhãn thông thường.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Cách tiếp cận</th><th>Nguyên lý</th></tr></thead>
-                <tbody>
-                  <tr><td><b>User-based CF</b></td><td>Tìm những người dùng "gần giống" bạn nhất (dựa trên lịch sử đánh giá/mua hàng) — gợi ý những gì họ thích mà bạn chưa xem.</td></tr>
-                  <tr><td><b>Item-based CF</b></td><td>Tìm những sản phẩm "gần giống" sản phẩm bạn vừa xem/mua (dựa trên việc những người khác mua chúng cùng nhau) — gợi ý sản phẩm tương tự.</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+<h3>22.5. Recommender System — ứng dụng thực tế nổi tiếng nhất của "hàng xóm gần nhất"</h3>
+<p>"Có thể bạn cũng thích..." trên Shopee/Netflix/Spotify phần lớn dựa trên <b>Collaborative Filtering</b> — về bản chất, chính là KNN áp dụng lên ma trận người dùng × sản phẩm, thay vì ma trận đặc trưng × nhãn thông thường.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Cách tiếp cận</th><th>Nguyên lý</th></tr></thead>
+<tbody>
+<tr><td><b>User-based CF</b></td><td>Tìm những người dùng "gần giống" bạn nhất (dựa trên lịch sử đánh giá/mua hàng) — gợi ý những gì họ thích mà bạn chưa xem.</td></tr>
+<tr><td><b>Item-based CF</b></td><td>Tìm những sản phẩm "gần giống" sản phẩm bạn vừa xem/mua (dựa trên việc những người khác mua chúng cùng nhau) — gợi ý sản phẩm tương tự.</td></tr>
+</tbody>
+</table>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Ma trận đánh giá: mỗi dòng 1 người dùng, mỗi cột 1 phim, giá trị = điểm đánh giá (0 = chưa xem)
@@ -567,95 +551,88 @@ ma_tran_danh_gia = np.array([
 # Độ giống nhau giữa các người dùng - CHÍNH LÀ cosine similarity đã học ở Chương 6
 do_giong_nhau = cosine_similarity(ma_tran_danh_gia)
 print(do_giong_nhau.round(2))
-# do_giong_nhau[0] cho biết A giống B và C tới mức nào -> dùng để gợi ý phim B thích mà A chưa xem</code></pre>
+# do_giong_nhau[0] cho biết A giống B và C tới mức nào -&gt; dùng để gợi ý phim B thích mà A chưa xem</code></pre>
+</div>
+<div class="box note">
+<div class="box-title">📌 Sợi dây liên kết xuyên suốt giáo trình</div>
+              Không phải ngẫu nhiên mà Recommender System, KNN, và RAG (Chương 45) đều dựa trên cùng một ý tưởng "tìm hàng xóm gần nhất bằng cosine similarity" (Chương 6) — đây là một trong những nguyên lý toán học nền tảng nhất, xuất hiện lặp lại ở rất nhiều ứng dụng AI tưởng chừng không liên quan tới nhau. Với dữ liệu lớn, các Recommender System hiện đại thường kết hợp thêm Matrix Factorization (liên hệ PCA — Chương 31) hoặc mạng nơ-ron (Phần 14) để cải thiện độ chính xác hơn Collaborative Filtering thuần túy.
             </div>
-            <div class="box note">
-              <div class="box-title">📌 Sợi dây liên kết xuyên suốt giáo trình</div>
-              Không phải ngẫu nhiên mà Recommender System, KNN, và RAG (Chương 45) đều dựa trên cùng một ý tưởng "tìm hàng xóm gần nhất bằng cosine similarity" (Chương 6) — đây là một trong những nguyên lý toán học nền tảng nhất, xuất hiện lặp lại ở rất nhiều ứng dụng AI tưởng chừng không liên quan tới nhau. Với dữ liệu lớn, các Recommender System hiện đại thường kết hợp thêm Matrix Factorization (liên hệ PCA — Chương 31) hoặc mạng nơ-ron (Phần 16) để cải thiện độ chính xác hơn Collaborative Filtering thuần túy.
-            </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Với dữ liệu ở mục 22.2, thử huấn luyện KNN với <code>n_neighbors=1</code> và <code>n_neighbors=50</code>, so sánh accuracy trên tập test. Giải thích kết quả.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>for k in [1, 50]:
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Với dữ liệu ở mục 22.2, thử huấn luyện KNN với <code>n_neighbors=1</code> và <code>n_neighbors=50</code>, so sánh accuracy trên tập test. Giải thích kết quả.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>for k in [1, 50]:
     knn_k = KNeighborsClassifier(n_neighbors=k)
     knn_k.fit(X_train_scaled, y_train)
     acc = accuracy_score(y_test, knn_k.predict(X_test_scaled))
     print(f"k={k}: accuracy = {acc:.3f}")
 # k=1 thường overfit (khớp nhiễu train), k=50 có thể underfit (quá mượt)</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng KNN trực tiếp trên dữ liệu có hàng trăm ngàn dòng mà không cân nhắc chi phí tính toán tại thời điểm dự đoán.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn thử nhiều giá trị k qua cross-validation thay vì chọn ngẫu nhiên hoặc mặc định.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 22</h4>
-              <ul>
-                <li>KNN dự đoán dựa trên đa số/trung bình của k điểm gần nhất, không có giai đoạn "học" tham số thực sự.</li>
-                <li>Bắt buộc phải scale dữ liệu vì thuật toán hoàn toàn dựa trên khoảng cách.</li>
-                <li>k nhỏ dễ overfitting, k lớn dễ underfitting; chi phí tính toán cao với dữ liệu lớn.</li>
-                <li>Curse of Dimensionality: càng nhiều chiều, khái niệm "gần nhau" càng kém tin cậy — nên cân nhắc giảm chiều (PCA - Chương 31) trước khi dùng KNN với dữ liệu nhiều đặc trưng.</li>
-                <li>Recommender System (Collaborative Filtering) là ứng dụng thực tế của KNN + cosine similarity lên ma trận người dùng × sản phẩm.</li>
-              </ul>
-            </div>
-
-            <div class="box note">
-              <div class="box-title">🆕 Cập nhật 2026 — KNN chính là thuật toán lõi đứng sau bước "Retrieval" trong RAG</div>
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng KNN trực tiếp trên dữ liệu có hàng trăm ngàn dòng mà không cân nhắc chi phí tính toán tại thời điểm dự đoán.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn thử nhiều giá trị k qua cross-validation thay vì chọn ngẫu nhiên hoặc mặc định.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 22</h4>
+<ul>
+<li>KNN dự đoán dựa trên đa số/trung bình của k điểm gần nhất, không có giai đoạn "học" tham số thực sự.</li>
+<li>Bắt buộc phải scale dữ liệu vì thuật toán hoàn toàn dựa trên khoảng cách.</li>
+<li>k nhỏ dễ overfitting, k lớn dễ underfitting; chi phí tính toán cao với dữ liệu lớn.</li>
+<li>Curse of Dimensionality: càng nhiều chiều, khái niệm "gần nhau" càng kém tin cậy — nên cân nhắc giảm chiều (PCA - Chương 31) trước khi dùng KNN với dữ liệu nhiều đặc trưng.</li>
+<li>Recommender System (Collaborative Filtering) là ứng dụng thực tế của KNN + cosine similarity lên ma trận người dùng × sản phẩm.</li>
+</ul>
+</div>
+<div class="box note">
+<div class="box-title">🆕 Cập nhật 2026 — KNN chính là thuật toán lõi đứng sau bước "Retrieval" trong RAG</div>
               Nghe có vẻ bất ngờ, nhưng bước quan trọng nhất trong RAG (Chương 45) — "tìm những đoạn văn bản liên quan nhất tới câu hỏi" — về bản chất toán học <b>chính là bài toán KNN</b> mà bạn vừa học, chỉ khác vài điểm áp dụng thực tế:
               <ul>
-                <li>Thay vì đo khoảng cách Euclidean giữa các điểm dữ liệu dạng số, hệ thống RAG đo <b>cosine similarity</b> (Chương 6) giữa các embedding vector đại diện cho câu văn.</li>
-                <li>Thay vì tìm "k hàng xóm gần nhất" trong vài nghìn dòng dữ liệu, RAG cần tìm gần nhất trong hàng triệu vector — nên dùng các thuật toán "xấp xỉ" nhanh hơn (Approximate Nearest Neighbor - ANN) như HNSW, thay vì so sánh tuần tự với từng điểm như KNN cổ điển.</li>
-                <li>Vì lý do đó, hầu hết <b>vector database</b> (đã nhắc ở Chương 31) thực chất là "KNN được tối ưu hóa để chạy nhanh ở quy mô cực lớn".</li>
-              </ul>
+<li>Thay vì đo khoảng cách Euclidean giữa các điểm dữ liệu dạng số, hệ thống RAG đo <b>cosine similarity</b> (Chương 6) giữa các embedding vector đại diện cho câu văn.</li>
+<li>Thay vì tìm "k hàng xóm gần nhất" trong vài nghìn dòng dữ liệu, RAG cần tìm gần nhất trong hàng triệu vector — nên dùng các thuật toán "xấp xỉ" nhanh hơn (Approximate Nearest Neighbor - ANN) như HNSW, thay vì so sánh tuần tự với từng điểm như KNN cổ điển.</li>
+<li>Vì lý do đó, hầu hết <b>vector database</b> (đã nhắc ở Chương 31) thực chất là "KNN được tối ưu hóa để chạy nhanh ở quy mô cực lớn".</li>
+</ul>
               💡 Hiểu đúng: RAG không phải một kỹ thuật hoàn toàn mới, mà là áp dụng lại ý tưởng "hàng xóm gần nhất" — vốn rất cũ và đơn giản — lên một loại dữ liệu mới (embedding vector) với quy mô lớn hơn nhiều.
             </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 23: NAIVE BAYES -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-23">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">23</div>
-            <div>
-              <h2>Naive Bayes</h2>
-              <div class="ch-sub">Áp dụng trực tiếp định lý Bayes (Chương 8) vào bài toán phân loại</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>23.1. Vì sao gọi là "Naive" (ngây thơ)?</h3>
-            <p>Naive Bayes dùng định lý Bayes để tính xác suất một mẫu thuộc mỗi lớp, dựa trên các đặc trưng đầu vào. Điểm "ngây thơ" nằm ở giả định:
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 23: NAIVE BAYES 
+ ================================================================ 
+<div class="mlchap" id="chuong-23">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">23</div>
+<div>
+<h2>Naive Bayes</h2>
+<div class="ch-sub">Áp dụng trực tiếp định lý Bayes (Chương 8) vào bài toán phân loại</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>23.1. Vì sao gọi là "Naive" (ngây thơ)?</h3>
+<p>Naive Bayes dùng định lý Bayes để tính xác suất một mẫu thuộc mỗi lớp, dựa trên các đặc trưng đầu vào. Điểm "ngây thơ" nằm ở giả định:
             <b>các đặc trưng độc lập với nhau</b> khi biết trước lớp (class). Giả định này gần như không bao giờ đúng hoàn toàn trong thực tế
             (ví dụ "số từ viết hoa" và "có link" trong email spam thường có liên hệ), nhưng thuật toán vẫn hoạt động ngạc nhiên tốt trong nhiều trường hợp.</p>
-
-            <h3>23.2. Công thức</h3>
-            <p>Với đặc trưng <code>x₁, x₂, ..., xₙ</code> và lớp <code>C</code>, Naive Bayes chọn lớp có xác suất posterior lớn nhất:</p>
-            <div class="box note" style="text-align:center;font-family:'JetBrains Mono';font-size:14px;">
+<h3>23.2. Công thức</h3>
+<p>Với đặc trưng <code>x₁, x₂, ..., xₙ</code> và lớp <code>C</code>, Naive Bayes chọn lớp có xác suất posterior lớn nhất:</p>
+<div class="box note" style="text-align:center;font-family:'JetBrains Mono';font-size:14px;">
               P(C|x₁,...,xₙ) ∝ P(C) · P(x₁|C) · P(x₂|C) · ... · P(xₙ|C)
             </div>
-            <p>Nhờ giả định độc lập, xác suất kết hợp phức tạp <code>P(x₁,...,xₙ|C)</code> được đơn giản hóa thành tích các xác suất riêng lẻ — dễ tính toán hơn rất nhiều.</p>
-
-            <h3>23.3. Ví dụ minh họa: phân loại spam</h3>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>from sklearn.naive_bayes import MultinomialNB
+<p>Nhờ giả định độc lập, xác suất kết hợp phức tạp <code>P(x₁,...,xₙ|C)</code> được đơn giản hóa thành tích các xác suất riêng lẻ — dễ tính toán hơn rất nhiều.</p>
+<h3>23.3. Ví dụ minh họa: phân loại spam</h3>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
@@ -684,42 +661,39 @@ print("Accuracy:", accuracy_score(y_test, model.predict(X_test)))
 email_moi = vectorizer.transform(["nhan ngay qua tang mien phi hom nay"])
 print("Dự đoán:", "Spam" if model.predict(email_moi)[0] == 1 else "Không spam")
 print("Xác suất spam:", model.predict_proba(email_moi)[0][1])</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>CountVectorizer()</code> — chuyển mỗi email thành vector đếm số lần xuất hiện từng từ (kỹ thuật Bag-of-Words), biến văn bản thành dạng số Naive Bayes có thể xử lý.</li>
-                <li><code>MultinomialNB()</code> — biến thể Naive Bayes phù hợp với dữ liệu đếm (như số lần xuất hiện từ), phổ biến nhất cho bài toán văn bản.</li>
-                <li><code>model.predict_proba(...)</code> — trả về xác suất thuộc từng lớp, áp dụng trực tiếp định lý Bayes đã học ở Chương 8: từ prior + likelihood của từng từ, suy ra posterior.</li>
-              </ol>
-            </div>
-
-            <h3>23.4. Các biến thể Naive Bayes phổ biến</h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Biến thể</th><th>Phù hợp với loại dữ liệu</th></tr></thead>
-                <tbody>
-                  <tr><td><b>GaussianNB</b></td><td>Đặc trưng số liên tục, giả định phân phối chuẩn (Chương 8)</td></tr>
-                  <tr><td><b>MultinomialNB</b></td><td>Dữ liệu đếm (số lần xuất hiện), phổ biến trong xử lý văn bản</td></tr>
-                  <tr><td><b>BernoulliNB</b></td><td>Đặc trưng nhị phân (có/không xuất hiện)</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 Vì sao Naive Bayes vẫn phổ biến dù giả định "ngây thơ"?</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>CountVectorizer()</code> — chuyển mỗi email thành vector đếm số lần xuất hiện từng từ (kỹ thuật Bag-of-Words), biến văn bản thành dạng số Naive Bayes có thể xử lý.</li>
+<li><code>MultinomialNB()</code> — biến thể Naive Bayes phù hợp với dữ liệu đếm (như số lần xuất hiện từ), phổ biến nhất cho bài toán văn bản.</li>
+<li><code>model.predict_proba(...)</code> — trả về xác suất thuộc từng lớp, áp dụng trực tiếp định lý Bayes đã học ở Chương 8: từ prior + likelihood của từng từ, suy ra posterior.</li>
+</ol>
+</div>
+<h3>23.4. Các biến thể Naive Bayes phổ biến</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Biến thể</th><th>Phù hợp với loại dữ liệu</th></tr></thead>
+<tbody>
+<tr><td><b>GaussianNB</b></td><td>Đặc trưng số liên tục, giả định phân phối chuẩn (Chương 8)</td></tr>
+<tr><td><b>MultinomialNB</b></td><td>Dữ liệu đếm (số lần xuất hiện), phổ biến trong xử lý văn bản</td></tr>
+<tr><td><b>BernoulliNB</b></td><td>Đặc trưng nhị phân (có/không xuất hiện)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box tip">
+<div class="box-title">💡 Vì sao Naive Bayes vẫn phổ biến dù giả định "ngây thơ"?</div>
               Naive Bayes cực kỳ <b>nhanh</b> (cả huấn luyện lẫn dự đoán), hoạt động tốt với dữ liệu chiều cao (như văn bản với hàng chục ngàn từ vựng), và cần ít dữ liệu huấn luyện hơn nhiều thuật toán khác để đạt hiệu năng ổn — vẫn là baseline rất mạnh cho bài toán phân loại văn bản, lọc spam.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Thêm câu email mới "khuyen mai mua 1 tang 1 hom nay" vào tập dữ liệu huấn luyện (gán nhãn spam=1), huấn luyện lại và dự đoán cho câu "giam gia soc hom nay".</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>emails2 = emails + ["khuyen mai mua 1 tang 1 hom nay"]
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Thêm câu email mới "khuyen mai mua 1 tang 1 hom nay" vào tập dữ liệu huấn luyện (gán nhãn spam=1), huấn luyện lại và dự đoán cho câu "giam gia soc hom nay".</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>emails2 = emails + ["khuyen mai mua 1 tang 1 hom nay"]
 nhan2 = nhan + [1]
 
 X2 = vectorizer.fit_transform(emails2)
@@ -728,101 +702,89 @@ model2.fit(X2, nhan2)
 
 cau_moi = vectorizer.transform(["giam gia soc hom nay"])
 print("Dự đoán:", "Spam" if model2.predict(cau_moi)[0] == 1 else "Không spam")</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng GaussianNB cho dữ liệu đếm/văn bản (nên dùng MultinomialNB), khiến giả định phân phối không phù hợp với bản chất dữ liệu.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Dùng Naive Bayes làm mô hình baseline nhanh trước khi thử các thuật toán phức tạp hơn, đặc biệt với dữ liệu văn bản.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 23</h4>
-              <ul>
-                <li>Naive Bayes áp dụng định lý Bayes với giả định các đặc trưng độc lập khi biết lớp.</li>
-                <li>Rất nhanh, hiệu quả với dữ liệu chiều cao như văn bản, dù giả định độc lập hiếm khi đúng hoàn toàn.</li>
-                <li>3 biến thể chính: GaussianNB (số liên tục), MultinomialNB (đếm), BernoulliNB (nhị phân).</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 24: DECISION TREE -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-24">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">24</div>
-            <div>
-              <h2>Decision Tree (Cây quyết định)</h2>
-              <div class="ch-sub">Chuỗi câu hỏi if-else được học tự động từ dữ liệu</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>24.1. Trực giác: cây câu hỏi Có/Không</h3>
-            <p>Decision Tree xây dựng một cấu trúc cây, mỗi <b>node</b> là một câu hỏi kiểm tra 1 đặc trưng (ví dụ "tuổi &gt; 30?"), mỗi nhánh dẫn tới node con,
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng GaussianNB cho dữ liệu đếm/văn bản (nên dùng MultinomialNB), khiến giả định phân phối không phù hợp với bản chất dữ liệu.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Dùng Naive Bayes làm mô hình baseline nhanh trước khi thử các thuật toán phức tạp hơn, đặc biệt với dữ liệu văn bản.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 23</h4>
+<ul>
+<li>Naive Bayes áp dụng định lý Bayes với giả định các đặc trưng độc lập khi biết lớp.</li>
+<li>Rất nhanh, hiệu quả với dữ liệu chiều cao như văn bản, dù giả định độc lập hiếm khi đúng hoàn toàn.</li>
+<li>3 biến thể chính: GaussianNB (số liên tục), MultinomialNB (đếm), BernoulliNB (nhị phân).</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 24: DECISION TREE 
+ ================================================================ 
+<div class="mlchap" id="chuong-24">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">24</div>
+<div>
+<h2>Decision Tree (Cây quyết định)</h2>
+<div class="ch-sub">Chuỗi câu hỏi if-else được học tự động từ dữ liệu</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>24.1. Trực giác: cây câu hỏi Có/Không</h3>
+<p>Decision Tree xây dựng một cấu trúc cây, mỗi <b>node</b> là một câu hỏi kiểm tra 1 đặc trưng (ví dụ "tuổi &gt; 30?"), mỗi nhánh dẫn tới node con,
             và mỗi <b>lá (leaf)</b> là kết quả dự đoán cuối cùng. Đây là thuật toán ML <i>dễ diễn giải nhất</i> — con người có thể đọc hiểu từng quyết định.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 500 220" width="100%">
-                <g font-family="Inter" font-size="11">
-                  <rect x="190" y="10" width="120" height="40" rx="8" fill="var(--teal-dim)" stroke="var(--teal)"/>
-                  <text x="250" y="34" text-anchor="middle">Thu nhập &gt; 20tr?</text>
-
-                  <rect x="60" y="90" width="120" height="40" rx="8" fill="var(--violet-dim)" stroke="var(--violet)"/>
-                  <text x="120" y="114" text-anchor="middle">Tuổi &gt; 40?</text>
-
-                  <rect x="320" y="90" width="120" height="40" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
-                  <text x="380" y="108" text-anchor="middle" font-weight="700">Duyệt vay</text>
-                  <text x="380" y="122" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
-
-                  <rect x="10" y="170" width="100" height="40" rx="8" fill="var(--rose-dim)" stroke="var(--rose)"/>
-                  <text x="60" y="188" text-anchor="middle" font-weight="700">Từ chối</text>
-                  <text x="60" y="202" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
-
-                  <rect x="130" y="170" width="100" height="40" rx="8" fill="var(--amber-dim)" stroke="var(--amber)"/>
-                  <text x="180" y="188" text-anchor="middle" font-weight="700">Duyệt vay</text>
-                  <text x="180" y="202" text-anchor="middle" font-size="9" fill="var(--muted)">(lá)</text>
-
-                  <text x="140" y="70" font-size="10" fill="var(--muted)">Không</text>
-                  <text x="330" y="70" font-size="10" fill="var(--muted)">Có</text>
-                  <text x="55" y="155" font-size="10" fill="var(--muted)">Không</text>
-                  <text x="180" y="155" font-size="10" fill="var(--muted)">Có</text>
-                </g>
-                <g stroke="var(--muted)" stroke-width="1.5" fill="none">
-                  <path d="M220,50 L140,90"/>
-                  <path d="M280,50 L370,90"/>
-                  <path d="M100,130 L60,170"/>
-                  <path d="M140,130 L180,170"/>
-                </g>
-              </svg>
-              <div class="diagram-caption">Ví dụ cây quyết định xét duyệt vay — mỗi node là 1 câu hỏi, mỗi lá là 1 quyết định cuối.</div>
-            </div>
-
-            <h3>24.2. Làm sao cây "học" được câu hỏi tốt nhất ở mỗi node?</h3>
-            <p>Tại mỗi bước, thuật toán thử mọi đặc trưng và mọi ngưỡng chia có thể, chọn cách chia làm <b>giảm "độ hỗn loạn" (impurity)</b> nhiều nhất. Hai chỉ số impurity phổ biến:</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Chỉ số</th><th>Công thức (ý tưởng)</th><th>Đặc điểm</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Gini Impurity</b></td><td>1 - Σpᵢ²</td><td>Tính nhanh hơn, mặc định trong scikit-learn</td></tr>
-                  <tr><td><b>Entropy</b></td><td>-Σpᵢ·log₂(pᵢ)</td><td>Dựa trên lý thuyết thông tin, liên quan tới Cross-Entropy (Chương 9)</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <p>Cả hai đều bằng 0 khi một node "thuần" (chỉ chứa 1 lớp duy nhất) và đạt giá trị lớn nhất khi các lớp trộn lẫn đều nhau — cây luôn cố tìm cách chia để các node con "thuần" nhất có thể.</p>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>from sklearn.tree import DecisionTreeClassifier, export_text
+<div class="diagram-card">
+<svg viewbox="0 0 500 220" width="100%">
+<g font-family="Inter" font-size="11">
+<rect fill="var(--teal-dim)" height="40" rx="8" stroke="var(--teal)" width="120" x="190" y="10"></rect>
+<text text-anchor="middle" x="250" y="34">Thu nhập &gt; 20tr?</text>
+<rect fill="var(--violet-dim)" height="40" rx="8" stroke="var(--violet)" width="120" x="60" y="90"></rect>
+<text text-anchor="middle" x="120" y="114">Tuổi &gt; 40?</text>
+<rect fill="var(--amber-dim)" height="40" rx="8" stroke="var(--amber)" width="120" x="320" y="90"></rect>
+<text font-weight="700" text-anchor="middle" x="380" y="108">Duyệt vay</text>
+<text fill="var(--muted)" font-size="9" text-anchor="middle" x="380" y="122">(lá)</text>
+<rect fill="var(--rose-dim)" height="40" rx="8" stroke="var(--rose)" width="100" x="10" y="170"></rect>
+<text font-weight="700" text-anchor="middle" x="60" y="188">Từ chối</text>
+<text fill="var(--muted)" font-size="9" text-anchor="middle" x="60" y="202">(lá)</text>
+<rect fill="var(--amber-dim)" height="40" rx="8" stroke="var(--amber)" width="100" x="130" y="170"></rect>
+<text font-weight="700" text-anchor="middle" x="180" y="188">Duyệt vay</text>
+<text fill="var(--muted)" font-size="9" text-anchor="middle" x="180" y="202">(lá)</text>
+<text fill="var(--muted)" font-size="10" x="140" y="70">Không</text>
+<text fill="var(--muted)" font-size="10" x="330" y="70">Có</text>
+<text fill="var(--muted)" font-size="10" x="55" y="155">Không</text>
+<text fill="var(--muted)" font-size="10" x="180" y="155">Có</text>
+</g>
+<g fill="none" stroke="var(--muted)" stroke-width="1.5">
+<path d="M220,50 L140,90"></path>
+<path d="M280,50 L370,90"></path>
+<path d="M100,130 L60,170"></path>
+<path d="M140,130 L180,170"></path>
+</g>
+</svg>
+<div class="diagram-caption">Ví dụ cây quyết định xét duyệt vay — mỗi node là 1 câu hỏi, mỗi lá là 1 quyết định cuối.</div>
+</div>
+<h3>24.2. Làm sao cây "học" được câu hỏi tốt nhất ở mỗi node?</h3>
+<p>Tại mỗi bước, thuật toán thử mọi đặc trưng và mọi ngưỡng chia có thể, chọn cách chia làm <b>giảm "độ hỗn loạn" (impurity)</b> nhiều nhất. Hai chỉ số impurity phổ biến:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Chỉ số</th><th>Công thức (ý tưởng)</th><th>Đặc điểm</th></tr></thead>
+<tbody>
+<tr><td><b>Gini Impurity</b></td><td>1 - Σpᵢ²</td><td>Tính nhanh hơn, mặc định trong scikit-learn</td></tr>
+<tr><td><b>Entropy</b></td><td>-Σpᵢ·log₂(pᵢ)</td><td>Dựa trên lý thuyết thông tin, liên quan tới Cross-Entropy (Chương 9)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cả hai đều bằng 0 khi một node "thuần" (chỉ chứa 1 lớp duy nhất) và đạt giá trị lớn nhất khi các lớp trộn lẫn đều nhau — cây luôn cố tìm cách chia để các node con "thuần" nhất có thể.</p>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>from sklearn.tree import DecisionTreeClassifier, export_text
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import numpy as np
@@ -830,7 +792,7 @@ import numpy as np
 np.random.seed(0)
 thu_nhap = np.random.uniform(5, 40, 300)
 tuoi = np.random.uniform(20, 60, 300)
-duyet_vay = ((thu_nhap > 20) | ((thu_nhap > 12) & (tuoi > 40))).astype(int)
+duyet_vay = ((thu_nhap &gt; 20) | ((thu_nhap &gt; 12) &amp; (tuoi &gt; 40))).astype(int)
 
 X = np.column_stack([thu_nhap, tuoi])
 X_train, X_test, y_train, y_test = train_test_split(X, duyet_vay, test_size=0.25, random_state=1)
@@ -841,142 +803,125 @@ tree.fit(X_train, y_train)
 
 print("Accuracy:", accuracy_score(y_test, tree.predict(X_test)))
 print(export_text(tree, feature_names=['thu_nhap', 'tuoi']))</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>DecisionTreeClassifier(max_depth=3, ...)</code> — <code>max_depth</code> giới hạn số tầng tối đa của cây; đây là siêu tham số quan trọng nhất để kiểm soát độ phức tạp.</li>
-                <li><code>criterion='gini'</code> — chọn Gini Impurity làm tiêu chí đánh giá chất lượng mỗi lần chia (có thể đổi thành <code>'entropy'</code>).</li>
-                <li><code>export_text(tree, ...)</code> — in ra cấu trúc cây dưới dạng văn bản dễ đọc, thể hiện đúng tính "diễn giải được" nổi bật của Decision Tree.</li>
-              </ol>
-            </div>
-
-            <div class="box important">
-              <div class="box-title">🔴 Decision Tree RẤT dễ overfitting nếu không giới hạn độ sâu</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>DecisionTreeClassifier(max_depth=3, ...)</code> — <code>max_depth</code> giới hạn số tầng tối đa của cây; đây là siêu tham số quan trọng nhất để kiểm soát độ phức tạp.</li>
+<li><code>criterion='gini'</code> — chọn Gini Impurity làm tiêu chí đánh giá chất lượng mỗi lần chia (có thể đổi thành <code>'entropy'</code>).</li>
+<li><code>export_text(tree, ...)</code> — in ra cấu trúc cây dưới dạng văn bản dễ đọc, thể hiện đúng tính "diễn giải được" nổi bật của Decision Tree.</li>
+</ol>
+</div>
+<div class="box important">
+<div class="box-title">🔴 Decision Tree RẤT dễ overfitting nếu không giới hạn độ sâu</div>
               Một cây không giới hạn độ sâu có thể tiếp tục chia cho tới khi mỗi lá chỉ chứa đúng 1 điểm dữ liệu — về cơ bản là "học thuộc lòng" tập train, gần như chắc chắn hoạt động kém trên dữ liệu mới. Luôn giới hạn bằng <code>max_depth</code>, <code>min_samples_split</code>, hoặc <code>min_samples_leaf</code>.
             </div>
-
-            <h3>24.3. Ưu điểm &amp; nhược điểm</h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Ưu điểm</th><th>Nhược điểm</th></tr></thead>
-                <tbody>
-                  <tr><td>Dễ diễn giải, trực quan hóa được</td><td>Rất dễ overfitting nếu không giới hạn độ sâu</td></tr>
-                  <tr><td>Không cần scale dữ liệu (không dựa trên khoảng cách)</td><td>Không ổn định — thay đổi nhỏ trong dữ liệu có thể tạo ra cây rất khác</td></tr>
-                  <tr><td>Xử lý được cả dữ liệu số và phân loại</td><td>Ranh giới quyết định dạng "bậc thang", không mượt</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 Điểm khởi đầu quan trọng cho Ensemble Learning</div>
+<h3>24.3. Ưu điểm &amp; nhược điểm</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ưu điểm</th><th>Nhược điểm</th></tr></thead>
+<tbody>
+<tr><td>Dễ diễn giải, trực quan hóa được</td><td>Rất dễ overfitting nếu không giới hạn độ sâu</td></tr>
+<tr><td>Không cần scale dữ liệu (không dựa trên khoảng cách)</td><td>Không ổn định — thay đổi nhỏ trong dữ liệu có thể tạo ra cây rất khác</td></tr>
+<tr><td>Xử lý được cả dữ liệu số và phân loại</td><td>Ranh giới quyết định dạng "bậc thang", không mượt</td></tr>
+</tbody>
+</table>
+</div>
+<div class="box tip">
+<div class="box-title">💡 Điểm khởi đầu quan trọng cho Ensemble Learning</div>
               Chính vì Decision Tree "không ổn định" (dễ thay đổi khi dữ liệu thay đổi), nó lại trở thành "viên gạch" lý tưởng cho các phương pháp Ensemble Learning như Random Forest và Gradient Boosting — sẽ học ngay ở Phần 8. Kết hợp nhiều cây "không ổn định" một cách thông minh sẽ tạo ra mô hình cực kỳ mạnh và ổn định.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Huấn luyện lại cây với <code>max_depth=None</code> (không giới hạn) và so sánh accuracy trên tập train vs tập test với cây <code>max_depth=3</code>. Bạn kỳ vọng thấy điều gì?</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>tree_full = DecisionTreeClassifier(max_depth=None, random_state=1)
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Huấn luyện lại cây với <code>max_depth=None</code> (không giới hạn) và so sánh accuracy trên tập train vs tập test với cây <code>max_depth=3</code>. Bạn kỳ vọng thấy điều gì?</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>tree_full = DecisionTreeClassifier(max_depth=None, random_state=1)
 tree_full.fit(X_train, y_train)
 print("Train acc (không giới hạn):", accuracy_score(y_train, tree_full.predict(X_train)))
 print("Test acc (không giới hạn):", accuracy_score(y_test, tree_full.predict(X_test)))
 # Kỳ vọng: train accuracy gần 100% nhưng test accuracy thấp hơn nhiều so với cây max_depth=3
-# -> dấu hiệu điển hình của overfitting</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Để mặc định <code>max_depth=None</code> khi huấn luyện, dẫn tới cây quá phức tạp và overfitting nghiêm trọng.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng cross-validation để tìm <code>max_depth</code> tối ưu, và so sánh accuracy giữa train/test để phát hiện overfitting sớm.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 24</h4>
-              <ul>
-                <li>Decision Tree xây dựng chuỗi câu hỏi if-else, chọn cách chia giảm impurity (Gini/Entropy) nhiều nhất.</li>
-                <li>Rất dễ diễn giải nhưng cũng rất dễ overfitting nếu không giới hạn độ sâu.</li>
-                <li>Là nền tảng cho các phương pháp Ensemble mạnh mẽ hơn sẽ học ở Phần 8.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 25: SVM -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-25">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">25</div>
-            <div>
-              <h2>Support Vector Machine (SVM)</h2>
-              <div class="ch-sub">Tìm ranh giới phân chia với "lề" (margin) rộng nhất có thể</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>25.1. Trực giác: không chỉ tìm ranh giới, mà tìm ranh giới "an toàn nhất"</h3>
-            <p>Với dữ liệu phân tách được, có thể có <i>vô số</i> đường thẳng phân chia đúng 2 lớp. SVM chọn đường thẳng đặc biệt: đường có
+# -&gt; dấu hiệu điển hình của overfitting</code></pre>
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Để mặc định <code>max_depth=None</code> khi huấn luyện, dẫn tới cây quá phức tạp và overfitting nghiêm trọng.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn dùng cross-validation để tìm <code>max_depth</code> tối ưu, và so sánh accuracy giữa train/test để phát hiện overfitting sớm.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 24</h4>
+<ul>
+<li>Decision Tree xây dựng chuỗi câu hỏi if-else, chọn cách chia giảm impurity (Gini/Entropy) nhiều nhất.</li>
+<li>Rất dễ diễn giải nhưng cũng rất dễ overfitting nếu không giới hạn độ sâu.</li>
+<li>Là nền tảng cho các phương pháp Ensemble mạnh mẽ hơn sẽ học ở Phần 8.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 25: SVM 
+ ================================================================ 
+<div class="mlchap" id="chuong-25">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">25</div>
+<div>
+<h2>Support Vector Machine (SVM)</h2>
+<div class="ch-sub">Tìm ranh giới phân chia với "lề" (margin) rộng nhất có thể</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>25.1. Trực giác: không chỉ tìm ranh giới, mà tìm ranh giới "an toàn nhất"</h3>
+<p>Với dữ liệu phân tách được, có thể có <i>vô số</i> đường thẳng phân chia đúng 2 lớp. SVM chọn đường thẳng đặc biệt: đường có
             <b>khoảng cách (margin)</b> tới điểm gần nhất của mỗi lớp là <b>lớn nhất</b> — trực giác là ranh giới càng "rộng rãi" thì càng tổng quát tốt trên dữ liệu mới.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 400 220" width="360">
-                <circle cx="80" cy="60" r="6" fill="var(--teal)"/>
-                <circle cx="110" cy="90" r="6" fill="var(--teal)"/>
-                <circle cx="60" cy="110" r="6" fill="var(--teal)"/>
-                <circle cx="130" cy="60" r="6" fill="var(--teal)"/>
-
-                <circle cx="280" cy="140" r="6" fill="var(--rose)"/>
-                <circle cx="320" cy="170" r="6" fill="var(--rose)"/>
-                <circle cx="260" cy="180" r="6" fill="var(--rose)"/>
-                <circle cx="310" cy="120" r="6" fill="var(--rose)"/>
-
-                <line x1="150" y1="20" x2="220" y2="200" stroke="var(--violet)" stroke-width="2.5"/>
-                <line x1="120" y1="20" x2="190" y2="200" stroke="var(--violet)" stroke-width="1" stroke-dasharray="4 3"/>
-                <line x1="180" y1="20" x2="250" y2="200" stroke="var(--violet)" stroke-width="1" stroke-dasharray="4 3"/>
-
-                <circle cx="130" cy="60" r="9" fill="none" stroke="var(--amber)" stroke-width="2"/>
-                <circle cx="280" cy="140" r="9" fill="none" stroke="var(--amber)" stroke-width="2"/>
-
-                <text x="200" y="15" text-anchor="middle" font-size="10" fill="var(--violet)" font-family="Space Grotesk" font-weight="700">Hyperplane</text>
-                <text x="200" y="212" text-anchor="middle" font-size="9" fill="var(--muted)">Support Vectors được khoanh tròn</text>
-              </svg>
-              <div class="diagram-caption">Đường phân chia (hyperplane) nằm chính giữa "lề" — chỉ các điểm gần biên nhất (support vectors) quyết định vị trí ranh giới.</div>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 Vì sao gọi là "Support Vector"?</div>
+<div class="diagram-card">
+<svg viewbox="0 0 400 220" width="360">
+<circle cx="80" cy="60" fill="var(--teal)" r="6"></circle>
+<circle cx="110" cy="90" fill="var(--teal)" r="6"></circle>
+<circle cx="60" cy="110" fill="var(--teal)" r="6"></circle>
+<circle cx="130" cy="60" fill="var(--teal)" r="6"></circle>
+<circle cx="280" cy="140" fill="var(--rose)" r="6"></circle>
+<circle cx="320" cy="170" fill="var(--rose)" r="6"></circle>
+<circle cx="260" cy="180" fill="var(--rose)" r="6"></circle>
+<circle cx="310" cy="120" fill="var(--rose)" r="6"></circle>
+<line stroke="var(--violet)" stroke-width="2.5" x1="150" x2="220" y1="20" y2="200"></line>
+<line stroke="var(--violet)" stroke-dasharray="4 3" stroke-width="1" x1="120" x2="190" y1="20" y2="200"></line>
+<line stroke="var(--violet)" stroke-dasharray="4 3" stroke-width="1" x1="180" x2="250" y1="20" y2="200"></line>
+<circle cx="130" cy="60" fill="none" r="9" stroke="var(--amber)" stroke-width="2"></circle>
+<circle cx="280" cy="140" fill="none" r="9" stroke="var(--amber)" stroke-width="2"></circle>
+<text fill="var(--violet)" font-family="Space Grotesk" font-size="10" font-weight="700" text-anchor="middle" x="200" y="15">Hyperplane</text>
+<text fill="var(--muted)" font-size="9" text-anchor="middle" x="200" y="212">Support Vectors được khoanh tròn</text>
+</svg>
+<div class="diagram-caption">Đường phân chia (hyperplane) nằm chính giữa "lề" — chỉ các điểm gần biên nhất (support vectors) quyết định vị trí ranh giới.</div>
+</div>
+<div class="box tip">
+<div class="box-title">💡 Vì sao gọi là "Support Vector"?</div>
               Chỉ những điểm dữ liệu <b>nằm sát ranh giới nhất</b> (gọi là support vectors) mới thực sự ảnh hưởng tới vị trí đường phân chia — các điểm nằm xa ranh giới có thể bị xóa mà không làm thay đổi kết quả. Đây là điểm khác biệt lớn so với Logistic Regression, vốn dùng toàn bộ dữ liệu để ước lượng tham số.
             </div>
-
-            <h3>25.2. Kernel Trick — xử lý dữ liệu không phân tách tuyến tính</h3>
-            <p>Khi dữ liệu không thể phân chia bằng một đường thẳng, SVM dùng <b>kernel trick</b>: ánh xạ dữ liệu sang không gian nhiều chiều hơn (nơi chúng có thể phân tách tuyến tính được), mà không cần thực sự tính toán tọa độ trong không gian đó — một kỹ thuật toán học tinh tế giúp tiết kiệm chi phí tính toán rất nhiều.</p>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Kernel</th><th>Khi nào dùng</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Linear</b></td><td>Dữ liệu gần như phân tách tuyến tính được</td></tr>
-                  <tr><td><b>RBF (Radial Basis Function)</b></td><td>Mặc định phổ biến nhất, xử lý tốt quan hệ phi tuyến phức tạp</td></tr>
-                  <tr><td><b>Polynomial</b></td><td>Khi nghi ngờ quan hệ dạng đa thức giữa các đặc trưng</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>from sklearn.svm import SVC
+<h3>25.2. Kernel Trick — xử lý dữ liệu không phân tách tuyến tính</h3>
+<p>Khi dữ liệu không thể phân chia bằng một đường thẳng, SVM dùng <b>kernel trick</b>: ánh xạ dữ liệu sang không gian nhiều chiều hơn (nơi chúng có thể phân tách tuyến tính được), mà không cần thực sự tính toán tọa độ trong không gian đó — một kỹ thuật toán học tinh tế giúp tiết kiệm chi phí tính toán rất nhiều.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Kernel</th><th>Khi nào dùng</th></tr></thead>
+<tbody>
+<tr><td><b>Linear</b></td><td>Dữ liệu gần như phân tách tuyến tính được</td></tr>
+<tr><td><b>RBF (Radial Basis Function)</b></td><td>Mặc định phổ biến nhất, xử lý tốt quan hệ phi tuyến phức tạp</td></tr>
+<tr><td><b>Polynomial</b></td><td>Khi nghi ngờ quan hệ dạng đa thức giữa các đặc trưng</td></tr>
+</tbody>
+</table>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>from sklearn.svm import SVC
 from sklearn.datasets import make_moons
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -996,31 +941,29 @@ for kernel in ['linear', 'rbf']:
     svm.fit(X_train_s, y_train)
     acc = accuracy_score(y_test, svm.predict(X_test_s))
     print(f"Kernel={kernel}: accuracy = {acc:.3f}")</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>make_moons(noise=0.2)</code> — sinh dữ liệu hình 2 vầng trăng lưỡi liềm lồng vào nhau, một ví dụ kinh điển về dữ liệu <b>không</b> phân tách tuyến tính được.</li>
-                <li><code>SVC(kernel='linear')</code> — sẽ cho kết quả kém vì cố tìm 1 đường thẳng cho dữ liệu vốn cong.</li>
-                <li><code>SVC(kernel='rbf')</code> — kernel RBF ánh xạ dữ liệu sang không gian phù hợp hơn, thường cho accuracy cao hơn hẳn với dữ liệu dạng này.</li>
-                <li><code>C=1.0</code> — tham số điều chỉnh (regularization): C nhỏ cho phép nhiều điểm nằm sai phía "lề" hơn (margin rộng hơn, ít nhạy nhiễu); C lớn cố phân loại đúng mọi điểm train (margin hẹp hơn, dễ overfitting).</li>
-              </ol>
-            </div>
-
-            <div class="box warning">
-              <div class="box-title">⚠️ Lưu ý về hiệu năng</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>make_moons(noise=0.2)</code> — sinh dữ liệu hình 2 vầng trăng lưỡi liềm lồng vào nhau, một ví dụ kinh điển về dữ liệu <b>không</b> phân tách tuyến tính được.</li>
+<li><code>SVC(kernel='linear')</code> — sẽ cho kết quả kém vì cố tìm 1 đường thẳng cho dữ liệu vốn cong.</li>
+<li><code>SVC(kernel='rbf')</code> — kernel RBF ánh xạ dữ liệu sang không gian phù hợp hơn, thường cho accuracy cao hơn hẳn với dữ liệu dạng này.</li>
+<li><code>C=1.0</code> — tham số điều chỉnh (regularization): C nhỏ cho phép nhiều điểm nằm sai phía "lề" hơn (margin rộng hơn, ít nhạy nhiễu); C lớn cố phân loại đúng mọi điểm train (margin hẹp hơn, dễ overfitting).</li>
+</ol>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Lưu ý về hiệu năng</div>
               SVM (đặc biệt với kernel RBF) có thể huấn luyện <b>chậm</b> với tập dữ liệu rất lớn (hàng trăm nghìn dòng trở lên) — độ phức tạp tính toán tăng nhanh theo số lượng mẫu. Với dữ liệu cực lớn, thường cân nhắc các thuật toán khác hoặc dùng SVM tuyến tính (<code>LinearSVC</code>) được tối ưu tốc độ riêng.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Thử huấn luyện SVM với kernel RBF và 2 giá trị <code>C</code> khác nhau: <code>C=0.1</code> và <code>C=100</code>. So sánh accuracy trên tập train và test, giải thích liên hệ với overfitting.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>for C in [0.1, 100]:
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Thử huấn luyện SVM với kernel RBF và 2 giá trị <code>C</code> khác nhau: <code>C=0.1</code> và <code>C=100</code>. So sánh accuracy trên tập train và test, giải thích liên hệ với overfitting.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>for C in [0.1, 100]:
     svm_c = SVC(kernel='rbf', C=C)
     svm_c.fit(X_train_s, y_train)
     train_acc = accuracy_score(y_train, svm_c.predict(X_train_s))
@@ -1028,74 +971,45 @@ for kernel in ['linear', 'rbf']:
     print(f"C={C}: train={train_acc:.3f}, test={test_acc:.3f}")
 # C=100 thường có train accuracy cao hơn nhưng có nguy cơ overfitting
 # (test accuracy có thể thấp hơn so với C nhỏ hơn, tùy dữ liệu)</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng kernel <code>linear</code> mặc định cho dữ liệu rõ ràng phi tuyến, không thử kernel RBF, dẫn tới hiệu năng kém.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn scale dữ liệu trước khi dùng SVM (giống KNN), và thử nhiều giá trị <code>C</code>/kernel qua cross-validation.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 25</h4>
-              <ul>
-                <li>SVM tìm ranh giới có margin lớn nhất, chỉ phụ thuộc vào các support vectors gần biên.</li>
-                <li>Kernel trick (đặc biệt RBF) giúp xử lý dữ liệu không phân tách tuyến tính.</li>
-                <li>Tham số C điều chỉnh đánh đổi giữa margin rộng và độ chính xác trên tập train.</li>
-              </ul>
-              <p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã hoàn thành 6 thuật toán Supervised Learning nền tảng! Phần 8 sẽ giới thiệu Ensemble Learning — cách kết hợp nhiều mô hình yếu thành một mô hình rất mạnh, bắt đầu với Random Forest.</b></p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="next-hint">
-        <p>✅ Bạn vừa hoàn thành <b>Phần 7</b>: KNN, Naive Bayes, Decision Tree và Support Vector Machine.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="phan-6-supervised-learning.html" class="kbd" style="text-decoration:none;">← Phần 6. Supervised Learning</a>
-        <a href="phan-8-ensemble-random-forest.html" class="kbd" style="text-decoration:none;">Sang Phần 8 →</a>
-        </div>
-      </div>
-
-    </div>
-  </main>
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng kernel <code>linear</code> mặc định cho dữ liệu rõ ràng phi tuyến, không thử kernel RBF, dẫn tới hiệu năng kém.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn scale dữ liệu trước khi dùng SVM (giống KNN), và thử nhiều giá trị <code>C</code>/kernel qua cross-validation.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 25</h4>
+<ul>
+<li>SVM tìm ranh giới có margin lớn nhất, chỉ phụ thuộc vào các support vectors gần biên.</li>
+<li>Kernel trick (đặc biệt RBF) giúp xử lý dữ liệu không phân tách tuyến tính.</li>
+<li>Tham số C điều chỉnh đánh đổi giữa margin rộng và độ chính xác trên tập train.</li>
+</ul>
+<p style="margin-top:14px;margin-bottom:0;"><b>🎉 Bạn đã hoàn thành 6 thuật toán Supervised Learning nền tảng! Phần 8 sẽ giới thiệu Ensemble Learning — cách kết hợp nhiều mô hình yếu thành một mô hình rất mạnh, bắt đầu với Random Forest.</b></p>
+</div>
+</div>
+</div>
 </div>
 
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
 
+<div class="next-hint"><p>✅ Bạn vừa hoàn thành <b>Phần 7</b>: KNN, Naive Bayes, Decision Tree và Support Vector Machine.</p></div>
+  </main>
+  <div class="chnav">
+    <a class="nav-btn prev" href="phan-6-supervised-learning.html">← Phần 6. Supervised Learning</a>
+    <a class="nav-btn next" href="phan-8-ensemble-random-forest.html">Phần 8. Ensemble &amp; Random Forest →</a>
+  </div>
+</div>
+</div>
+</div>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <script>
-const darkToggle = document.getElementById('darkToggle');
-const THEME_KEY = 'ml-theme';
-function applyDarkPref(){
-  const isDark = document.documentElement.classList.contains('dark');
-  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
-}
-darkToggle.addEventListener('click', () => {
-  document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
-  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
-  applyDarkPref();
-});
-applyDarkPref();
-
-function toggleChapter(headEl){
-  const chapter = headEl.parentElement;
-  chapter.classList.toggle('open');
-}
-
+function toggleChapter(headEl){ headEl.parentElement.classList.toggle('open'); }
 function toggleAnswer(btn){
   const panel = btn.nextElementSibling;
   const isShown = panel.classList.contains('show');
   panel.classList.toggle('show');
   btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
-  if(!isShown) btn.dataset.revealed = 'true';
-  updateProgress();
 }
-
 function checkQuiz(optEl, isCorrect){
   const opts = optEl.parentElement;
   if(opts.dataset.answered === 'true') return;
@@ -1105,61 +1019,133 @@ function checkQuiz(optEl, isCorrect){
   if(isCorrect){
     optEl.classList.add('correct');
     feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
-    feedback.style.color = 'var(--teal)';
+    feedback.style.color = 'var(--ok)';
   } else {
     optEl.classList.add('wrong');
     feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
-    feedback.style.color = 'var(--rose)';
-    [...opts.children].forEach(o => {
-      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
-    });
+    feedback.style.color = 'var(--danger)';
+    [...opts.children].forEach(o => { if((o.getAttribute('onclick')||'').includes('true')) o.classList.add('correct'); });
   }
   feedback.classList.add('show');
-  updateProgress();
 }
+document.querySelectorAll('.nav-link[data-target]').forEach(a=>{
+  a.addEventListener('click',()=>{ const t=document.getElementById(a.dataset.target); if(t && t.classList.contains('mlchap')) t.classList.add('open'); });
+});
 
-function copyCode(btn){
-  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
-  const text = codeEl.innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    const original = btn.innerHTML;
-    btn.innerHTML = '✅ Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  try{ localStorage.setItem('algo-mastery-theme', newTheme); }catch(e){}
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if(label) label.textContent = newTheme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+(function(){
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  if(label) label.textContent = current === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = current === 'dark' ? '🌙' : '☀️';
+})();
+const links = document.querySelectorAll('.nav-link[data-target]');
+links.forEach(link=>{
+  link.addEventListener('click', ()=>{
+    const target = document.getElementById(link.dataset.target);
+    if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    document.getElementById('sidebar').classList.remove('open');
   });
-}
-
-const totalExercises = document.querySelectorAll('.reveal-btn').length;
-function updateProgress(){
-  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
-  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
-}
-updateProgress();
-
-const sections = document.querySelectorAll('.hero, .chapter');
-const tocLinks = document.querySelectorAll('#tocList a');
-window.addEventListener('scroll', () => {
-  let currentId = 'gioi-thieu';
-  sections.forEach(sec => {
+});
+const sections = document.querySelectorAll('.chapter, .mlchap');
+function updateActiveNav(){
+  let current = sections[0]?.id;
+  sections.forEach(sec=>{
     const rect = sec.getBoundingClientRect();
-    if(rect.top <= 140) currentId = sec.id;
+    if(rect.top <= 140) current = sec.id;
   });
-  tocLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
-  });
-  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+  links.forEach(l=>l.classList.toggle('active', l.dataset.target===current));
+}
+window.addEventListener('scroll', ()=>{
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight>0 ? (scrollTop/docHeight)*100 : 0;
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('back-to-top').classList.toggle('show', scrollTop>500);
+  updateActiveNav();
 });
-
-tocLinks.forEach(a => {
-  a.addEventListener('click', () => {
-    const id = a.getAttribute('href').replace('#','');
-    const target = document.getElementById(id);
-    if(target && target.classList.contains('chapter')) target.classList.add('open');
+function filterNav(query){
+  const q = query.trim().toLowerCase();
+  links.forEach(link=>{
+    const text = link.textContent.toLowerCase();
+    link.style.display = (q==='' || text.includes(q)) ? 'block' : 'none';
+  });
+}
+function copyCode(btn){
+  const pre = btn.parentElement.querySelector('pre code') || btn.parentElement.querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = '✓ Đã copy';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  });
+}
+function highlightPython(code){
+  const keywords = /\b(def|return|if|elif|else|for|while|in|import|from|as|class|try|except|finally|raise|with|pass|break|continue|lambda|True|False|None|and|or|not|is|global|yield|async|await)\b/g;
+  let html = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/(#.*)$/gm, '<span class="tok-com">$1</span>');
+  html = html.replace(/(&quot;.*?&quot;|'.*?'|""".*?"""|f&quot;.*?&quot;)/gs, '<span class="tok-str">$1</span>');
+  html = html.replace(keywords, '<span class="tok-kw">$1</span>');
+  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
+  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, '<span class="tok-fn">$1</span>');
+  return html;
+}
+document.querySelectorAll('pre code').forEach(block=>{ block.innerHTML = highlightPython(block.textContent); });
+function gradeQuiz(quizId){
+  const quiz = document.querySelector(`[data-quiz="${quizId}"]`);
+  const questions = quiz.querySelectorAll('.quiz-q');
+  let correct = 0;
+  questions.forEach(q=>{
+    const answer = q.dataset.answer;
+    const opts = q.querySelectorAll('.quiz-opt');
+    opts.forEach(opt=>{
+      opt.classList.remove('correct','wrong');
+      opt.style.pointerEvents = 'none';
+      if(opt.dataset.idx === answer){ opt.classList.add('correct'); }
+    });
+    const selected = q.dataset.selected;
+    if(selected === answer){ correct++; }
+    else if(selected !== undefined){
+      const wrongOpt = q.querySelector(`.quiz-opt[data-idx="${selected}"]`);
+      if(wrongOpt) wrongOpt.classList.add('wrong');
+    }
+  });
+  const resultEl = document.getElementById('result-'+quizId);
+  resultEl.textContent = `Kết quả: ${correct}/${questions.length} câu đúng`;
+  resultEl.style.color = correct===questions.length ? 'var(--ok)' : 'var(--warn)';
+}
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  q.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      q.dataset.selected = opt.dataset.idx;
+      q.querySelectorAll('.quiz-opt').forEach(o=>o.style.borderColor='var(--border)');
+      opt.style.borderColor = 'var(--accent)';
+    });
   });
 });
+updateActiveNav();
+const chapterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      const link = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+      if(link) link.classList.add('visited');
+    }
+  });
+}, {threshold:0.08, rootMargin:'0px 0px -10% 0px'});
+document.querySelectorAll('.chapter, .mlchap').forEach(sec=>chapterObserver.observe(sec));
 </script>
+
 <!-- ============ AI CHATBOT WIDGET ============ -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">
   <span class="dot"></span> 💬 Hỏi AI

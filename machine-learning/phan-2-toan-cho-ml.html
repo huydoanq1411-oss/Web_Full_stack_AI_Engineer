@@ -1,61 +1,166 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<script>(function(){try{var t=localStorage.getItem('ml-theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('algo-mastery-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phần 2 · Toán cho Machine Learning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#101728; --paper:#F5F7FA; --surface:#FFFFFF; --surface-2:#EDF0F6; --border:#DCE2ED; --muted:#5B6478;
-  --teal:#22d3ee; --teal-dim:#CFEFEC; --amber:#F59E0B; --amber-dim:#FCEACB;
-  --violet:#5B4EE5; --violet-dim:#E7E4FB; --rose:#E1495D; --rose-dim:#FBDEE2;
-  --code-bg:#0E1626; --code-text:#DCE6F5;
-  --shadow: 0 8px 24px rgba(16,23,40,.08); --radius: 14px; --sidebar-w: 290px;
-}
-html.dark{
-  --ink:#E8ECF6; --paper:#0A0F1C; --surface:#111A2C; --surface-2:#0E1626; --border:#233049; --muted:#93A0BE;
-  --teal:#22d3ee; --teal-dim:#0F2E2C; --amber:#FBBF54; --amber-dim:#2E2510;
-  --violet:#8B80FF; --violet-dim:#221F45; --rose:#F0768A; --rose-dim:#341A20;
-  --code-bg:#060A14; --code-text:#D9E4F7;
-  --shadow: 0 8px 28px rgba(0,0,0,.45);
-}
-*{box-sizing:border-box;}
+:root{--bg:#0a0c10;--bg-soft:#12151d;--bg-card:#171b26;--border:#262c3b;--text:#eef0f5;--text-dim:#8b93a7;--accent:#22d3ee;--accent2:#818cf8;--code-bg:#0d0f16;--kw:#c792ea;--str:#c3e88d;--num:#f2a65a;--com:#6b7280;--fn:#82aaff;--type:#7dd0e0;--ok:#6bd68b;--warn:#f2c14e;--danger:#f47174;--info:#6ab8f7;--radius:12px;--mono:'JetBrains Mono',Consolas,monospace;--sans:'Inter','Segoe UI',system-ui,sans-serif;--shadow-sm:0 2px 8px rgba(0,0,0,.18);--shadow-md:0 8px 24px rgba(0,0,0,.28);--grad-accent:linear-gradient(135deg,var(--accent),var(--accent2));}
+[data-theme="light"]{--bg:#f7f8fb;--bg-soft:#ffffff;--bg-card:#ffffff;--border:#e5e8ef;--text:#181c25;--text-dim:#5c6373;--code-bg:#f1f3f8;--shadow-sm:0 2px 8px rgba(20,20,40,.06);--shadow-md:0 8px 24px rgba(20,20,40,.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7;transition:background .25s ease,color .25s ease;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}
+::selection{background:var(--accent);color:#0a0c10;}
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;z-index:999;transition:width .1s;}
+#topbar{display:flex;position:sticky;top:0;z-index:60;background:var(--bg-soft);border-bottom:1px solid var(--border);padding:12px 16px;align-items:center;justify-content:space-between;}
+#topbar .brand{font-weight:700;color:var(--accent);}
+#topbar .topbar-right{display:flex;align-items:center;gap:10px;}
+#topbar a.home-btn{display:flex;align-items:center;gap:6px;color:var(--text);text-decoration:none;font-family:var(--mono);font-size:13px;background:var(--bg-card);border:1px solid var(--border);padding:7px 14px;border-radius:100px;transition:border-color .2s ease,color .2s ease;}
+#topbar a.home-btn:hover{border-color:var(--accent);color:var(--accent);}
+#menu-toggle{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;}
+.layout{display:flex;min-height:100vh;}
+.main-col{flex:1;min-width:0;}
+#sidebar{width:290px;flex-shrink:0;background:var(--bg-soft);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;padding:20px 14px 60px;}
+#sidebar .brand{font-size:1.15rem;font-weight:800;color:var(--accent);padding:8px 10px 4px;}
+#sidebar .sub{color:var(--text-dim);font-size:.78rem;padding:0 10px 14px;}
+#search-box{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);margin-bottom:14px;font-size:.85rem;}
+#search-box:focus{outline:none;border-color:var(--accent);}
+.nav-group-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);padding:14px 10px 6px;font-weight:700;}
+.nav-link{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:8px;font-size:.87rem;color:var(--text-dim);cursor:pointer;margin-bottom:2px;transition:background .15s,color .15s,transform .15s;}
+.nav-link:hover{background:var(--bg-card);color:var(--text);transform:translateX(2px);}
+.nav-link.active{background:rgba(34,211,238,.14);color:var(--accent);font-weight:700;box-shadow:var(--shadow-sm);}
+.nav-link.locked{opacity:.4;cursor:not-allowed;}
+.nav-link.locked:hover{background:none;color:var(--text-dim);transform:none;}
+.nav-link.visited:not(.active):before{content:'✓';color:var(--ok);font-size:.72rem;font-weight:700;}
+.lang-switch{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 16px;}
+.lang-switch a{font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-dim);transition:all .15s;}
+.lang-switch a:hover{color:var(--text);border-color:var(--accent);}
+.lang-switch a.current{background:var(--accent);color:#0a0c10;border-color:var(--accent);}
+#theme-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);cursor:pointer;margin-top:16px;font-size:.85rem;}
+main{flex:1;min-width:0;padding:40px 48px 120px;max-width:920px;}
+.hero{margin-bottom:36px;animation:fadeInUp .6s ease both;}
+.hero h1{font-size:2.3rem;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{color:var(--text-dim);font-size:1.02rem;}
+.hero .badge{display:inline-block;background:rgba(34,211,238,.14);color:var(--accent);font-size:.72rem;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em;font-weight:600;border:1px solid rgba(34,211,238,.25);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.chapter{padding-top:60px;margin-top:-20px;border-top:1px dashed var(--border);opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.chapter.visible{opacity:1;transform:translateY(0);}
+.chapter:first-of-type{border-top:none;}
+.chapter h2{font-size:1.55rem;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-weight:700;letter-spacing:-.01em;}
+.chapter h2 .num{color:#0a0c10;font-family:var(--mono);font-size:.95rem;font-weight:700;background:var(--grad-accent);width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm);}
+.chapter .lead{color:var(--text-dim);margin-bottom:22px;font-size:.96rem;}
+.chapter h3{font-size:1.14rem;margin:28px 0 10px;color:var(--text);font-weight:700;}
+p{margin-bottom:12px;font-size:.95rem;}
+ul,ol{margin:0 0 14px 22px;font-size:.95rem;}
+li{margin-bottom:5px;}
+.box{border-radius:var(--radius);padding:14px 16px;margin:16px 0;border-left:4px solid;font-size:.9rem;box-shadow:var(--shadow-sm);transition:transform .15s;}
+.box:hover{transform:translateX(2px);}
+.box-title{font-weight:700;margin-bottom:4px;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;}
+.box.note{background:rgba(34,211,238,.08);border-color:var(--info);}
+.box.note .box-title{color:var(--info);}
+.box.tip{background:rgba(107,214,139,.08);border-color:var(--ok);}
+.box.tip .box-title{color:var(--ok);}
+.box.warning{background:rgba(242,193,78,.08);border-color:var(--warn);}
+.box.warning .box-title{color:var(--warn);}
+.box.important{background:rgba(244,113,116,.08);border-color:var(--danger);}
+.box.important .box-title{color:var(--danger);}
+.code-wrap{position:relative;margin:14px 0 20px;}
+.code-label{position:absolute;top:0;left:14px;transform:translateY(-50%);background:var(--bg);color:var(--text-dim);font-size:.68rem;padding:1px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px 14px;overflow-x:auto;font-family:var(--mono);font-size:.83rem;line-height:1.65;box-shadow:var(--shadow-sm);}
+code{font-family:var(--mono);}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-dim);font-size:.7rem;padding:4px 9px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.tok-kw{color:var(--kw);}
+.tok-str{color:var(--str);}
+.tok-num{color:var(--num);}
+.tok-com{color:var(--com);font-style:italic;}
+.tok-fn{color:var(--fn);}
+.tok-type{color:var(--type);}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.87rem;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;}
+th{background:var(--bg-card);color:var(--accent);font-weight:700;}
+tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+tbody tr:hover td{background:rgba(34,211,238,.05);}
+.accordion{border:1px solid var(--border);border-radius:var(--radius);margin:14px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.accordion-head{padding:13px 16px;background:var(--bg-card);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.9rem;transition:background .15s;}
+.accordion-head:hover{background:rgba(34,211,238,.06);}
+.accordion-head:after{content:'+';color:var(--accent);font-size:1.1rem;}
+.accordion.open .accordion-head:after{content:'−';}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .35s ease;background:var(--bg-soft);}
+.accordion.open .accordion-body{max-height:2000px;}
+.accordion-body-inner{padding:14px 16px;}
+.quiz{border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 14px;margin:22px 0;background:var(--bg-card);box-shadow:var(--shadow-sm);}
+.quiz h4{font-size:.95rem;margin-bottom:14px;color:var(--accent2);font-weight:700;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q p{font-weight:600;margin-bottom:8px;}
+.quiz-opt{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:.88rem;transition:border-color .15s,transform .1s,background .15s;}
+.quiz-opt:hover{border-color:var(--accent);transform:translateX(2px);}
+.quiz-opt.correct{border-color:var(--ok);background:rgba(107,214,139,.12);}
+.quiz-opt.wrong{border-color:var(--danger);background:rgba(244,113,116,.12);}
+.quiz-btn{background:var(--grad-accent);color:#0a0c10;border:none;padding:9px 20px;border-radius:9px;font-weight:700;cursor:pointer;font-size:.85rem;transition:transform .15s,box-shadow .15s;}
+.quiz-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.quiz-result{margin-top:10px;font-weight:700;font-size:.9rem;}
+.summary-box{background:linear-gradient(135deg,rgba(34,211,238,.1),rgba(129,140,248,.06));border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:26px 0;box-shadow:var(--shadow-sm);}
+.summary-box h4{color:var(--accent);margin-bottom:8px;font-size:.95rem;font-weight:700;}
+#back-to-top{position:fixed;bottom:26px;right:26px;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#0a0c10;border:none;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:80;}
+#back-to-top.show{display:flex;}
+.next-hint{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+@media(max-width:900px){#topbar{display:flex;}#sidebar{position:fixed;left:-320px;top:0;z-index:70;box-shadow:0 0 30px rgba(0,0,0,.4);transition:left .25s;}#sidebar.open{left:0;}main{padding:24px 18px 100px;}}
+.crumb{font-size:.82rem;color:var(--text-dim);margin-bottom:22px;}
+.crumb a{color:var(--text-dim);}
+.crumb a:hover{color:var(--accent);}
+.chpage{max-width:900px;margin:0 auto;padding:36px 24px 90px;}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-size:.85rem;text-decoration:none;transition:transform .15s,box-shadow .15s;}
+.nav-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.nav-btn.disabled{opacity:.35;cursor:not-allowed;}
+.chnav{display:flex;justify-content:space-between;gap:14px;margin-top:44px;padding-top:22px;border-top:1px dashed var(--border);flex-wrap:wrap;}
+.chapter{padding-top:0!important;margin-top:0!important;border-top:none!important;opacity:1!important;transform:none!important;}
+.toc-wrap{max-width:820px;margin:0 auto;padding:60px 24px 100px;}
+.toc-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;margin-top:28px;}
+.toc-list li a{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);transition:transform .15s,box-shadow .15s,border-color .15s;}
+.toc-list li a:hover{transform:translateX(4px);border-color:var(--accent);box-shadow:var(--shadow-sm);}
+.toc-num{font-family:var(--mono);font-size:.78rem;color:var(--accent);background:rgba(94,200,184,.12);width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+tr td{transition:background .15s;}
+.options-roadmap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+.options-roadmap .box{margin:0;}
+@media(max-width:700px){.options-roadmap{grid-template-columns:1fr;}}
+.roadmap-note{margin-top:60px;padding:20px;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:.88rem;}
+.extra-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-top:40px;}
+.extra-box h2{margin:0 0 14px;font-size:14px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);}
+.extra-box ol{list-style:none;margin:0;padding:0;columns:2;column-gap:28px;}
+.extra-box li{margin-bottom:8px;break-inside:avoid;}
+.extra-box a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border);}
+.extra-box a:hover{color:var(--accent);border-color:var(--accent);}
+@media(max-width:680px){.extra-box ol{columns:1;}}
+.chapter h4.subh{font-size:1rem;font-weight:700;margin:22px 0 8px;color:var(--accent);}
+.mono{font-family:var(--mono);}
+:root{--ink:var(--text);--paper:var(--bg);--surface:var(--bg-card);--surface-2:var(--bg-soft);--muted:var(--text-dim);--teal:var(--accent);--violet:var(--accent2);--amber:var(--warn);--rose:var(--danger);--teal-dim:color-mix(in srgb,var(--accent) 16%,transparent);--amber-dim:color-mix(in srgb,var(--warn) 16%,transparent);--violet-dim:color-mix(in srgb,var(--accent2) 16%,transparent);--rose-dim:color-mix(in srgb,var(--danger) 16%,transparent);--code-text:#dce6f5;--shadow:var(--shadow-md);}
+.mlhero{padding:8px 0 28px;}
+.mlhero h1{font-size:2rem;font-weight:800;line-height:1.25;margin:10px 0 14px;}
+.mlhero .eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--accent);}
+.mlhero .roadmap-svg{width:100%;height:auto;margin-top:18px;}
+.mlchap{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);margin:16px 0;overflow:hidden;box-shadow:var(--shadow-sm);}
+.container-ml{display:block;}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
+@media(max-width:640px){.chat-panel{left:12px;right:12px;width:auto;bottom:12px;}.chat-fab{right:12px;}}
 h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);line-height:1.25;}
-a{color:var(--teal);}
 code, pre, .mono{font-family:'JetBrains Mono',monospace;}
-.app{display:flex;min-height:100vh;}
-.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 30px;z-index:20;}
-.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--violet));display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;color:#fff;font-size:15px;}
-.brand-text{font-family:'Space Grotesk';font-weight:700;font-size:15px;}
-.brand-text span{display:block;font-family:'Inter';font-weight:500;font-size:11px;color:var(--muted);}
-.progress-wrap{margin-bottom:20px;}
-.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
-.progress-track{height:8px;border-radius:20px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border);}
-.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--violet));transition:width .4s ease;border-radius:20px;}
-.toggle-row{display:flex;gap:8px;margin-bottom:20px;}
-.icon-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:.2s;font-family:'Inter';}
-.icon-btn:hover{border-color:var(--teal);color:var(--teal);}
-.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px 4px;font-weight:700;}
-.toc{list-style:none;margin:0;padding:0;}
-.toc li a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;}
-.toc li a .num{font-family:'JetBrains Mono';font-size:10.5px;color:var(--teal);background:var(--teal-dim);width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.toc li a:hover{background:var(--surface-2);color:var(--ink);}
-.toc li a.active{background:rgba(34,211,238,.14);color:var(--teal);font-weight:700;box-shadow:inset 3px 0 0 var(--teal);}
-.main{flex:1;min-width:0;padding:0 0 80px;}
-.container{max-width:900px;margin:0 auto;padding:40px 36px 0;}
-.hero{padding:56px 36px 40px;background:radial-gradient(circle at 15% 20%, var(--violet-dim), transparent 55%),radial-gradient(circle at 85% 0%, var(--teal-dim), transparent 50%);border-bottom:1px solid var(--border);}
-.hero-inner{max-width:900px;margin:0 auto;}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:12px;color:var(--teal);background:var(--teal-dim);padding:6px 12px;border-radius:20px;margin-bottom:16px;font-weight:600;}
-.hero h1{font-size:clamp(28px,4vw,42px);margin:0 0 14px;letter-spacing:-.01em;}
-.hero p.lead{font-size:16.5px;color:var(--muted);max-width:640px;margin:0 0 28px;}
-.roadmap-svg{width:100%;height:auto;display:block;margin-top:10px;}
-.chapter{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
+.mlchap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:26px 0;overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:20px;}
 .chapter-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;cursor:pointer;user-select:none;}
 .chapter-head:hover{background:var(--surface-2);}
 .chapter-head .ch-left{display:flex;align-items:center;gap:16px;}
@@ -63,9 +168,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-head h2{margin:0;font-size:19px;}
 .chapter-head .ch-sub{font-size:12.5px;color:var(--muted);margin-top:2px;font-family:'Inter';font-weight:500;}
 .chevron{transition:transform .3s ease;color:var(--muted);flex-shrink:0;}
-.chapter.open .chevron{transform:rotate(180deg);}
+.mlchap.open .chevron{transform:rotate(180deg);}
 .chapter-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
-.chapter.open .chapter-body{max-height:none;}
+.mlchap.open .chapter-body{max-height:none;}
 .chapter-inner{padding:4px 26px 30px;}
 .chapter-inner h3{font-size:17px;margin:28px 0 12px;padding-top:6px;border-top:1px dashed var(--border);}
 .chapter-inner h3:first-child{border-top:none;padding-top:0;margin-top:8px;}
@@ -73,31 +178,9 @@ code, pre, .mono{font-family:'JetBrains Mono',monospace;}
 .chapter-inner p{margin:0 0 14px;color:var(--ink);}
 .chapter-inner ul, .chapter-inner ol{margin:0 0 14px;padding-left:22px;color:var(--ink);}
 .chapter-inner li{margin-bottom:6px;}
-.box{border-radius:12px;padding:16px 18px;margin:16px 0;border:1px solid transparent;font-size:14.5px;}
-.box-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Space Grotesk';font-size:13.5px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
-.box.note{background:var(--surface-2);border-color:var(--border);}
-.box.note .box-title{color:var(--muted);}
-.box.tip{background:var(--teal-dim);border-color:var(--teal);}
-.box.tip .box-title{color:var(--teal);}
-.box.warning{background:var(--amber-dim);border-color:var(--amber);}
-.box.warning .box-title{color:#95650B;}
 html.dark .box.warning .box-title{color:var(--amber);}
-.box.important{background:var(--rose-dim);border-color:var(--rose);}
-.box.important .box-title{color:var(--rose);}
 .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--border);border-radius:12px;}
-table{width:100%;border-collapse:collapse;font-size:13.8px;}
 th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
-thead th{background:var(--surface-2);font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:var(--surface-2);}
-.code-block{position:relative;background:var(--code-bg);border-radius:12px;margin:16px 0;border:1px solid #1E2A44;overflow:hidden;}
-.code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid #1E2A44;}
-.code-lang{font-family:'JetBrains Mono';font-size:11.5px;color:#7C8CB5;letter-spacing:.04em;}
-.copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid #2A3752;color:#C9D6EF;font-family:'Inter';font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:.15s;}
-.copy-btn:hover{background:rgba(255,255,255,.12);}
-.copy-btn.copied{background:var(--teal);color:#04211D;border-color:var(--teal);}
-pre.code{margin:0;padding:16px;overflow-x:auto;font-size:13.2px;color:var(--code-text);line-height:1.65;}
-pre.code code{white-space:pre;}
 .line-explain{margin:14px 0;}
 .line-explain ol{list-style:none;padding:0;margin:0;counter-reset:ln;}
 .line-explain li{counter-increment:ln;padding:8px 10px 8px 42px;position:relative;font-size:13.5px;border-bottom:1px solid var(--border);}
@@ -125,28 +208,20 @@ pre.code code{white-space:pre;}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
 .pill{background:var(--violet-dim);color:var(--violet);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:20px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
-@media(max-width:720px){.grid-2{grid-template-columns:1fr;}}
 .mistake-card{background:var(--rose-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .mistake-card b{color:var(--rose);}
 .practice-card{background:var(--teal-dim);border-radius:12px;padding:14px 16px;font-size:13.5px;}
 .practice-card b{color:var(--teal);}
-.summary-box{background:linear-gradient(135deg,var(--violet-dim),var(--teal-dim));border-radius:14px;padding:20px 22px;margin-top:24px;}
-.summary-box h4{margin-top:0;color:var(--ink);font-size:15px;}
-.summary-box ul{margin-bottom:0;}
 .diagram-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;text-align:center;}
 .diagram-card svg{max-width:100%;height:auto;}
 .diagram-caption{font-size:12.5px;color:var(--muted);margin-top:8px;}
-.back-top{position:fixed;bottom:26px;right:26px;width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:30;}
-.back-top.show{opacity:1;pointer-events:auto;}
-.back-top:hover{transform:translateY(-3px);}
 .next-hint{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin:34px 0 10px;}
 .next-hint p{margin:0;font-size:13.8px;color:var(--muted);}
 .next-hint .kbd{font-family:'JetBrains Mono';background:var(--surface-2);border:1px solid var(--border);padding:4px 10px;border-radius:7px;color:var(--teal);font-weight:600;}
-::-webkit-scrollbar{width:9px;height:9px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:20px;}
-@media(max-width:960px){.sidebar{display:none;} .container, .hero-inner{padding-left:20px;padding-right:20px;}}
-
-/* ============ AI CHATBOT WIDGET ============ */
+.checklist{list-style:none;margin:14px 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13.8px;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:"☐";color:var(--teal);font-size:15px;flex-shrink:0;}
 .chat-fab{
   position:fixed;bottom:26px;right:26px;z-index:40;
   display:flex;align-items:center;gap:9px;
@@ -215,43 +290,12 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 .chat-send-btn:hover{opacity:.85;}
 .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
 .chat-disclaimer{font-size:10px;color:var(--muted);text-align:center;padding:0 12px 10px;}
-@media(max-width:640px){
-  .chat-panel{left:12px;right:12px;width:auto;bottom:12px;}
-  .chat-fab{right:12px;}
-}
-
-
-/* home fab - top right */
-.home-fab{
-  position:fixed;top:20px;right:26px;z-index:60;
-  display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:100px;
-  background:var(--surface);border:1px solid var(--border);
-  box-shadow:var(--shadow);color:var(--ink);text-decoration:none;
-  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
-  transition:.2s;
-}
-.home-fab:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--teal);}
-.home-fab svg{width:18px;height:18px;flex-shrink:0;}
-@media(max-width:640px){
-  .home-fab{top:14px;right:14px;padding:9px;}
-  .home-fab .home-fab-label{display:none;}
-}
-
-/* ============ KHUNG NGOÀI ĐỒNG BỘ VỚI CÁC KHÓA KHÁC ============ */
 .crumb{
   font-size:12.5px; color:var(--muted); margin-bottom:18px;
   font-family:'Inter'; display:flex; flex-wrap:wrap; gap:4px;
 }
 .crumb a{ color:var(--muted); text-decoration:none; }
 .crumb a:hover{ color:var(--teal); }
-#topbar{
-  display:none;
-  position:sticky; top:0; z-index:60;
-  align-items:center; justify-content:space-between;
-  padding:12px 18px;
-  background:var(--surface); border-bottom:1px solid var(--border);
-}
-#topbar .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:14.5px; }
 #menu-toggle{
   background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
   width:36px; height:36px; border-radius:9px; font-size:16px; cursor:pointer;
@@ -268,231 +312,178 @@ html.dark .chat-msg.bot code{background:rgba(255,255,255,.08);}
 }
 .chnav a:hover{ border-color:var(--teal); color:var(--teal); }
 .chnav .spacer{ flex:1; }
-@media(max-width:960px){
-  #topbar{ display:flex; }
-  .sidebar{
-    position:fixed; left:-320px; top:0; z-index:70;
-    transition:left .25s; box-shadow:0 0 30px rgba(0,0,0,.4);
-  }
-  .sidebar.open{ left:0; }
-}
+
 </style>
+<title>Phần 2 · Toán cho Machine Learning — Giáo Trình Machine Learning</title>
 </head>
 <body>
-<a href="../index.html" class="home-fab" title="Về trang chủ" aria-label="Về trang chủ">
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <span class="home-fab-label">Trang chủ</span>
-</a>
+<div id="progress-bar"></div>
 <div id="topbar">
   <span class="brand">📊 Machine Learning</span>
-  <button id="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Mở danh sách phần">☰</button>
+  <div class="topbar-right">
+    <a class="home-btn" href="../index.html">🏠 Trang chủ</a>
+    <button id="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Mở danh sách chương">☰</button>
+  </div>
 </div>
-<div class="app">
-
-  <aside class="sidebar">
-    <a href="index.html" style="text-decoration:none;color:inherit;">
-    <div class="sidebar-brand">
-      <div class="brand-mark">ML</div>
-      <div class="brand-text">Giáo trình ML</div>
-    </div>
-    </a>
-
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Tiến độ Phần 2</span><span id="progressPct">0%</span></div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
-    <div class="nav-title">✓ Đã học — Phần 1</div>
-    <ul class="toc">
-      <li><a href="#" style="opacity:.55;cursor:default;"><span class="num">✓</span> AI · ML · DL · DS</a></li>
-      <li><a href="#" style="opacity:.55;cursor:default;"><span class="num">✓</span> Quy trình xây dựng mô hình</a></li>
-      <li><a href="#" style="opacity:.55;cursor:default;"><span class="num">✓</span> Môi trường Python</a></li>
-      <li><a href="#" style="opacity:.55;cursor:default;"><span class="num">✓</span> NumPy cơ bản</a></li>
-      <li><a href="#" style="opacity:.55;cursor:default;"><span class="num">✓</span> Pandas cơ bản</a></li>
-    </ul>
-
-    <div class="nav-title">Các phần</div>
-    <ul class="toc" style="margin-bottom:16px;">
-      <li><a href="phan-1-nen-tang-ml.html"><span class="num">1</span> Nền Tảng ML</a></li>
-      <li><a href="phan-2-toan-cho-ml.html" class="active"><span class="num">2</span> Toán Cho ML</a></li>
-      <li><a href="phan-3-truc-quan-hoa-du-lieu.html"><span class="num">3</span> Trực Quan Hóa Dữ Liệu</a></li>
-      <li><a href="phan-4-tien-xu-ly-du-lieu.html"><span class="num">4</span> Tiền Xử Lý &amp; EDA</a></li>
-      <li><a href="phan-5-feature-engineering-pipeline.html"><span class="num">5</span> Feature Engineering</a></li>
-      <li><a href="phan-6-supervised-learning.html"><span class="num">6</span> Supervised Learning</a></li>
-      <li><a href="phan-7-knn-bayes-tree-svm.html"><span class="num">7</span> KNN, Bayes, Tree, SVM</a></li>
-      <li><a href="phan-8-ensemble-random-forest.html"><span class="num">8</span> Ensemble &amp; Random Forest</a></li>
-      <li><a href="phan-9-unsupervised-clustering-pca.html"><span class="num">9</span> Unsupervised &amp; PCA</a></li>
-      <li><a href="phan-10-model-evaluation-tuning.html"><span class="num">10</span> Model Evaluation &amp; Tuning</a></li>
-      <li><a href="phan-11-explainable-ai-deployment.html"><span class="num">11</span> Explainable AI &amp; Deploy</a></li>
-      <li><a href="phan-12-sql-mlops.html"><span class="num">12</span> SQL &amp; MLOps</a></li>
-      <li><a href="phan-15-kaggle-portfolio.html"><span class="num">15</span> Kaggle &amp; Portfolio</a></li>
-      <li><a href="phan-16-deep-learning.html"><span class="num">16</span> Deep Learning</a></li>
-      <li><a href="phan-17-reinforcement-learning.html"><span class="num">17</span> Reinforcement Learning</a></li>
-    </ul>
-
-    <div class="nav-title">Mục lục — Phần 2</div>
-    <ul class="toc" id="tocList">
-      <li><a href="#gioi-thieu" class="active"><span class="num">•</span> Giới thiệu Phần 2</a></li>
-      <li><a href="#chuong-6"><span class="num">6</span> Đại số tuyến tính</a></li>
-      <li><a href="#chuong-7"><span class="num">7</span> Giải tích (Calculus)</a></li>
-      <li><a href="#chuong-8"><span class="num">8</span> Xác suất thống kê</a></li>
-      <li><a href="#chuong-9"><span class="num">9</span> Tối ưu hóa (Optimization)</a></li>
-    </ul>
-
-    <div class="nav-title">Sắp tới (gõ "Tiếp tục")</div>
-    <ul class="toc">
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">10</span> Matplotlib</a></li>
-      <li><a href="#" style="opacity:.5;cursor:default;"><span class="num">11</span> Seaborn &amp; Data Visualization</a></li>
-    </ul>
-
-    <div class="toggle-row" style="margin-top:18px;">
-      <button class="icon-btn" id="darkToggle">🌙 Dark mode</button>
-    </div>
+<div class="layout">
+  <aside id="sidebar">
+    <div class="brand">📊 Machine Learning</div>
+    <div class="sub">16 chương</div>
+    <input type="text" id="search-box" placeholder="Tìm chương…" oninput="filterNav(this.value)">
+    <div class="nav-group-title">Danh sách chương</div>
+    <a class="nav-link" href="phan-1-nen-tang-ml.html">Phần 1. Nền Tảng ML</a>
+    <a class="nav-link active" href="phan-2-toan-cho-ml.html">Phần 2. Toán Cho ML</a>
+    <a class="nav-link" href="phan-3-truc-quan-hoa-du-lieu.html">Phần 3. Trực Quan Hóa Dữ Liệu</a>
+    <a class="nav-link" href="phan-4-tien-xu-ly-du-lieu.html">Phần 4. Tiền Xử Lý &amp; EDA</a>
+    <a class="nav-link" href="phan-5-feature-engineering-pipeline.html">Phần 5. Feature Engineering</a>
+    <a class="nav-link" href="phan-6-supervised-learning.html">Phần 6. Supervised Learning</a>
+    <a class="nav-link" href="phan-7-knn-bayes-tree-svm.html">Phần 7. KNN, Bayes, Tree, SVM</a>
+    <a class="nav-link" href="phan-8-ensemble-random-forest.html">Phần 8. Ensemble &amp; Random Forest</a>
+    <a class="nav-link" href="phan-9-unsupervised-clustering-pca.html">Phần 9. Unsupervised &amp; PCA</a>
+    <a class="nav-link" href="phan-10-model-evaluation-tuning.html">Phần 10. Model Evaluation &amp; Tuning</a>
+    <a class="nav-link" href="phan-11-explainable-ai-deployment.html">Phần 11. Explainable AI &amp; Deploy</a>
+    <a class="nav-link" href="phan-12-sql-mlops.html">Phần 12. SQL &amp; MLOps</a>
+    <a class="nav-link" href="phan-13-kaggle-portfolio.html">Phần 13. Kaggle &amp; Portfolio</a>
+    <a class="nav-link" href="phan-14-deep-learning.html">Phần 14. Deep Learning</a>
+    <a class="nav-link" href="phan-15-reinforcement-learning.html">Phần 15. Reinforcement Learning</a>
+    <a class="nav-link" href="tong-hop-cheat-sheet.html">📋 Tổng hợp công thức</a>
+    <div class="nav-group-title">Trong phần này</div>
+    <a class="nav-link" href="#gioi-thieu" data-target="gioi-thieu">Giới thiệu Phần 2</a>
+    <a class="nav-link" href="#chuong-6" data-target="chuong-6">Đại số tuyến tính</a>
+    <a class="nav-link" href="#chuong-7" data-target="chuong-7">Giải tích (Calculus)</a>
+    <a class="nav-link" href="#chuong-8" data-target="chuong-8">Xác suất thống kê</a>
+    <a class="nav-link" href="#chuong-9" data-target="chuong-9">Tối ưu hóa (Optimization)</a>
+    <button id="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Chế độ tối</span></button>
   </aside>
-
-  <main class="main">
-
-    <div class="crumb">
-      <a href="../index.html">🏠 Trang chủ</a> ·
-      <a href="index.html">📊 Machine Learning</a> ·
-      <span>Phần 2. Toán Cho ML</span>
-    </div>
-    <section class="hero" id="gioi-thieu">
-      <div class="hero-inner">
-        <span class="eyebrow">● Phần 2 / N — Toán cho Machine Learning</span>
-        <h1>Toán học đứng sau<br>mọi thuật toán Machine Learning</h1>
-        <p class="lead">Bạn không cần là nhà toán học để làm ML, nhưng hiểu <b>4 trụ cột toán học</b> dưới đây sẽ giúp bạn
+  <div class="main-col">
+<div class="chpage">
+  <div class="crumb">
+    <a href="../index.html">🏠 Trang chủ</a> ·
+    <a href="index.html">📊 Machine Learning</a> ·
+    <span>Phần 2. Toán Cho ML</span>
+  </div>
+  <main style="padding:0;max-width:none;">
+<div class="mlhero" id="gioi-thieu">
+      <span class="eyebrow">● Phần 2 / 15 — Toán cho Machine Learning</span>
+      <h1>Toán học đứng sau<br/>mọi thuật toán Machine Learning</h1>
+      <p class="lead">Bạn không cần là nhà toán học để làm ML, nhưng hiểu <b>4 trụ cột toán học</b> dưới đây sẽ giúp bạn
         không còn "học vẹt" công thức mà thực sự hiểu vì sao một thuật toán hoạt động. Phần 2 đi qua 4 ga tiếp theo:
         Đại số tuyến tính, Giải tích, Xác suất thống kê và Tối ưu hóa — nền tảng để hiểu mọi mô hình từ Linear Regression đến Deep Learning.</p>
+      <div class="diagram-card" style="background:transparent;border:none;padding:0;">
+<svg class="roadmap-svg" viewbox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#0D9488"></stop>
+<stop offset="100%" stop-color="#5B4EE5"></stop>
+</lineargradient>
+</defs>
+<path d="M40,110 H820" stroke="url(#lineGrad)" stroke-linecap="round" stroke-width="6"></path>
+<path d="M760,110 H840" stroke="var(--border)" stroke-dasharray="2 10" stroke-linecap="round" stroke-width="6"></path>
+<g font-family="Space Grotesk, sans-serif">
+<g>
+<circle cx="80" cy="110" fill="var(--border)" r="13"></circle>
+<text fill="var(--muted)" font-size="10" text-anchor="middle" x="80" y="150">Phần 1 ✓</text>
+</g>
+<g>
+<circle cx="240" cy="110" fill="#0D9488" r="15"></circle>
+<circle cx="240" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="240" y="70">Ga 6</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="240" y="150">Đại số tuyến tính</text>
+</g>
+<g>
+<circle cx="400" cy="110" fill="#0D9488" r="15"></circle>
+<circle cx="400" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="400" y="70">Ga 7</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="400" y="150">Giải tích</text>
+</g>
+<g>
+<circle cx="560" cy="110" fill="#5B4EE5" r="15"></circle>
+<circle cx="560" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="560" y="70">Ga 8</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="560" y="150">Xác suất thống kê</text>
+</g>
+<g>
+<circle cx="720" cy="110" fill="#5B4EE5" r="15"></circle>
+<circle cx="720" cy="110" fill="#fff" r="6"></circle>
+<text fill="var(--ink)" font-size="12" font-weight="700" text-anchor="middle" x="720" y="70">Ga 9</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="720" y="150">Tối ưu hóa</text>
+</g>
+<text fill="var(--muted)" font-size="11" font-style="italic" x="800" y="90">Phần 3 →</text>
+</g>
+</svg>
+<div class="diagram-caption">Bạn đã hoàn thành Phần 1 (mờ) — giờ đến 4 "ga" toán học của Phần 2.</div>
+</div>
+    </div>
 
-        <div class="diagram-card" style="background:transparent;border:none;padding:0;">
-          <svg class="roadmap-svg" viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#0D9488"/>
-                <stop offset="100%" stop-color="#5B4EE5"/>
-              </linearGradient>
-            </defs>
-            <path d="M40,110 H820" stroke="url(#lineGrad)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M760,110 H840" stroke="var(--border)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
-            <g font-family="Space Grotesk, sans-serif">
-              <g>
-                <circle cx="80" cy="110" r="13" fill="var(--border)"/>
-                <text x="80" y="150" text-anchor="middle" font-size="10" fill="var(--muted)">Phần 1 ✓</text>
-              </g>
-              <g>
-                <circle cx="240" cy="110" r="15" fill="#0D9488"/>
-                <circle cx="240" cy="110" r="6" fill="#fff"/>
-                <text x="240" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 6</text>
-                <text x="240" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Đại số tuyến tính</text>
-              </g>
-              <g>
-                <circle cx="400" cy="110" r="15" fill="#0D9488"/>
-                <circle cx="400" cy="110" r="6" fill="#fff"/>
-                <text x="400" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 7</text>
-                <text x="400" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Giải tích</text>
-              </g>
-              <g>
-                <circle cx="560" cy="110" r="15" fill="#5B4EE5"/>
-                <circle cx="560" cy="110" r="6" fill="#fff"/>
-                <text x="560" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 8</text>
-                <text x="560" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Xác suất thống kê</text>
-              </g>
-              <g>
-                <circle cx="720" cy="110" r="15" fill="#5B4EE5"/>
-                <circle cx="720" cy="110" r="6" fill="#fff"/>
-                <text x="720" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Ga 9</text>
-                <text x="720" y="150" text-anchor="middle" font-size="10.5" fill="var(--muted)">Tối ưu hóa</text>
-              </g>
-              <text x="800" y="90" font-size="11" fill="var(--muted)" font-style="italic">Phần 3 →</text>
-            </g>
-          </svg>
-          <div class="diagram-caption">Bạn đã hoàn thành Phần 1 (mờ) — giờ đến 4 "ga" toán học của Phần 2.</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="container">
-
-      <div class="box note">
-        <div class="box-title">📌 Vì sao cần học toán trước khi vào thuật toán cụ thể?</div>
+<div class="box note">
+<div class="box-title">📌 Vì sao cần học toán trước khi vào thuật toán cụ thể?</div>
         Ở các phần sau, khi học Linear Regression, Gradient Boosting hay Neural Network, bạn sẽ liên tục gặp lại: <b>vector/ma trận</b> (biểu diễn dữ liệu),
         <b>đạo hàm/gradient</b> (cách mô hình "học"), <b>xác suất</b> (cách mô hình định lượng độ chắc chắn) và <b>tối ưu hóa</b> (cách tìm ra tham số tốt nhất).
         Phần 2 xây nền cho tất cả những điều đó, với trọng tâm là <i>trực giác</i> chứ không phải chứng minh toán học hàn lâm.
       </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 6: ĐẠI SỐ TUYẾN TÍNH -->
-      <!-- ================================================================ -->
-      <div class="chapter open" id="chuong-6">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">6</div>
-            <div>
-              <h2>Đại số tuyến tính cho Machine Learning</h2>
-              <div class="ch-sub">Vector, ma trận, phép nhân, norm, trị riêng</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>6.1. Vì sao ML "nói chuyện" bằng ngôn ngữ đại số tuyến tính?</h3>
-            <p>Mọi dữ liệu đưa vào mô hình ML — một dòng trong bảng Excel, một bức ảnh, một đoạn văn bản — đều được biểu diễn dưới dạng
+ ================================================================ 
+ CHƯƠNG 6: ĐẠI SỐ TUYẾN TÍNH 
+ ================================================================ 
+<div class="mlchap open" id="chuong-6">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">6</div>
+<div>
+<h2>Đại số tuyến tính cho Machine Learning</h2>
+<div class="ch-sub">Vector, ma trận, phép nhân, norm, trị riêng</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>6.1. Vì sao ML "nói chuyện" bằng ngôn ngữ đại số tuyến tính?</h3>
+<p>Mọi dữ liệu đưa vào mô hình ML — một dòng trong bảng Excel, một bức ảnh, một đoạn văn bản — đều được biểu diễn dưới dạng
             <b>số</b> sắp xếp trong vector hoặc ma trận. Việc "huấn luyện mô hình" thực chất là hàng loạt phép toán đại số tuyến tính
             (cộng, nhân ma trận) lặp đi lặp lại hàng triệu lần.</p>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Khái niệm</th><th>Định nghĩa</th><th>Ví dụ trong ML</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Scalar</b></td><td>Một số đơn lẻ</td><td>Learning rate = 0.01</td></tr>
-                  <tr><td><b>Vector</b></td><td>Dãy số 1 chiều</td><td>Một mẫu dữ liệu: [tuổi, lương, số năm kinh nghiệm]</td></tr>
-                  <tr><td><b>Matrix (Ma trận)</b></td><td>Bảng số 2 chiều</td><td>Toàn bộ tập dữ liệu: mỗi hàng là 1 mẫu, mỗi cột là 1 đặc trưng</td></tr>
-                  <tr><td><b>Tensor</b></td><td>Mảng số nhiều hơn 2 chiều</td><td>Một batch ảnh màu: (số_ảnh, chiều_cao, chiều_rộng, kênh_màu)</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 500 150" width="420">
-                <g font-family="Space Grotesk" font-size="12" fill="var(--ink)">
-                  <rect x="10" y="55" width="40" height="40" fill="var(--teal-dim)" stroke="var(--teal)"/>
-                  <text x="30" y="79" text-anchor="middle">5</text>
-                  <text x="30" y="30" text-anchor="middle" font-size="10.5" fill="var(--muted)">Scalar</text>
-
-                  <rect x="90" y="35" width="30" height="90" fill="var(--teal-dim)" stroke="var(--teal)"/>
-                  <text x="105" y="55" text-anchor="middle" font-size="10.5">2</text>
-                  <text x="105" y="80" text-anchor="middle" font-size="10.5">7</text>
-                  <text x="105" y="105" text-anchor="middle" font-size="10.5">1</text>
-                  <text x="105" y="20" text-anchor="middle" font-size="10.5" fill="var(--muted)">Vector</text>
-
-                  <rect x="160" y="35" width="90" height="90" fill="var(--violet-dim)" stroke="var(--violet)"/>
-                  <line x1="190" y1="35" x2="190" y2="125" stroke="var(--violet)"/>
-                  <line x1="220" y1="35" x2="220" y2="125" stroke="var(--violet)"/>
-                  <line x1="160" y1="65" x2="250" y2="65" stroke="var(--violet)"/>
-                  <line x1="160" y1="95" x2="250" y2="95" stroke="var(--violet)"/>
-                  <text x="205" y="20" text-anchor="middle" font-size="10.5" fill="var(--muted)">Ma trận</text>
-
-                  <g transform="translate(300,35)">
-                    <rect x="0" y="0" width="70" height="70" fill="var(--amber-dim)" stroke="var(--amber)"/>
-                    <rect x="18" y="-15" width="70" height="70" fill="var(--amber-dim)" stroke="var(--amber)" opacity="0.7"/>
-                    <rect x="36" y="-30" width="70" height="70" fill="var(--amber-dim)" stroke="var(--amber)" opacity="0.5"/>
-                  </g>
-                  <text x="365" y="20" text-anchor="middle" font-size="10.5" fill="var(--muted)">Tensor (3D+)</text>
-                </g>
-              </svg>
-              <div class="diagram-caption">Từ scalar → vector → ma trận → tensor: số chiều tăng dần.</div>
-            </div>
-
-            <h3>6.2. Các phép toán vector &amp; ma trận cơ bản với NumPy</h3>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+<div class="table-wrap">
+<table>
+<thead><tr><th>Khái niệm</th><th>Định nghĩa</th><th>Ví dụ trong ML</th></tr></thead>
+<tbody>
+<tr><td><b>Scalar</b></td><td>Một số đơn lẻ</td><td>Learning rate = 0.01</td></tr>
+<tr><td><b>Vector</b></td><td>Dãy số 1 chiều</td><td>Một mẫu dữ liệu: [tuổi, lương, số năm kinh nghiệm]</td></tr>
+<tr><td><b>Matrix (Ma trận)</b></td><td>Bảng số 2 chiều</td><td>Toàn bộ tập dữ liệu: mỗi hàng là 1 mẫu, mỗi cột là 1 đặc trưng</td></tr>
+<tr><td><b>Tensor</b></td><td>Mảng số nhiều hơn 2 chiều</td><td>Một batch ảnh màu: (số_ảnh, chiều_cao, chiều_rộng, kênh_màu)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="diagram-card">
+<svg viewbox="0 0 500 150" width="420">
+<g fill="var(--ink)" font-family="Space Grotesk" font-size="12">
+<rect fill="var(--teal-dim)" height="40" stroke="var(--teal)" width="40" x="10" y="55"></rect>
+<text text-anchor="middle" x="30" y="79">5</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="30" y="30">Scalar</text>
+<rect fill="var(--teal-dim)" height="90" stroke="var(--teal)" width="30" x="90" y="35"></rect>
+<text font-size="10.5" text-anchor="middle" x="105" y="55">2</text>
+<text font-size="10.5" text-anchor="middle" x="105" y="80">7</text>
+<text font-size="10.5" text-anchor="middle" x="105" y="105">1</text>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="105" y="20">Vector</text>
+<rect fill="var(--violet-dim)" height="90" stroke="var(--violet)" width="90" x="160" y="35"></rect>
+<line stroke="var(--violet)" x1="190" x2="190" y1="35" y2="125"></line>
+<line stroke="var(--violet)" x1="220" x2="220" y1="35" y2="125"></line>
+<line stroke="var(--violet)" x1="160" x2="250" y1="65" y2="65"></line>
+<line stroke="var(--violet)" x1="160" x2="250" y1="95" y2="95"></line>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="205" y="20">Ma trận</text>
+<g transform="translate(300,35)">
+<rect fill="var(--amber-dim)" height="70" stroke="var(--amber)" width="70" x="0" y="0"></rect>
+<rect fill="var(--amber-dim)" height="70" opacity="0.7" stroke="var(--amber)" width="70" x="18" y="-15"></rect>
+<rect fill="var(--amber-dim)" height="70" opacity="0.5" stroke="var(--amber)" width="70" x="36" y="-30"></rect>
+</g>
+<text fill="var(--muted)" font-size="10.5" text-anchor="middle" x="365" y="20">Tensor (3D+)</text>
+</g>
+</svg>
+<div class="diagram-caption">Từ scalar → vector → ma trận → tensor: số chiều tăng dần.</div>
+</div>
+<h3>6.2. Các phép toán vector &amp; ma trận cơ bản với NumPy</h3>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 
 v1 = np.array([2, 3, 4])
 v2 = np.array([1, 0, 1])
@@ -518,184 +509,169 @@ print(A.T)              # ma trận chuyển vị
 # Ma trận nghịch đảo - dùng trong công thức nghiệm đóng của Linear Regression
 A_inv = np.linalg.inv(A)
 print(A_inv)</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>np.dot(v1, v2)</code> — tích vô hướng: nhân từng cặp phần tử tương ứng rồi cộng lại; đây chính là phép toán lặp lại hàng tỷ lần bên trong mỗi lớp của neural network.</li>
-                <li><code>np.linalg.norm(v1)</code> — norm L2 (Euclidean norm) đo "độ dài" vector trong không gian; dùng để đo khoảng cách giữa các điểm dữ liệu (ví dụ trong KNN).</li>
-                <li><code>np.linalg.norm(v1, ord=1)</code> — norm L1, tổng trị tuyệt đối các phần tử; xuất hiện trong regularization L1 (Lasso).</li>
-                <li><code>A @ B</code> — toán tử <code>@</code> là cách viết gọn của <code>np.matmul</code>, thực hiện nhân ma trận đúng quy tắc toán học (hàng nhân cột).</li>
-                <li><code>A.T</code> — chuyển vị: đổi hàng thành cột, thường dùng khi cần khớp kích thước ma trận để nhân.</li>
-                <li><code>np.linalg.inv(A)</code> — tính ma trận nghịch đảo <code>A⁻¹</code> sao cho <code>A @ A_inv</code> xấp xỉ ma trận đơn vị; là thành phần trong công thức nghiệm đóng (closed-form) của hồi quy tuyến tính: <code>w = (XᵀX)⁻¹Xᵀy</code>.</li>
-              </ol>
-            </div>
-
-            <div class="box warning">
-              <div class="box-title">⚠️ Lưu ý</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>np.dot(v1, v2)</code> — tích vô hướng: nhân từng cặp phần tử tương ứng rồi cộng lại; đây chính là phép toán lặp lại hàng tỷ lần bên trong mỗi lớp của neural network.</li>
+<li><code>np.linalg.norm(v1)</code> — norm L2 (Euclidean norm) đo "độ dài" vector trong không gian; dùng để đo khoảng cách giữa các điểm dữ liệu (ví dụ trong KNN).</li>
+<li><code>np.linalg.norm(v1, ord=1)</code> — norm L1, tổng trị tuyệt đối các phần tử; xuất hiện trong regularization L1 (Lasso).</li>
+<li><code>A @ B</code> — toán tử <code>@</code> là cách viết gọn của <code>np.matmul</code>, thực hiện nhân ma trận đúng quy tắc toán học (hàng nhân cột).</li>
+<li><code>A.T</code> — chuyển vị: đổi hàng thành cột, thường dùng khi cần khớp kích thước ma trận để nhân.</li>
+<li><code>np.linalg.inv(A)</code> — tính ma trận nghịch đảo <code>A⁻¹</code> sao cho <code>A @ A_inv</code> xấp xỉ ma trận đơn vị; là thành phần trong công thức nghiệm đóng (closed-form) của hồi quy tuyến tính: <code>w = (XᵀX)⁻¹Xᵀy</code>.</li>
+</ol>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Lưu ý</div>
               Không phải ma trận nào cũng có nghịch đảo (ma trận suy biến / singular matrix sẽ báo lỗi). Trong thực hành ML hiện đại, người ta hiếm khi tính nghịch đảo trực tiếp vì tốn chi phí tính toán với ma trận lớn — thay vào đó dùng Gradient Descent (xem Chương 9).
             </div>
-
-            <div class="box note">
-              <div class="box-title">🆕 Cập nhật 2026 — Tích vô hướng (dot product) chính là "phép toán lõi" đứng sau RAG</div>
+<div class="box note">
+<div class="box-title">🆕 Cập nhật 2026 — Tích vô hướng (dot product) chính là "phép toán lõi" đứng sau RAG</div>
               Tích vô hướng và norm vừa học ở trên không chỉ là bài tập toán trừu tượng — chúng là công thức chính xác đứng sau việc <b>tìm kiếm ngữ nghĩa (semantic search)</b> trong các ứng dụng RAG (Chương 45):
-              <div class="code-block">
-                <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                <pre class="code"><code># Cosine similarity - đo "độ giống nhau về nghĩa" giữa 2 embedding vector
+               <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Cosine similarity - đo "độ giống nhau về nghĩa" giữa 2 embedding vector
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 # a, b là 2 embedding vector (đại diện cho 2 câu văn bản)
 # Giá trị càng gần 1 → 2 câu càng gần nghĩa nhau
 # Giá trị càng gần 0 → 2 câu càng ít liên quan</code></pre>
-              </div>
+</div>
               Khi một hệ thống RAG "tìm đoạn văn bản liên quan nhất tới câu hỏi", về bản chất nó đang tính <b>cosine similarity</b> (dùng chính <code>np.dot</code> và <code>np.linalg.norm</code> vừa học) giữa embedding của câu hỏi và embedding của hàng nghìn/triệu đoạn văn bản đã lưu sẵn, rồi chọn ra những đoạn có điểm cao nhất. Đây là lý do đại số tuyến tính vẫn là nền tảng bắt buộc, kể cả khi làm việc với LLM hiện đại.
             </div>
-
-            <h3>6.3. Trị riêng &amp; vector riêng (Eigenvalues &amp; Eigenvectors) — trực giác</h3>
-            <p>Khi nhân một ma trận vuông <code>A</code> với một vector <code>x</code>, thông thường hướng của vector sẽ thay đổi.
+<h3>6.3. Trị riêng &amp; vector riêng (Eigenvalues &amp; Eigenvectors) — trực giác</h3>
+<p>Khi nhân một ma trận vuông <code>A</code> với một vector <code>x</code>, thông thường hướng của vector sẽ thay đổi.
             Nhưng có một số vector đặc biệt — gọi là <b>vector riêng (eigenvector)</b> — chỉ bị "kéo giãn" theo đúng hướng cũ, với hệ số giãn gọi là <b>trị riêng (eigenvalue)</b>:
             <code>A·x = λ·x</code>. Khái niệm này là nền tảng của <b>PCA (Principal Component Analysis)</b> — thuật toán giảm chiều dữ liệu sẽ học ở phần sau.</p>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>A = np.array([[2, 0], [0, 3]])
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>A = np.array([[2, 0], [0, 3]])
 tri_rieng, vector_rieng = np.linalg.eig(A)
 print("Trị riêng:", tri_rieng)         # [2. 3.]
 print("Vector riêng:\n", vector_rieng)  # các cột là vector riêng tương ứng</code></pre>
-            </div>
-
-            <div class="box tip">
-              <div class="box-title">💡 Mẹo ghi nhớ</div>
+</div>
+<div class="box tip">
+<div class="box-title">💡 Mẹo ghi nhớ</div>
               Hãy tưởng tượng ma trận <code>A</code> như một "phép biến hình" không gian. Vector riêng là những "trục" đặc biệt không bị xoay khi biến hình, chỉ bị kéo dài/thu ngắn. PCA tận dụng điều này để tìm ra "trục" mà dữ liệu biến thiên nhiều nhất.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Cho hai vector <code>a = [3, 4]</code> và <code>b = [1, 2]</code>. Tính tích vô hướng, norm L2 của <code>a</code>, và cho biết góc giữa 2 vector có > 90° hay không (gợi ý: tích vô hướng dương nghĩa là góc < 90°).</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>a = np.array([3, 4])
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Cho hai vector <code>a = [3, 4]</code> và <code>b = [1, 2]</code>. Tính tích vô hướng, norm L2 của <code>a</code>, và cho biết góc giữa 2 vector có &gt; 90° hay không (gợi ý: tích vô hướng dương nghĩa là góc &lt; 90°).</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>a = np.array([3, 4])
 b = np.array([1, 2])
-print(np.dot(a, b))          # 3*1+4*2 = 11 (dương -> góc < 90 độ)
+print(np.dot(a, b))          # 3*1+4*2 = 11 (dương -&gt; góc &lt; 90 độ)
 print(np.linalg.norm(a))     # 5.0</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="exercise">
-              <h4>Bài 2</h4>
-              <p>Cho ma trận <code>M = [[4, 2], [1, 3]]</code>, hãy tính ma trận chuyển vị và nhân <code>M</code> với chuyển vị của chính nó (<code>M @ M.T</code>).</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>M = np.array([[4, 2], [1, 3]])
+</div>
+</div>
+</div>
+<div class="exercise">
+<h4>Bài 2</h4>
+<p>Cho ma trận <code>M = [[4, 2], [1, 3]]</code>, hãy tính ma trận chuyển vị và nhân <code>M</code> với chuyển vị của chính nó (<code>M @ M.T</code>).</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>M = np.array([[4, 2], [1, 3]])
 print(M.T)          # [[4 1] [2 3]]
 print(M @ M.T)      # [[20 10] [10 10]]</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng <code>*</code> khi ý định là nhân ma trận, dẫn tới kết quả nhân từng phần tử (element-wise) thay vì nhân ma trận chuẩn.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn kiểm tra <code>shape</code> của các ma trận trước khi nhân — số cột ma trận trái phải bằng số hàng ma trận phải.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 6</h4>
-              <ul>
-                <li>Dữ liệu trong ML luôn được biểu diễn dưới dạng vector/ma trận/tensor.</li>
-                <li>Dot product, norm và phép nhân ma trận là 3 phép toán xuất hiện xuyên suốt mọi mô hình.</li>
-                <li>Eigenvalue/eigenvector là nền tảng của PCA — thuật toán giảm chiều sẽ học sau.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 7: GIẢI TÍCH -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-7">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">7</div>
-            <div>
-              <h2>Giải tích (Calculus) cho Machine Learning</h2>
-              <div class="ch-sub">Đạo hàm, gradient, chain rule — nền tảng của việc "học"</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>7.1. Đạo hàm là gì, hiểu theo cách trực giác nhất</h3>
-            <p><b>Đạo hàm</b> của một hàm số tại một điểm cho biết <i>độ dốc (slope)</i> của đồ thị hàm số tại điểm đó — nói cách khác,
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Dùng <code>*</code> khi ý định là nhân ma trận, dẫn tới kết quả nhân từng phần tử (element-wise) thay vì nhân ma trận chuẩn.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn kiểm tra <code>shape</code> của các ma trận trước khi nhân — số cột ma trận trái phải bằng số hàng ma trận phải.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 6</h4>
+<ul>
+<li>Dữ liệu trong ML luôn được biểu diễn dưới dạng vector/ma trận/tensor.</li>
+<li>Dot product, norm và phép nhân ma trận là 3 phép toán xuất hiện xuyên suốt mọi mô hình.</li>
+<li>Eigenvalue/eigenvector là nền tảng của PCA — thuật toán giảm chiều sẽ học sau.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 7: GIẢI TÍCH 
+ ================================================================ 
+<div class="mlchap" id="chuong-7">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">7</div>
+<div>
+<h2>Giải tích (Calculus) cho Machine Learning</h2>
+<div class="ch-sub">Đạo hàm, gradient, chain rule — nền tảng của việc "học"</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>7.1. Đạo hàm là gì, hiểu theo cách trực giác nhất</h3>
+<p><b>Đạo hàm</b> của một hàm số tại một điểm cho biết <i>độ dốc (slope)</i> của đồ thị hàm số tại điểm đó — nói cách khác,
             nếu bạn nhích biến đầu vào một chút, giá trị đầu ra sẽ thay đổi bao nhiêu và theo hướng nào.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 400 220" width="360">
-                <g>
-                  <path d="M20,200 Q120,20 380,120" fill="none" stroke="var(--teal)" stroke-width="3"/>
-                  <line x1="20" y1="200" x2="380" y2="200" stroke="var(--border)"/>
-                  <line x1="20" y1="200" x2="20" y2="10" stroke="var(--border)"/>
-                  <circle cx="150" cy="65" r="6" fill="var(--violet)"/>
-                  <line x1="80" y1="110" x2="220" y2="35" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4 3"/>
-                  <text x="230" y="35" font-size="11" fill="var(--amber)" font-family="Space Grotesk">tiếp tuyến = đạo hàm</text>
-                  <text x="150" y="50" font-size="11" fill="var(--violet)" font-family="Space Grotesk" text-anchor="middle">điểm x</text>
-                </g>
-              </svg>
-              <div class="diagram-caption">Đạo hàm tại một điểm = độ dốc của đường tiếp tuyến tại điểm đó.</div>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Hàm số f(x)</th><th>Đạo hàm f'(x)</th><th>Ý nghĩa</th></tr></thead>
-                <tbody>
-                  <tr><td>f(x) = c (hằng số)</td><td>0</td><td>Hằng số không đổi → độ dốc bằng 0</td></tr>
-                  <tr><td>f(x) = x</td><td>1</td><td>Đường thẳng 45° → độ dốc không đổi bằng 1</td></tr>
-                  <tr><td>f(x) = x²</td><td>2x</td><td>Độ dốc tăng dần khi x tăng — hình parabol</td></tr>
-                  <tr><td>f(x) = x³</td><td>3x²</td><td>Quy tắc lũy thừa: đưa số mũ xuống làm hệ số, giảm số mũ đi 1</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3>7.2. Đạo hàm riêng &amp; Gradient</h3>
-            <p>Khi hàm số có <b>nhiều biến</b> (ví dụ hàm mất mát phụ thuộc vào hàng trăm trọng số của neural network), ta dùng
+<div class="diagram-card">
+<svg viewbox="0 0 400 220" width="360">
+<g>
+<path d="M20,200 Q120,20 380,120" fill="none" stroke="var(--teal)" stroke-width="3"></path>
+<line stroke="var(--border)" x1="20" x2="380" y1="200" y2="200"></line>
+<line stroke="var(--border)" x1="20" x2="20" y1="200" y2="10"></line>
+<circle cx="150" cy="65" fill="var(--violet)" r="6"></circle>
+<line stroke="var(--amber)" stroke-dasharray="4 3" stroke-width="2" x1="80" x2="220" y1="110" y2="35"></line>
+<text fill="var(--amber)" font-family="Space Grotesk" font-size="11" x="230" y="35">tiếp tuyến = đạo hàm</text>
+<text fill="var(--violet)" font-family="Space Grotesk" font-size="11" text-anchor="middle" x="150" y="50">điểm x</text>
+</g>
+</svg>
+<div class="diagram-caption">Đạo hàm tại một điểm = độ dốc của đường tiếp tuyến tại điểm đó.</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Hàm số f(x)</th><th>Đạo hàm f'(x)</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td>f(x) = c (hằng số)</td><td>0</td><td>Hằng số không đổi → độ dốc bằng 0</td></tr>
+<tr><td>f(x) = x</td><td>1</td><td>Đường thẳng 45° → độ dốc không đổi bằng 1</td></tr>
+<tr><td>f(x) = x²</td><td>2x</td><td>Độ dốc tăng dần khi x tăng — hình parabol</td></tr>
+<tr><td>f(x) = x³</td><td>3x²</td><td>Quy tắc lũy thừa: đưa số mũ xuống làm hệ số, giảm số mũ đi 1</td></tr>
+</tbody>
+</table>
+</div>
+<h3>7.2. Đạo hàm riêng &amp; Gradient</h3>
+<p>Khi hàm số có <b>nhiều biến</b> (ví dụ hàm mất mát phụ thuộc vào hàng trăm trọng số của neural network), ta dùng
             <b>đạo hàm riêng (partial derivative)</b> — đạo hàm theo từng biến, coi các biến khác là hằng số. Gộp tất cả đạo hàm riêng lại thành một vector, ta được <b>gradient</b>,
             ký hiệu <code>∇f</code> — vector chỉ theo <i>hướng tăng nhanh nhất</i> của hàm số.</p>
-
-            <div class="box tip">
-              <div class="box-title">💡 Vì sao Gradient quan trọng bậc nhất trong ML?</div>
+<div class="box tip">
+<div class="box-title">💡 Vì sao Gradient quan trọng bậc nhất trong ML?</div>
               Toàn bộ quá trình huấn luyện neural network dựa trên việc tính gradient của hàm mất mát theo từng trọng số, rồi
               <b>đi ngược hướng gradient</b> (vì ta muốn giảm mất mát, không phải tăng) để cập nhật trọng số — đây chính là <b>Gradient Descent</b>, học kỹ ở Chương 9.
             </div>
-
-            <h3>7.3. Chain Rule — quy tắc chuỗi</h3>
-            <p>Khi một hàm số là hàm hợp của nhiều hàm khác (ví dụ <code>y = f(g(x))</code>), <b>chain rule</b> cho phép tính đạo hàm bằng cách nhân các đạo hàm thành phần:
+<h3>7.3. Chain Rule — quy tắc chuỗi</h3>
+<p>Khi một hàm số là hàm hợp của nhiều hàm khác (ví dụ <code>y = f(g(x))</code>), <b>chain rule</b> cho phép tính đạo hàm bằng cách nhân các đạo hàm thành phần:
             <code>dy/dx = dy/dg · dg/dx</code>. Đây chính là nguyên lý toán học đứng sau thuật toán <b>Backpropagation</b> dùng để huấn luyện mọi mạng nơ-ron sâu.</p>
-
-            <div class="box tip">
-              <div class="box-title">💡 Ví dụ cụ thể bằng số — vì sao mạng nhiều lớp cần chain rule</div>
+<div class="box tip">
+<div class="box-title">💡 Ví dụ cụ thể bằng số — vì sao mạng nhiều lớp cần chain rule</div>
               Cho <code>g(x) = 2x + 1</code> và <code>f(g) = g²</code>, vậy <code>y = f(g(x)) = (2x+1)²</code> — hãy tưởng tượng <code>g</code> là "Lớp 1" và <code>f</code> là "Lớp 2" của một mạng nơ-ron rất nhỏ. Tại <code>x = 2</code>:
               <ul>
-                <li><code>g(2) = 2(2)+1 = 5</code>, và <code>dg/dx = 2</code> (đạo hàm của <code>2x+1</code>).</li>
-                <li><code>f(g) = g²</code> nên <code>dy/dg = 2g = 2(5) = 10</code> (đạo hàm của <code>g²</code> tại <code>g=5</code>).</li>
-                <li>Theo chain rule: <code>dy/dx = dy/dg · dg/dx = 10 × 2 = 20</code>.</li>
-              </ul>
-              Kiểm chứng trực tiếp: <code>y = (2x+1)²</code> có đạo hàm <code>dy/dx = 2(2x+1)·2 = 4(2x+1)</code>, tại <code>x=2</code>: <code>4(5) = 20</code> — khớp! Với mạng nơ-ron thật (Phần 16) có hàng chục lớp thay vì 2 hàm, Backpropagation làm đúng phép nhân liên hoàn này — chỉ là lặp lại nhiều lần hơn, mỗi lớp một "mắt xích" trong chuỗi nhân.
+<li><code>g(2) = 2(2)+1 = 5</code>, và <code>dg/dx = 2</code> (đạo hàm của <code>2x+1</code>).</li>
+<li><code>f(g) = g²</code> nên <code>dy/dg = 2g = 2(5) = 10</code> (đạo hàm của <code>g²</code> tại <code>g=5</code>).</li>
+<li>Theo chain rule: <code>dy/dx = dy/dg · dg/dx = 10 × 2 = 20</code>.</li>
+</ul>
+              Kiểm chứng trực tiếp: <code>y = (2x+1)²</code> có đạo hàm <code>dy/dx = 2(2x+1)·2 = 4(2x+1)</code>, tại <code>x=2</code>: <code>4(5) = 20</code> — khớp! Với mạng nơ-ron thật (Phần 14) có hàng chục lớp thay vì 2 hàm, Backpropagation làm đúng phép nhân liên hoàn này — chỉ là lặp lại nhiều lần hơn, mỗi lớp một "mắt xích" trong chuỗi nhân.
             </div>
-
-            <h3>7.4. Minh họa bằng code: tính đạo hàm số (numerical) và Gradient Descent 1 biến</h3>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+<h3>7.4. Minh họa bằng code: tính đạo hàm số (numerical) và Gradient Descent 1 biến</h3>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 
 # Hàm số cần khảo sát: f(x) = x^2 + 3
 def f(x):
@@ -719,33 +695,31 @@ for buoc in range(20):
     lich_su_x.append(x)
 
 print("x hội tụ về:", round(x, 4))   # tiến gần 0, vì f(x) nhỏ nhất tại x=0</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>dao_ham_so(f, x, h=1e-5)</code> — ước lượng đạo hàm bằng công thức sai phân trung tâm: nhích <code>x</code> một khoảng rất nhỏ <code>h</code> theo cả 2 hướng và đo độ thay đổi của <code>f</code>.</li>
-                <li>So sánh với đạo hàm công thức <code>2x</code> để kiểm chứng cách tính số là chính xác — kỹ thuật này gọi là <i>gradient checking</i>, thường dùng để debug code tính gradient thủ công.</li>
-                <li><code>x = x - learning_rate * grad</code> — đây chính là công thức cập nhật của Gradient Descent: di chuyển <code>x</code> một bước nhỏ theo hướng <b>ngược</b> với gradient.</li>
-                <li>Vòng lặp 20 bước cho thấy <code>x</code> dần hội tụ về 0 — đúng bằng điểm cực tiểu thật sự của hàm <code>f(x) = x² + 3</code>.</li>
-              </ol>
-            </div>
-
-            <div class="box important">
-              <div class="box-title">🔴 Quan trọng</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>dao_ham_so(f, x, h=1e-5)</code> — ước lượng đạo hàm bằng công thức sai phân trung tâm: nhích <code>x</code> một khoảng rất nhỏ <code>h</code> theo cả 2 hướng và đo độ thay đổi của <code>f</code>.</li>
+<li>So sánh với đạo hàm công thức <code>2x</code> để kiểm chứng cách tính số là chính xác — kỹ thuật này gọi là <i>gradient checking</i>, thường dùng để debug code tính gradient thủ công.</li>
+<li><code>x = x - learning_rate * grad</code> — đây chính là công thức cập nhật của Gradient Descent: di chuyển <code>x</code> một bước nhỏ theo hướng <b>ngược</b> với gradient.</li>
+<li>Vòng lặp 20 bước cho thấy <code>x</code> dần hội tụ về 0 — đúng bằng điểm cực tiểu thật sự của hàm <code>f(x) = x² + 3</code>.</li>
+</ol>
+</div>
+<div class="box important">
+<div class="box-title">🔴 Quan trọng</div>
               Trong thực tế, các framework như PyTorch/TensorFlow không dùng đạo hàm số (chậm, kém chính xác) mà dùng <b>Automatic Differentiation</b> —
               tính đạo hàm chính xác tuyệt đối bằng cách áp dụng chain rule tự động lên đồ thị tính toán. Chúng ta sẽ gặp lại khái niệm này ở chương PyTorch/TensorFlow.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Cho hàm <code>f(x) = (x - 3)^2</code>. Bằng suy luận (không code), điểm cực tiểu của hàm này nằm ở đâu? Sau đó viết code Gradient Descent để kiểm chứng.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <p>Cực tiểu tại <code>x = 3</code> vì <code>(x-3)^2 ≥ 0</code> và bằng 0 khi <code>x = 3</code>.</p>
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>def f2(x):
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Cho hàm <code>f(x) = (x - 3)^2</code>. Bằng suy luận (không code), điểm cực tiểu của hàm này nằm ở đâu? Sau đó viết code Gradient Descent để kiểm chứng.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+<p>Cực tiểu tại <code>x = 3</code> vì <code>(x-3)^2 ≥ 0</code> và bằng 0 khi <code>x = 3</code>.</p>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>def f2(x):
     return (x - 3)**2
 
 x = 0.0
@@ -754,66 +728,60 @@ for _ in range(30):
     grad = dao_ham_so(f2, x)
     x = x - lr * grad
 print(round(x, 3))   # tiến gần 3.0</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chọn <code>learning_rate</code> quá lớn khiến quá trình tối ưu "nhảy qua nhảy lại" quanh điểm cực tiểu, không hội tụ (sẽ khảo sát kỹ ở Chương 9).</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Khi tự cài đặt gradient thủ công, luôn kiểm chứng bằng đạo hàm số (numerical gradient) để phát hiện lỗi công thức sớm.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 7</h4>
-              <ul>
-                <li>Đạo hàm đo độ dốc — nền tảng để biết nên điều chỉnh tham số theo hướng nào.</li>
-                <li>Gradient là vector đạo hàm riêng, chỉ hướng tăng nhanh nhất của hàm nhiều biến.</li>
-                <li>Chain rule cho phép tính đạo hàm của hàm hợp — chính là cơ chế của Backpropagation.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 8: XÁC SUẤT THỐNG KÊ -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-8">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">8</div>
-            <div>
-              <h2>Xác suất thống kê cho Machine Learning</h2>
-              <div class="ch-sub">Phân phối, kỳ vọng, phương sai, Bayes' theorem</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>8.1. Vì sao ML cần xác suất thống kê?</h3>
-            <p>Dữ liệu thực tế luôn có <b>nhiễu (noise)</b> và <b>tính không chắc chắn</b>. Xác suất thống kê cho ta ngôn ngữ để định lượng
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chọn <code>learning_rate</code> quá lớn khiến quá trình tối ưu "nhảy qua nhảy lại" quanh điểm cực tiểu, không hội tụ (sẽ khảo sát kỹ ở Chương 9).</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Khi tự cài đặt gradient thủ công, luôn kiểm chứng bằng đạo hàm số (numerical gradient) để phát hiện lỗi công thức sớm.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 7</h4>
+<ul>
+<li>Đạo hàm đo độ dốc — nền tảng để biết nên điều chỉnh tham số theo hướng nào.</li>
+<li>Gradient là vector đạo hàm riêng, chỉ hướng tăng nhanh nhất của hàm nhiều biến.</li>
+<li>Chain rule cho phép tính đạo hàm của hàm hợp — chính là cơ chế của Backpropagation.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 8: XÁC SUẤT THỐNG KÊ 
+ ================================================================ 
+<div class="mlchap" id="chuong-8">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">8</div>
+<div>
+<h2>Xác suất thống kê cho Machine Learning</h2>
+<div class="ch-sub">Phân phối, kỳ vọng, phương sai, Bayes' theorem</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>8.1. Vì sao ML cần xác suất thống kê?</h3>
+<p>Dữ liệu thực tế luôn có <b>nhiễu (noise)</b> và <b>tính không chắc chắn</b>. Xác suất thống kê cho ta ngôn ngữ để định lượng
             sự không chắc chắn đó — ví dụ mô hình phân loại spam không nói "chắc chắn 100% là spam" mà nói "xác suất 92% là spam".</p>
-
-            <h3>8.2. Kỳ vọng, phương sai, độ lệch chuẩn</h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Đại lượng</th><th>Công thức (mẫu)</th><th>Ý nghĩa</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Kỳ vọng / Trung bình (Mean)</b></td><td>μ = Σxᵢ / n</td><td>Giá trị "trung tâm" đại diện cho dữ liệu</td></tr>
-                  <tr><td><b>Phương sai (Variance)</b></td><td>σ² = Σ(xᵢ-μ)² / n</td><td>Đo mức độ phân tán dữ liệu quanh trung bình</td></tr>
-                  <tr><td><b>Độ lệch chuẩn (Std)</b></td><td>σ = √(σ²)</td><td>Giống phương sai nhưng cùng đơn vị với dữ liệu gốc</td></tr>
-                  <tr><td><b>Hiệp phương sai (Covariance)</b></td><td>cov(X,Y)</td><td>Đo mức độ 2 biến biến thiên cùng nhau</td></tr>
-                  <tr><td><b>Hệ số tương quan (Correlation)</b></td><td>corr(X,Y) ∈ [-1,1]</td><td>Covariance đã chuẩn hóa, dễ so sánh hơn</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+<h3>8.2. Kỳ vọng, phương sai, độ lệch chuẩn</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Đại lượng</th><th>Công thức (mẫu)</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><b>Kỳ vọng / Trung bình (Mean)</b></td><td>μ = Σxᵢ / n</td><td>Giá trị "trung tâm" đại diện cho dữ liệu</td></tr>
+<tr><td><b>Phương sai (Variance)</b></td><td>σ² = Σ(xᵢ-μ)² / n</td><td>Đo mức độ phân tán dữ liệu quanh trung bình</td></tr>
+<tr><td><b>Độ lệch chuẩn (Std)</b></td><td>σ = √(σ²)</td><td>Giống phương sai nhưng cùng đơn vị với dữ liệu gốc</td></tr>
+<tr><td><b>Hiệp phương sai (Covariance)</b></td><td>cov(X,Y)</td><td>Đo mức độ 2 biến biến thiên cùng nhau</td></tr>
+<tr><td><b>Hệ số tương quan (Correlation)</b></td><td>corr(X,Y) ∈ [-1,1]</td><td>Covariance đã chuẩn hóa, dễ so sánh hơn</td></tr>
+</tbody>
+</table>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 
 diem_thi = np.array([7.5, 8.0, 6.5, 9.0, 5.5, 8.5])
 
@@ -823,55 +791,50 @@ print("Độ lệch chuẩn:", diem_thi.std())
 
 gio_hoc = np.array([2, 3, 1, 4, 0.5, 3.5])
 print("Hệ số tương quan:", np.corrcoef(gio_hoc, diem_thi)[0, 1])</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>diem_thi.mean()</code> — điểm trung bình của cả lớp, đại diện cho xu hướng chung.</li>
-                <li><code>diem_thi.var()</code> / <code>.std()</code> — đo mức độ điểm số phân tán rộng hay hẹp quanh giá trị trung bình.</li>
-                <li><code>np.corrcoef(gio_hoc, diem_thi)</code> — trả về ma trận tương quan 2x2; phần tử ở hàng 0 cột 1 chính là hệ số tương quan giữa "giờ học" và "điểm thi". Giá trị gần 1 nghĩa là học nhiều điểm càng cao (tương quan thuận mạnh).</li>
-              </ol>
-            </div>
-
-            <h3>8.3. Phân phối chuẩn (Normal Distribution) — "ngôi sao" của thống kê</h3>
-            <p>Rất nhiều hiện tượng tự nhiên (chiều cao, sai số đo lường...) tuân theo phân phối chuẩn — hình chuông đối xứng qua giá trị trung bình.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 400 160" width="360">
-                <path d="M20,140 C80,140 90,20 200,20 C310,20 320,140 380,140" fill="none" stroke="var(--violet)" stroke-width="3"/>
-                <line x1="200" y1="20" x2="200" y2="140" stroke="var(--amber)" stroke-dasharray="4 3"/>
-                <text x="200" y="155" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Space Grotesk">μ (trung bình)</text>
-                <text x="60" y="150" font-size="10" fill="var(--muted)">-2σ</text>
-                <text x="330" y="150" font-size="10" fill="var(--muted)">+2σ</text>
-              </svg>
-              <div class="diagram-caption">Phân phối chuẩn: đối xứng qua μ, độ "phình" quyết định bởi σ (độ lệch chuẩn).</div>
-            </div>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># Sinh 1000 mẫu ngẫu nhiên theo phân phối chuẩn (mean=170, std=8)
+</div>
+<div class="line-explain">
+<ol>
+<li><code>diem_thi.mean()</code> — điểm trung bình của cả lớp, đại diện cho xu hướng chung.</li>
+<li><code>diem_thi.var()</code> / <code>.std()</code> — đo mức độ điểm số phân tán rộng hay hẹp quanh giá trị trung bình.</li>
+<li><code>np.corrcoef(gio_hoc, diem_thi)</code> — trả về ma trận tương quan 2x2; phần tử ở hàng 0 cột 1 chính là hệ số tương quan giữa "giờ học" và "điểm thi". Giá trị gần 1 nghĩa là học nhiều điểm càng cao (tương quan thuận mạnh).</li>
+</ol>
+</div>
+<h3>8.3. Phân phối chuẩn (Normal Distribution) — "ngôi sao" của thống kê</h3>
+<p>Rất nhiều hiện tượng tự nhiên (chiều cao, sai số đo lường...) tuân theo phân phối chuẩn — hình chuông đối xứng qua giá trị trung bình.</p>
+<div class="diagram-card">
+<svg viewbox="0 0 400 160" width="360">
+<path d="M20,140 C80,140 90,20 200,20 C310,20 320,140 380,140" fill="none" stroke="var(--violet)" stroke-width="3"></path>
+<line stroke="var(--amber)" stroke-dasharray="4 3" x1="200" x2="200" y1="20" y2="140"></line>
+<text fill="var(--muted)" font-family="Space Grotesk" font-size="11" text-anchor="middle" x="200" y="155">μ (trung bình)</text>
+<text fill="var(--muted)" font-size="10" x="60" y="150">-2σ</text>
+<text fill="var(--muted)" font-size="10" x="330" y="150">+2σ</text>
+</svg>
+<div class="diagram-caption">Phân phối chuẩn: đối xứng qua μ, độ "phình" quyết định bởi σ (độ lệch chuẩn).</div>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Sinh 1000 mẫu ngẫu nhiên theo phân phối chuẩn (mean=170, std=8)
 chieu_cao = np.random.normal(loc=170, scale=8, size=1000)
 print("Trung bình mẫu:", chieu_cao.mean())   # xấp xỉ 170
 print("Độ lệch chuẩn mẫu:", chieu_cao.std()) # xấp xỉ 8</code></pre>
-            </div>
-
-            <h3>8.4. Định lý Bayes (Bayes' Theorem)</h3>
-            <p>Định lý Bayes cho phép cập nhật xác suất của một giả thuyết khi có thêm bằng chứng mới — nền tảng của thuật toán <b>Naive Bayes</b> sẽ học ở phần Classification:</p>
-
-            <div class="box note">
-              <div class="box-title">📖 Công thức</div>
-              <p style="margin-bottom:0;font-family:'JetBrains Mono';text-align:center;font-size:15px;">P(A|B) = P(B|A) · P(A) / P(B)</p>
-            </div>
-            <ul>
-              <li><b>P(A|B)</b>: xác suất A đúng, biết rằng B đã xảy ra (posterior — cái ta muốn tìm)</li>
-              <li><b>P(B|A)</b>: xác suất quan sát được B, nếu A đúng (likelihood)</li>
-              <li><b>P(A)</b>: xác suất A đúng trước khi biết B (prior)</li>
-              <li><b>P(B)</b>: xác suất tổng quát của B (evidence)</li>
-            </ul>
-
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code># Ví dụ kinh điển: xét nghiệm bệnh hiếm
+</div>
+<h3>8.4. Định lý Bayes (Bayes' Theorem)</h3>
+<p>Định lý Bayes cho phép cập nhật xác suất của một giả thuyết khi có thêm bằng chứng mới — nền tảng của thuật toán <b>Naive Bayes</b> sẽ học ở phần Classification:</p>
+<div class="box note">
+<div class="box-title">📖 Công thức</div>
+<p style="margin-bottom:0;font-family:'JetBrains Mono';text-align:center;font-size:15px;">P(A|B) = P(B|A) · P(A) / P(B)</p>
+</div>
+<ul>
+<li><b>P(A|B)</b>: xác suất A đúng, biết rằng B đã xảy ra (posterior — cái ta muốn tìm)</li>
+<li><b>P(B|A)</b>: xác suất quan sát được B, nếu A đúng (likelihood)</li>
+<li><b>P(A)</b>: xác suất A đúng trước khi biết B (prior)</li>
+<li><b>P(B)</b>: xác suất tổng quát của B (evidence)</li>
+</ul>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Ví dụ kinh điển: xét nghiệm bệnh hiếm
 # P(benh) = 0.01 (1% dân số mắc bệnh) - prior
 # P(duong_tinh | benh) = 0.99 (xét nghiệm đúng 99% nếu có bệnh) - likelihood
 # P(duong_tinh | khong_benh) = 0.05 (dương tính giả 5%)
@@ -887,29 +850,28 @@ p_duongtinh = (p_duongtinh_neu_benh * p_benh) + (p_duongtinh_neu_khongbenh * (1 
 p_benh_neu_duongtinh = (p_duongtinh_neu_benh * p_benh) / p_duongtinh
 print(f"Xác suất thực sự mắc bệnh nếu xét nghiệm dương tính: {p_benh_neu_duongtinh:.2%}")
 # Kết quả gây bất ngờ: chỉ khoảng 16.7%, dù xét nghiệm "chính xác 99%"!</code></pre>
-            </div>
-
-            <div class="box important">
-              <div class="box-title">🔴 Insight quan trọng</div>
+</div>
+<div class="box important">
+<div class="box-title">🔴 Insight quan trọng</div>
               Ví dụ trên minh họa một trực giác sai lầm phổ biến: xét nghiệm "chính xác 99%" nghe rất đáng tin, nhưng vì bệnh quá hiếm
               (prior thấp), phần lớn kết quả dương tính thực chất là <b>dương tính giả</b>. Đây là lý do vì sao hiểu prior rất quan trọng khi diễn giải kết quả mô hình ML trong thực tế, đặc biệt với các bài toán mất cân bằng lớp (imbalanced classification).
             </div>
-
-            <h3>8.5. A/B Testing — xác suất thống kê ứng dụng vào quyết định kinh doanh</h3>
-            <p>Sau khi deploy (Chương 36), câu hỏi thực tế thường là: "Mô hình mới có <i>thực sự</i> tốt hơn mô hình cũ không, hay chênh lệch quan sát được chỉ là do may rủi ngẫu nhiên?" — đây chính xác là bài toán <b>kiểm định giả thuyết thống kê (hypothesis testing)</b>, ứng dụng thực tế phổ biến nhất của Chương này.</p>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Khái niệm</th><th>Ý nghĩa</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Giả thuyết không (H₀)</b></td><td>Giả định mặc định: "không có sự khác biệt" — mô hình mới và cũ có tỉ lệ chuyển đổi (conversion rate) như nhau</td></tr>
-                  <tr><td><b>p-value</b></td><td>Xác suất quan sát được chênh lệch <i>lớn như đã thấy hoặc lớn hơn</i>, NẾU giả thuyết H₀ đúng (tức là nếu thực sự không có khác biệt gì)</td></tr>
-                  <tr><td><b>Mức ý nghĩa (α)</b></td><td>Ngưỡng quyết định, thường chọn 0.05 — nếu p-value &lt; α, ta "bác bỏ H₀", kết luận chênh lệch có ý nghĩa thống kê</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>from scipy import stats
+<h3>8.5. A/B Testing — xác suất thống kê ứng dụng vào quyết định kinh doanh</h3>
+<p>Sau khi deploy (Chương 36), câu hỏi thực tế thường là: "Mô hình mới có <i>thực sự</i> tốt hơn mô hình cũ không, hay chênh lệch quan sát được chỉ là do may rủi ngẫu nhiên?" — đây chính xác là bài toán <b>kiểm định giả thuyết thống kê (hypothesis testing)</b>, ứng dụng thực tế phổ biến nhất của Chương này.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Khái niệm</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><b>Giả thuyết không (H₀)</b></td><td>Giả định mặc định: "không có sự khác biệt" — mô hình mới và cũ có tỉ lệ chuyển đổi (conversion rate) như nhau</td></tr>
+<tr><td><b>p-value</b></td><td>Xác suất quan sát được chênh lệch <i>lớn như đã thấy hoặc lớn hơn</i>, NẾU giả thuyết H₀ đúng (tức là nếu thực sự không có khác biệt gì)</td></tr>
+<tr><td><b>Mức ý nghĩa (α)</b></td><td>Ngưỡng quyết định, thường chọn 0.05 — nếu p-value &lt; α, ta "bác bỏ H₀", kết luận chênh lệch có ý nghĩa thống kê</td></tr>
+</tbody>
+</table>
+</div>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>from scipy import stats
 import numpy as np
 
 # Nhóm A: 1000 người dùng thấy mô hình gợi ý cũ, 120 người click
@@ -921,25 +883,25 @@ click_B = np.array([1]*180 + [0]*820)
 thong_ke, p_value = stats.ttest_ind(click_A, click_B)
 print(f"p-value = {p_value:.4f}")   # ví dụ này cho p-value ≈ 0.0002
 
-if p_value < 0.05:
-    print("-> Bác bỏ H0: chênh lệch CÓ ý nghĩa thống kê, mô hình B có vẻ thực sự tốt hơn")
+if p_value &lt; 0.05:
+    print("-&gt; Bác bỏ H0: chênh lệch CÓ ý nghĩa thống kê, mô hình B có vẻ thực sự tốt hơn")
 else:
-    print("-> KHÔNG đủ bằng chứng để khẳng định mô hình B tốt hơn mô hình A")</code></pre>
-            </div>
-            <div class="box warning">
-              <div class="box-title">⚠️ Sai lầm thường gặp: "p-value thấp" ≠ "khác biệt lớn có ý nghĩa thực tế"</div>
+    print("-&gt; KHÔNG đủ bằng chứng để khẳng định mô hình B tốt hơn mô hình A")</code></pre>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Sai lầm thường gặp: "p-value thấp" ≠ "khác biệt lớn có ý nghĩa thực tế"</div>
               Với lượng dữ liệu đủ lớn, ngay cả một chênh lệch cực nhỏ (VD: 12.0% vs 12.01%) cũng có thể cho p-value &lt; 0.05 về mặt thống kê — nhưng chênh lệch đó có thể hoàn toàn <i>không đáng để đánh đổi chi phí</i> chuyển sang mô hình mới trong thực tế kinh doanh. Luôn xem xét thêm "effect size" (độ lớn thực tế của chênh lệch), không chỉ dừng ở việc p-value có dưới ngưỡng hay không.
             </div>
-
-            <h3>8.6. Multi-Armed Bandit — khi A/B Testing tĩnh chưa đủ tốt</h3>
-            <p>A/B Testing ở trên có một hạn chế: phải chờ đủ dữ liệu rồi mới quyết định, trong lúc chờ, <b>một nửa người dùng vẫn phải xem phiên bản kém hơn</b> — gây tổn thất "chi phí cơ hội" trong suốt thời gian thử nghiệm. <b>Multi-Armed Bandit</b> (đặt tên theo máy đánh bạc nhiều cần kéo) giải quyết vấn đề này bằng cách <i>vừa thử nghiệm vừa tối ưu cùng lúc</i>, thay vì tách biệt 2 giai đoạn.</p>
-            <div class="box tip">
-              <div class="box-title">💡 Đây chính là bài toán Reinforcement Learning đơn giản nhất</div>
+<h3>8.6. Multi-Armed Bandit — khi A/B Testing tĩnh chưa đủ tốt</h3>
+<p>A/B Testing ở trên có một hạn chế: phải chờ đủ dữ liệu rồi mới quyết định, trong lúc chờ, <b>một nửa người dùng vẫn phải xem phiên bản kém hơn</b> — gây tổn thất "chi phí cơ hội" trong suốt thời gian thử nghiệm. <b>Multi-Armed Bandit</b> (đặt tên theo máy đánh bạc nhiều cần kéo) giải quyết vấn đề này bằng cách <i>vừa thử nghiệm vừa tối ưu cùng lúc</i>, thay vì tách biệt 2 giai đoạn.</p>
+<div class="box tip">
+<div class="box-title">💡 Đây chính là bài toán Reinforcement Learning đơn giản nhất</div>
               Multi-Armed Bandit thực chất là phiên bản "rút gọn" của RL (sẽ học đầy đủ ở Chương 51): vẫn có Action (chọn phiên bản nào cho user tiếp theo) và Reward (user có click/mua hàng không), nhưng KHÔNG có khái niệm State thay đổi theo thời gian — mỗi lượt đều là một quyết định độc lập. Chiến lược Epsilon-Greedy (sẽ học chi tiết ở 51.3) ra đời chính từ bài toán Bandit này trước khi mở rộng sang RL đầy đủ.
             </div>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 
 class BanditDonGian:
     def __init__(self, so_phien_ban):
@@ -947,7 +909,7 @@ class BanditDonGian:
         self.tong_thuong = np.zeros(so_phien_ban)
 
     def chon_phien_ban(self, epsilon=0.1):
-        if np.random.random() < epsilon or self.so_lan_thu.sum() == 0:
+        if np.random.random() &lt; epsilon or self.so_lan_thu.sum() == 0:
             return np.random.randint(len(self.so_lan_thu))   # Exploration
         ty_le_thanh_cong = self.tong_thuong / np.maximum(self.so_lan_thu, 1)
         return np.argmax(ty_le_thanh_cong)                    # Exploitation
@@ -962,160 +924,148 @@ bandit = BanditDonGian(so_phien_ban=3)
 
 for _ in range(5000):
     v = bandit.chon_phien_ban(epsilon=0.1)
-    thuong = 1 if np.random.random() < ty_le_click_that[v] else 0
+    thuong = 1 if np.random.random() &lt; ty_le_click_that[v] else 0
     bandit.cap_nhat(v, thuong)
 
 print("Số lần mỗi phiên bản được chọn:", bandit.so_lan_thu)
 # Phiên bản tốt nhất (0.22) sẽ được chọn NHIỀU hơn hẳn ngay trong lúc thử nghiệm</code></pre>
-            </div>
-            <div class="box note">
-              <div class="box-title">📌 Khi nào chọn Bandit thay vì A/B Testing cổ điển?</div>
+</div>
+<div class="box note">
+<div class="box-title">📌 Khi nào chọn Bandit thay vì A/B Testing cổ điển?</div>
               A/B Testing phù hợp khi cần <b>kết luận chắc chắn, có ý nghĩa thống kê rõ ràng</b> để báo cáo/ra quyết định lớn (đổi cả sản phẩm). Bandit phù hợp khi có <b>nhiều phương án cần tối ưu liên tục</b> và chấp nhận đánh đổi độ chắc chắn thống kê để giảm tổn thất trong lúc thử nghiệm — ứng dụng phổ biến: xếp hạng quảng cáo, thử nghiệm tiêu đề bài viết, gợi ý sản phẩm theo thời gian thực.
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Cho mảng điểm <code>[4, 6, 8, 10, 12]</code>. Tính trung bình, phương sai và độ lệch chuẩn bằng NumPy.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>diem = np.array([4, 6, 8, 10, 12])
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Cho mảng điểm <code>[4, 6, 8, 10, 12]</code>. Tính trung bình, phương sai và độ lệch chuẩn bằng NumPy.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>diem = np.array([4, 6, 8, 10, 12])
 print(diem.mean())  # 8.0
 print(diem.var())   # 8.0
 print(diem.std())   # 2.828...</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="exercise">
-              <h4>Bài 2</h4>
-              <p>Giả sử prior mắc bệnh là 5% thay vì 1% (giữ nguyên các xác suất khác trong ví dụ Bayes). Xác suất thực sự mắc bệnh nếu dương tính sẽ tăng hay giảm? Tính cụ thể.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <p>Prior cao hơn sẽ làm xác suất posterior <b>tăng</b> lên, vì bệnh phổ biến hơn nên dương tính có nhiều khả năng là thật hơn.</p>
-                <div class="code-block">
-                  <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-                  <pre class="code"><code>p_benh = 0.05
+</div>
+</div>
+</div>
+<div class="exercise">
+<h4>Bài 2</h4>
+<p>Giả sử prior mắc bệnh là 5% thay vì 1% (giữ nguyên các xác suất khác trong ví dụ Bayes). Xác suất thực sự mắc bệnh nếu dương tính sẽ tăng hay giảm? Tính cụ thể.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+<p>Prior cao hơn sẽ làm xác suất posterior <b>tăng</b> lên, vì bệnh phổ biến hơn nên dương tính có nhiều khả năng là thật hơn.</p>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>p_benh = 0.05
 p_duongtinh = (0.99 * p_benh) + (0.05 * (1 - p_benh))
 p_benh_neu_duongtinh = (0.99 * p_benh) / p_duongtinh
 print(f"{p_benh_neu_duongtinh:.2%}")  # khoảng 51.1%</code></pre>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhầm lẫn correlation với causation — hai biến tương quan cao không có nghĩa biến này gây ra biến kia.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Luôn xem xét prior (tỉ lệ nền) khi diễn giải xác suất dự đoán của mô hình, đặc biệt với dữ liệu mất cân bằng lớp.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 8</h4>
-              <ul>
-                <li>Mean, variance, std là 3 đại lượng thống kê mô tả cơ bản nhất.</li>
-                <li>Phân phối chuẩn xuất hiện khắp nơi trong tự nhiên và trong giả định của nhiều mô hình thống kê.</li>
-                <li>Định lý Bayes cho phép cập nhật niềm tin dựa trên bằng chứng — nền tảng của Naive Bayes.</li>
-                <li>A/B Testing dùng p-value để kiểm định chênh lệch có ý nghĩa thống kê hay chỉ do ngẫu nhiên — nhưng p-value thấp không đồng nghĩa chênh lệch đáng để hành động trong thực tế.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- ================================================================ -->
-      <!-- CHƯƠNG 9: TỐI ƯU HÓA -->
-      <!-- ================================================================ -->
-      <div class="chapter" id="chuong-9">
-        <div class="chapter-head" onclick="toggleChapter(this)">
-          <div class="ch-left">
-            <div class="ch-badge">9</div>
-            <div>
-              <h2>Tối ưu hóa (Optimization) cho Machine Learning</h2>
-              <div class="ch-sub">Loss function, Gradient Descent, Learning rate</div>
-            </div>
-          </div>
-          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="chapter-body">
-          <div class="chapter-inner">
-
-            <h3>9.1. Bài toán tối ưu hóa trong ML là gì?</h3>
-            <p>"Huấn luyện mô hình" về bản chất là <b>bài toán tối ưu hóa</b>: tìm bộ tham số (trọng số) sao cho một <b>hàm mất mát (loss function)</b> —
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Nhầm lẫn correlation với causation — hai biến tương quan cao không có nghĩa biến này gây ra biến kia.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Luôn xem xét prior (tỉ lệ nền) khi diễn giải xác suất dự đoán của mô hình, đặc biệt với dữ liệu mất cân bằng lớp.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 8</h4>
+<ul>
+<li>Mean, variance, std là 3 đại lượng thống kê mô tả cơ bản nhất.</li>
+<li>Phân phối chuẩn xuất hiện khắp nơi trong tự nhiên và trong giả định của nhiều mô hình thống kê.</li>
+<li>Định lý Bayes cho phép cập nhật niềm tin dựa trên bằng chứng — nền tảng của Naive Bayes.</li>
+<li>A/B Testing dùng p-value để kiểm định chênh lệch có ý nghĩa thống kê hay chỉ do ngẫu nhiên — nhưng p-value thấp không đồng nghĩa chênh lệch đáng để hành động trong thực tế.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+ ================================================================ 
+ CHƯƠNG 9: TỐI ƯU HÓA 
+ ================================================================ 
+<div class="mlchap" id="chuong-9">
+<div class="chapter-head" onclick="toggleChapter(this)">
+<div class="ch-left">
+<div class="ch-badge">9</div>
+<div>
+<h2>Tối ưu hóa (Optimization) cho Machine Learning</h2>
+<div class="ch-sub">Loss function, Gradient Descent, Learning rate</div>
+</div>
+</div>
+<svg class="chevron" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</div>
+<div class="chapter-body">
+<div class="chapter-inner">
+<h3>9.1. Bài toán tối ưu hóa trong ML là gì?</h3>
+<p>"Huấn luyện mô hình" về bản chất là <b>bài toán tối ưu hóa</b>: tìm bộ tham số (trọng số) sao cho một <b>hàm mất mát (loss function)</b> —
             đo mức độ dự đoán sai của mô hình — đạt giá trị <i>nhỏ nhất</i>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Loss function</th><th>Dùng cho</th><th>Công thức (ý tưởng)</th></tr></thead>
+<tbody>
+<tr><td><b>MSE (Mean Squared Error)</b></td><td>Regression</td><td>Trung bình bình phương sai số dự đoán</td></tr>
+<tr><td><b>MAE (Mean Absolute Error)</b></td><td>Regression</td><td>Trung bình trị tuyệt đối sai số</td></tr>
+<tr><td><b>Cross-Entropy Loss</b></td><td>Classification</td><td>Đo "khoảng cách" giữa phân phối xác suất dự đoán và nhãn thật</td></tr>
+</tbody>
+</table>
+</div>
+<h3>9.2. Gradient Descent — thuật toán tối ưu phổ biến nhất</h3>
+<p>Ý tưởng: bắt đầu từ một điểm ngẫu nhiên, lặp lại việc <b>tính gradient</b> của loss function theo tham số, rồi <b>di chuyển ngược hướng gradient</b> một bước nhỏ (quyết định bởi <b>learning rate</b>), cho tới khi hội tụ.</p>
+<div class="diagram-card">
+<svg viewbox="0 0 400 200" width="360">
+<path d="M20,180 Q200,10 380,180" fill="none" stroke="var(--border)" stroke-width="3"></path>
+<circle cx="60" cy="150" fill="var(--rose)" r="6"></circle>
+<circle cx="110" cy="100" fill="var(--amber)" r="6"></circle>
+<circle cx="160" cy="60" fill="var(--amber)" r="6"></circle>
+<circle cx="195" cy="35" fill="var(--teal)" r="6"></circle>
+<path d="M60,150 L110,100 L160,60 L195,35" fill="none" stroke="var(--violet)" stroke-dasharray="4 3" stroke-width="2"></path>
+<text fill="var(--muted)" font-size="10" text-anchor="middle" x="60" y="170">bắt đầu</text>
+<text fill="var(--teal)" font-size="10" font-weight="700" text-anchor="middle" x="195" y="20">cực tiểu</text>
+</svg>
+<div class="diagram-caption">Gradient Descent: mỗi bước tiến gần hơn tới điểm cực tiểu của hàm mất mát.</div>
+</div>
+<h3>9.3. Ba biến thể của Gradient Descent</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Biến thể</th><th>Dùng bao nhiêu dữ liệu mỗi bước cập nhật</th><th>Đặc điểm</th></tr></thead>
+<tbody>
+<tr><td><b>Batch GD</b></td><td>Toàn bộ tập dữ liệu</td><td>Ổn định nhưng chậm, tốn bộ nhớ với dữ liệu lớn</td></tr>
+<tr><td><b>Stochastic GD (SGD)</b></td><td>Chỉ 1 mẫu mỗi bước</td><td>Nhanh, nhưng đường đi "nhiễu" (dao động)</td></tr>
+<tr><td><b>Mini-batch GD</b></td><td>Một nhóm nhỏ mẫu (ví dụ 32, 64, 128)</td><td>Cân bằng tốc độ và ổn định — phổ biến nhất trong Deep Learning</td></tr>
+</tbody>
+</table>
+</div>
+<h3>9.4. Ảnh hưởng của Learning Rate</h3>
+<div class="diagram-card">
+<svg viewbox="0 0 600 160" width="100%">
+<g font-family="Space Grotesk" font-size="11">
+<path d="M20,140 Q80,20 200,20 Q320,20 380,140" fill="none" stroke="var(--border)" stroke-width="2"></path>
+<path d="M340,130 L280,60 L210,100 L180,30" fill="none" stroke="var(--rose)" stroke-width="2"></path>
+<text fill="var(--rose)" font-size="10" text-anchor="middle" x="340" y="150">LR quá lớn: dao động, không hội tụ</text>
+<path d="M420,140 Q480,20 600,20" fill="none" stroke="var(--border)" stroke-width="2" transform="translate(0,0)"></path>
+</g>
+</svg>
+<div class="diagram-caption">Learning rate quá lớn khiến các bước cập nhật "nhảy qua" điểm cực tiểu thay vì tiến gần dần.</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Learning rate</th><th>Hiện tượng</th></tr></thead>
+<tbody>
+<tr><td>Quá nhỏ</td><td>Hội tụ rất chậm, tốn nhiều vòng lặp, dễ bị kẹt ở điểm gần khởi tạo</td></tr>
+<tr><td>Vừa phải</td><td>Hội tụ ổn định và tương đối nhanh về điểm cực tiểu</td></tr>
+<tr><td>Quá lớn</td><td>Dao động qua lại quanh điểm cực tiểu, thậm chí phân kỳ (giá trị loss tăng dần thay vì giảm)</td></tr>
+</tbody>
+</table>
+</div>
+<h3>9.5. Cài đặt Gradient Descent để tối ưu hàm 2 biến</h3>
+ <div class="code-wrap">
+<span class="code-label">python</span>
+<button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>import numpy as np
 
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Loss function</th><th>Dùng cho</th><th>Công thức (ý tưởng)</th></tr></thead>
-                <tbody>
-                  <tr><td><b>MSE (Mean Squared Error)</b></td><td>Regression</td><td>Trung bình bình phương sai số dự đoán</td></tr>
-                  <tr><td><b>MAE (Mean Absolute Error)</b></td><td>Regression</td><td>Trung bình trị tuyệt đối sai số</td></tr>
-                  <tr><td><b>Cross-Entropy Loss</b></td><td>Classification</td><td>Đo "khoảng cách" giữa phân phối xác suất dự đoán và nhãn thật</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3>9.2. Gradient Descent — thuật toán tối ưu phổ biến nhất</h3>
-            <p>Ý tưởng: bắt đầu từ một điểm ngẫu nhiên, lặp lại việc <b>tính gradient</b> của loss function theo tham số, rồi <b>di chuyển ngược hướng gradient</b> một bước nhỏ (quyết định bởi <b>learning rate</b>), cho tới khi hội tụ.</p>
-
-            <div class="diagram-card">
-              <svg viewBox="0 0 400 200" width="360">
-                <path d="M20,180 Q200,10 380,180" fill="none" stroke="var(--border)" stroke-width="3"/>
-                <circle cx="60" cy="150" r="6" fill="var(--rose)"/>
-                <circle cx="110" cy="100" r="6" fill="var(--amber)"/>
-                <circle cx="160" cy="60" r="6" fill="var(--amber)"/>
-                <circle cx="195" cy="35" r="6" fill="var(--teal)"/>
-                <path d="M60,150 L110,100 L160,60 L195,35" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="4 3"/>
-                <text x="60" y="170" font-size="10" fill="var(--muted)" text-anchor="middle">bắt đầu</text>
-                <text x="195" y="20" font-size="10" fill="var(--teal)" text-anchor="middle" font-weight="700">cực tiểu</text>
-              </svg>
-              <div class="diagram-caption">Gradient Descent: mỗi bước tiến gần hơn tới điểm cực tiểu của hàm mất mát.</div>
-            </div>
-
-            <h3>9.3. Ba biến thể của Gradient Descent</h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Biến thể</th><th>Dùng bao nhiêu dữ liệu mỗi bước cập nhật</th><th>Đặc điểm</th></tr></thead>
-                <tbody>
-                  <tr><td><b>Batch GD</b></td><td>Toàn bộ tập dữ liệu</td><td>Ổn định nhưng chậm, tốn bộ nhớ với dữ liệu lớn</td></tr>
-                  <tr><td><b>Stochastic GD (SGD)</b></td><td>Chỉ 1 mẫu mỗi bước</td><td>Nhanh, nhưng đường đi "nhiễu" (dao động)</td></tr>
-                  <tr><td><b>Mini-batch GD</b></td><td>Một nhóm nhỏ mẫu (ví dụ 32, 64, 128)</td><td>Cân bằng tốc độ và ổn định — phổ biến nhất trong Deep Learning</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3>9.4. Ảnh hưởng của Learning Rate</h3>
-            <div class="diagram-card">
-              <svg viewBox="0 0 600 160" width="100%">
-                <g font-family="Space Grotesk" font-size="11">
-                  <path d="M20,140 Q80,20 200,20 Q320,20 380,140" fill="none" stroke="var(--border)" stroke-width="2"/>
-                  <path d="M340,130 L280,60 L210,100 L180,30" fill="none" stroke="var(--rose)" stroke-width="2"/>
-                  <text x="340" y="150" fill="var(--rose)" text-anchor="middle" font-size="10">LR quá lớn: dao động, không hội tụ</text>
-
-                  <path d="M420,140 Q480,20 600,20" fill="none" stroke="var(--border)" stroke-width="2" transform="translate(0,0)"/>
-                </g>
-              </svg>
-              <div class="diagram-caption">Learning rate quá lớn khiến các bước cập nhật "nhảy qua" điểm cực tiểu thay vì tiến gần dần.</div>
-            </div>
-
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Learning rate</th><th>Hiện tượng</th></tr></thead>
-                <tbody>
-                  <tr><td>Quá nhỏ</td><td>Hội tụ rất chậm, tốn nhiều vòng lặp, dễ bị kẹt ở điểm gần khởi tạo</td></tr>
-                  <tr><td>Vừa phải</td><td>Hội tụ ổn định và tương đối nhanh về điểm cực tiểu</td></tr>
-                  <tr><td>Quá lớn</td><td>Dao động qua lại quanh điểm cực tiểu, thậm chí phân kỳ (giá trị loss tăng dần thay vì giảm)</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3>9.5. Cài đặt Gradient Descent để tối ưu hàm 2 biến</h3>
-            <div class="code-block">
-              <div class="code-head"><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
-              <pre class="code"><code>import numpy as np
-
-# Hàm mất mát ví dụ: f(w1, w2) = (w1-2)^2 + (w2+1)^2 -> cực tiểu tại (2, -1)
+# Hàm mất mát ví dụ: f(w1, w2) = (w1-2)^2 + (w2+1)^2 -&gt; cực tiểu tại (2, -1)
 def loss(w):
     return (w[0] - 2)**2 + (w[1] + 1)**2
 
@@ -1135,95 +1085,63 @@ for i in range(so_vong_lap):
         print(f"Vòng {i}: w = {w.round(3)}, loss = {loss(w):.4f}")
 
 print("Kết quả cuối cùng:", w.round(3))   # tiến gần [2, -1]</code></pre>
-            </div>
-
-            <div class="line-explain">
-              <ol>
-                <li><code>loss(w)</code> — hàm mất mát nhận vào vector 2 tham số, trả về một số vô hướng đo "sai" tới đâu.</li>
-                <li><code>gradient(w)</code> — tính đạo hàm riêng theo từng tham số <code>w1</code>, <code>w2</code>, gộp thành vector gradient.</li>
-                <li><code>w = w - learning_rate * grad</code> — công thức cập nhật Gradient Descent tổng quát, áp dụng đồng thời cho cả vector tham số nhờ broadcasting của NumPy.</li>
-                <li>Vòng lặp in log mỗi 10 bước để quan sát <code>w</code> tiến dần về <code>[2, -1]</code> và <code>loss</code> giảm dần về 0.</li>
-              </ol>
-            </div>
-
-            <div class="box warning">
-              <div class="box-title">⚠️ Local minima vs Global minima</div>
+</div>
+<div class="line-explain">
+<ol>
+<li><code>loss(w)</code> — hàm mất mát nhận vào vector 2 tham số, trả về một số vô hướng đo "sai" tới đâu.</li>
+<li><code>gradient(w)</code> — tính đạo hàm riêng theo từng tham số <code>w1</code>, <code>w2</code>, gộp thành vector gradient.</li>
+<li><code>w = w - learning_rate * grad</code> — công thức cập nhật Gradient Descent tổng quát, áp dụng đồng thời cho cả vector tham số nhờ broadcasting của NumPy.</li>
+<li>Vòng lặp in log mỗi 10 bước để quan sát <code>w</code> tiến dần về <code>[2, -1]</code> và <code>loss</code> giảm dần về 0.</li>
+</ol>
+</div>
+<div class="box warning">
+<div class="box-title">⚠️ Local minima vs Global minima</div>
               Với hàm loss phức tạp (như trong Deep Learning), có thể tồn tại nhiều điểm cực tiểu cục bộ (local minima). Gradient Descent không đảm bảo luôn tìm được cực tiểu toàn cục (global minimum) — đây là lý do các biến thể nâng cao như <b>Momentum, Adam</b> ra đời (sẽ gặp lại ở chương Deep Learning).
             </div>
-
-            <h4>Bài tập thực hành</h4>
-            <div class="exercise">
-              <h4>Bài 1</h4>
-              <p>Sửa ví dụ 9.5 để hàm mất mát là <code>f(w1,w2) = (w1-5)^2 + (w2-5)^2</code> (cực tiểu tại (5,5)), và thử với learning_rate = 1.1 (quá lớn). Quan sát điều gì xảy ra với loss.</p>
-              <button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
-              <div class="answer-panel">
-                <p>Với <code>learning_rate = 1.1 &gt; 1</code>, mỗi bước cập nhật sẽ "vọt qua" điểm cực tiểu và đi xa hơn vị trí ban đầu theo chiều ngược lại, khiến <code>loss</code> <b>tăng dần theo từng vòng lặp thay vì giảm</b> — đây là hiện tượng phân kỳ (divergence), minh chứng rõ ràng cho việc chọn learning rate quá lớn.</p>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chọn một learning rate cố định "cho mọi bài toán" mà không thử nghiệm — mỗi bài toán/kiến trúc mô hình thường cần learning rate khác nhau.</div>
-              <div class="practice-card"><b>✅ Best Practice:</b> Bắt đầu với learning rate phổ biến (như 0.01, 0.001), theo dõi đường cong loss, và giảm dần learning rate nếu thấy loss dao động mạnh.</div>
-            </div>
-
-            <div class="summary-box">
-              <h4>🎯 Tổng kết Chương 9</h4>
-              <ul>
-                <li>Huấn luyện mô hình = bài toán tối ưu hóa: tìm tham số cực tiểu hóa hàm mất mát.</li>
-                <li>Gradient Descent (Batch/Stochastic/Mini-batch) là thuật toán tối ưu nền tảng của ML/DL.</li>
-                <li>Learning rate là siêu tham số cực kỳ quan trọng — quá nhỏ thì chậm, quá lớn thì phân kỳ.</li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="next-hint">
-        <p>✅ Bạn vừa hoàn thành <b>Phần 2</b>: Đại số tuyến tính, Giải tích, Xác suất thống kê và Tối ưu hóa cho Machine Learning.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="phan-1-nen-tang-ml.html" class="kbd" style="text-decoration:none;">← Phần 1. Nền Tảng ML</a>
-        <a href="phan-3-truc-quan-hoa-du-lieu.html" class="kbd" style="text-decoration:none;">Sang Phần 3 →</a>
-        </div>
-      </div>
-
-    </div>
-  </main>
+<h4>Bài tập thực hành</h4>
+<div class="exercise">
+<h4>Bài 1</h4>
+<p>Sửa ví dụ 9.5 để hàm mất mát là <code>f(w1,w2) = (w1-5)^2 + (w2-5)^2</code> (cực tiểu tại (5,5)), và thử với learning_rate = 1.1 (quá lớn). Quan sát điều gì xảy ra với loss.</p>
+<button class="reveal-btn" onclick="toggleAnswer(this)">Xem đáp án</button>
+<div class="answer-panel">
+<p>Với <code>learning_rate = 1.1 &gt; 1</code>, mỗi bước cập nhật sẽ "vọt qua" điểm cực tiểu và đi xa hơn vị trí ban đầu theo chiều ngược lại, khiến <code>loss</code> <b>tăng dần theo từng vòng lặp thay vì giảm</b> — đây là hiện tượng phân kỳ (divergence), minh chứng rõ ràng cho việc chọn learning rate quá lớn.</p>
+</div>
+</div>
+<div class="grid-2">
+<div class="mistake-card"><b>❌ Lỗi thường gặp:</b> Chọn một learning rate cố định "cho mọi bài toán" mà không thử nghiệm — mỗi bài toán/kiến trúc mô hình thường cần learning rate khác nhau.</div>
+<div class="practice-card"><b>✅ Best Practice:</b> Bắt đầu với learning rate phổ biến (như 0.01, 0.001), theo dõi đường cong loss, và giảm dần learning rate nếu thấy loss dao động mạnh.</div>
+</div>
+<div class="summary-box">
+<h4>🎯 Tổng kết Chương 9</h4>
+<ul>
+<li>Huấn luyện mô hình = bài toán tối ưu hóa: tìm tham số cực tiểu hóa hàm mất mát.</li>
+<li>Gradient Descent (Batch/Stochastic/Mini-batch) là thuật toán tối ưu nền tảng của ML/DL.</li>
+<li>Learning rate là siêu tham số cực kỳ quan trọng — quá nhỏ thì chậm, quá lớn thì phân kỳ.</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Lên đầu trang">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</button>
 
+<div class="next-hint"><p>✅ Bạn vừa hoàn thành <b>Phần 2</b>: Đại số tuyến tính, Giải tích, Xác suất thống kê và Tối ưu hóa cho Machine Learning.</p></div>
+  </main>
+  <div class="chnav">
+    <a class="nav-btn prev" href="phan-1-nen-tang-ml.html">← Phần 1. Nền Tảng ML</a>
+    <a class="nav-btn next" href="phan-3-truc-quan-hoa-du-lieu.html">Phần 3. Trực Quan Hóa Dữ Liệu →</a>
+  </div>
+</div>
+</div>
+</div>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <script>
-const darkToggle = document.getElementById('darkToggle');
-const THEME_KEY = 'ml-theme';
-function applyDarkPref(){
-  const isDark = document.documentElement.classList.contains('dark');
-  darkToggle.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
-}
-darkToggle.addEventListener('click', () => {
-  document.documentElement.classList.toggle('dark');
-  const isDark = document.documentElement.classList.contains('dark');
-  try{ localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'); }catch(e){}
-  applyDarkPref();
-});
-applyDarkPref();
-
-function toggleChapter(headEl){
-  const chapter = headEl.parentElement;
-  chapter.classList.toggle('open');
-}
-
+function toggleChapter(headEl){ headEl.parentElement.classList.toggle('open'); }
 function toggleAnswer(btn){
   const panel = btn.nextElementSibling;
   const isShown = panel.classList.contains('show');
   panel.classList.toggle('show');
   btn.textContent = isShown ? 'Xem đáp án' : 'Ẩn đáp án';
-  if(!isShown) btn.dataset.revealed = 'true';
-  updateProgress();
 }
-
 function checkQuiz(optEl, isCorrect){
   const opts = optEl.parentElement;
   if(opts.dataset.answered === 'true') return;
@@ -1233,61 +1151,133 @@ function checkQuiz(optEl, isCorrect){
   if(isCorrect){
     optEl.classList.add('correct');
     feedback.textContent = '✅ Chính xác! Bạn hiểu rất rõ phần này.';
-    feedback.style.color = 'var(--teal)';
+    feedback.style.color = 'var(--ok)';
   } else {
     optEl.classList.add('wrong');
     feedback.textContent = '❌ Chưa đúng — hãy đọc lại phần lý thuyết phía trên nhé.';
-    feedback.style.color = 'var(--rose)';
-    [...opts.children].forEach(o => {
-      if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
-    });
+    feedback.style.color = 'var(--danger)';
+    [...opts.children].forEach(o => { if((o.getAttribute('onclick')||'').includes('true')) o.classList.add('correct'); });
   }
   feedback.classList.add('show');
-  updateProgress();
 }
+document.querySelectorAll('.nav-link[data-target]').forEach(a=>{
+  a.addEventListener('click',()=>{ const t=document.getElementById(a.dataset.target); if(t && t.classList.contains('mlchap')) t.classList.add('open'); });
+});
 
-function copyCode(btn){
-  const codeEl = btn.closest('.code-block').querySelector('pre.code code');
-  const text = codeEl.innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    const original = btn.innerHTML;
-    btn.innerHTML = '✅ Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1600);
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  try{ localStorage.setItem('algo-mastery-theme', newTheme); }catch(e){}
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  if(label) label.textContent = newTheme === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+}
+(function(){
+  const label = document.getElementById('theme-label');
+  const icon = document.getElementById('theme-icon');
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  if(label) label.textContent = current === 'dark' ? 'Chế độ tối' : 'Chế độ sáng';
+  if(icon) icon.textContent = current === 'dark' ? '🌙' : '☀️';
+})();
+const links = document.querySelectorAll('.nav-link[data-target]');
+links.forEach(link=>{
+  link.addEventListener('click', ()=>{
+    const target = document.getElementById(link.dataset.target);
+    if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    document.getElementById('sidebar').classList.remove('open');
   });
-}
-
-const totalExercises = document.querySelectorAll('.reveal-btn').length;
-function updateProgress(){
-  const answered = document.querySelectorAll('.reveal-btn[data-revealed="true"]').length;
-  const pct = totalExercises === 0 ? 0 : Math.min(100, Math.round((answered / totalExercises) * 100));
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
-}
-updateProgress();
-
-const sections = document.querySelectorAll('.hero, .chapter');
-const tocLinks = document.querySelectorAll('#tocList a');
-window.addEventListener('scroll', () => {
-  let currentId = 'gioi-thieu';
-  sections.forEach(sec => {
+});
+const sections = document.querySelectorAll('.chapter, .mlchap');
+function updateActiveNav(){
+  let current = sections[0]?.id;
+  sections.forEach(sec=>{
     const rect = sec.getBoundingClientRect();
-    if(rect.top <= 140) currentId = sec.id;
+    if(rect.top <= 140) current = sec.id;
   });
-  tocLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + currentId);
-  });
-  document.getElementById('backTop').classList.toggle('show', window.scrollY > 500);
+  links.forEach(l=>l.classList.toggle('active', l.dataset.target===current));
+}
+window.addEventListener('scroll', ()=>{
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight>0 ? (scrollTop/docHeight)*100 : 0;
+  document.getElementById('progress-bar').style.width = pct+'%';
+  document.getElementById('back-to-top').classList.toggle('show', scrollTop>500);
+  updateActiveNav();
 });
-
-tocLinks.forEach(a => {
-  a.addEventListener('click', () => {
-    const id = a.getAttribute('href').replace('#','');
-    const target = document.getElementById(id);
-    if(target && target.classList.contains('chapter')) target.classList.add('open');
+function filterNav(query){
+  const q = query.trim().toLowerCase();
+  links.forEach(link=>{
+    const text = link.textContent.toLowerCase();
+    link.style.display = (q==='' || text.includes(q)) ? 'block' : 'none';
+  });
+}
+function copyCode(btn){
+  const pre = btn.parentElement.querySelector('pre code') || btn.parentElement.querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = '✓ Đã copy';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  });
+}
+function highlightPython(code){
+  const keywords = /\b(def|return|if|elif|else|for|while|in|import|from|as|class|try|except|finally|raise|with|pass|break|continue|lambda|True|False|None|and|or|not|is|global|yield|async|await)\b/g;
+  let html = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  html = html.replace(/(#.*)$/gm, '<span class="tok-com">$1</span>');
+  html = html.replace(/(&quot;.*?&quot;|'.*?'|""".*?"""|f&quot;.*?&quot;)/gs, '<span class="tok-str">$1</span>');
+  html = html.replace(keywords, '<span class="tok-kw">$1</span>');
+  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
+  html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()/g, '<span class="tok-fn">$1</span>');
+  return html;
+}
+document.querySelectorAll('pre code').forEach(block=>{ block.innerHTML = highlightPython(block.textContent); });
+function gradeQuiz(quizId){
+  const quiz = document.querySelector(`[data-quiz="${quizId}"]`);
+  const questions = quiz.querySelectorAll('.quiz-q');
+  let correct = 0;
+  questions.forEach(q=>{
+    const answer = q.dataset.answer;
+    const opts = q.querySelectorAll('.quiz-opt');
+    opts.forEach(opt=>{
+      opt.classList.remove('correct','wrong');
+      opt.style.pointerEvents = 'none';
+      if(opt.dataset.idx === answer){ opt.classList.add('correct'); }
+    });
+    const selected = q.dataset.selected;
+    if(selected === answer){ correct++; }
+    else if(selected !== undefined){
+      const wrongOpt = q.querySelector(`.quiz-opt[data-idx="${selected}"]`);
+      if(wrongOpt) wrongOpt.classList.add('wrong');
+    }
+  });
+  const resultEl = document.getElementById('result-'+quizId);
+  resultEl.textContent = `Kết quả: ${correct}/${questions.length} câu đúng`;
+  resultEl.style.color = correct===questions.length ? 'var(--ok)' : 'var(--warn)';
+}
+document.querySelectorAll('.quiz-q').forEach(q=>{
+  q.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      q.dataset.selected = opt.dataset.idx;
+      q.querySelectorAll('.quiz-opt').forEach(o=>o.style.borderColor='var(--border)');
+      opt.style.borderColor = 'var(--accent)';
+    });
   });
 });
+updateActiveNav();
+const chapterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      const link = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+      if(link) link.classList.add('visited');
+    }
+  });
+}, {threshold:0.08, rootMargin:'0px 0px -10% 0px'});
+document.querySelectorAll('.chapter, .mlchap').forEach(sec=>chapterObserver.observe(sec));
 </script>
+
 <!-- ============ AI CHATBOT WIDGET ============ -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">
   <span class="dot"></span> 💬 Hỏi AI
